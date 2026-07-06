@@ -1,6 +1,6 @@
 ---
-import { Image } from "astro:assets";
-import "../styles/global.css";
+import { Image } from 'astro:assets';
+import '../styles/global.css';
 
 const currentYear = new Date().getFullYear();
 
@@ -13,54 +13,54 @@ function shuffleArray<T>(array: T[]) {
 }
 
 const coverModules = import.meta.glob(
-  "../assets/covers/*.{jpg,jpeg,png,webp,avif}",
+  '../assets/covers/*.{jpg,jpeg,png,webp,avif}',
   {
     eager: true,
-    import: "default",
+    import: 'default',
   },
-) as Record<string, import("astro").ImageMetadata>;
+) as Record<string, import('astro').ImageMetadata>;
 
 const covers = shuffleArray(Object.values(coverModules));
 const minItemsPerRow = Math.max(covers.length, 16);
 
 const mangaMetaBySlug: Record<string, { title: string; genre: string }> = {
-  akane: { title: "Akane Banashi", genre: "Drama / Shonen" },
-  aonohako: { title: "Ao no Hako", genre: "Romance / Shonen" },
-  csm: { title: "Chainsaw Man", genre: "Acción / Shonen" },
-  dandadan: { title: "Dandadan", genre: "Acción / Seinen" },
-  jujutsu: { title: "Jujutsu Kaisen", genre: "Acción / Shonen" },
-  kagurabachi: { title: "Kagurabachi", genre: "Acción / Shonen" },
-  madannoichi: { title: "Madan no Ichi", genre: "Fantasía / Shonen" },
-  mushoku: { title: "Mushoku Tensei", genre: "Fantasía / Seinen" },
-  onepiece: { title: "One Piece", genre: "Aventura / Shonen" },
-  sakamoto: { title: "Sakamoto Days", genre: "Acción / Shonen" },
-  spyfamily: { title: "Spy x Family", genre: "Comedia / Shonen" },
-  witchwatch: { title: "Witch Watch", genre: "Comedia / Drama" },
-  opm: { title: "One Punch Man", genre: "Acción / Comedia" },
-  punpun: { title: "Oyasumi Punpun", genre: "Drama / Psicológico" },
-  tokyoghoul: { title: "Tokyo Ghoul", genre: "Acción / Horror" },
-  hxh: { title: "Hunter x Hunter", genre: "Acción / Aventura" },
-  deathnote: { title: "Death Note", genre: "Drama / Misterio" },
-  "100kano": {
-    title: "Kimi no Koto ga Dai Dai Dai Dai Daisuki na 100-nin no Kanojo",
-    genre: "Romance / Comedia",
+  akane: { title: 'Akane Banashi', genre: 'Drama / Shonen' },
+  aonohako: { title: 'Ao no Hako', genre: 'Romance / Shonen' },
+  csm: { title: 'Chainsaw Man', genre: 'Acción / Shonen' },
+  dandadan: { title: 'Dandadan', genre: 'Acción / Seinen' },
+  jujutsu: { title: 'Jujutsu Kaisen', genre: 'Acción / Shonen' },
+  kagurabachi: { title: 'Kagurabachi', genre: 'Acción / Shonen' },
+  madannoichi: { title: 'Madan no Ichi', genre: 'Fantasía / Shonen' },
+  mushoku: { title: 'Mushoku Tensei', genre: 'Fantasía / Seinen' },
+  onepiece: { title: 'One Piece', genre: 'Aventura / Shonen' },
+  sakamoto: { title: 'Sakamoto Days', genre: 'Acción / Shonen' },
+  spyfamily: { title: 'Spy x Family', genre: 'Comedia / Shonen' },
+  witchwatch: { title: 'Witch Watch', genre: 'Comedia / Drama' },
+  opm: { title: 'One Punch Man', genre: 'Acción / Comedia' },
+  punpun: { title: 'Oyasumi Punpun', genre: 'Drama / Psicológico' },
+  tokyoghoul: { title: 'Tokyo Ghoul', genre: 'Acción / Horror' },
+  hxh: { title: 'Hunter x Hunter', genre: 'Acción / Aventura' },
+  deathnote: { title: 'Death Note', genre: 'Drama / Misterio' },
+  '100kano': {
+    title: 'Kimi no Koto ga Dai Dai Dai Dai Daisuki na 100-nin no Kanojo',
+    genre: 'Romance / Comedia',
   },
 };
 
 const catalogItems = Object.entries(coverModules)
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([path, image], index) => {
-    const fileName = path.split("/").pop() ?? "";
-    const slug = fileName.split(".")[0]?.toLowerCase() ?? "";
+    const fileName = path.split('/').pop() ?? '';
+    const slug = fileName.split('.')[0]?.toLowerCase() ?? '';
     const meta = mangaMetaBySlug[slug] ?? {
       title: slug
-        .replace(/[-_]/g, " ")
+        .replace(/[-_]/g, ' ')
         .replace(/\b\w/g, (char) => char.toUpperCase()),
-      genre: "Manga / Interés",
+      genre: 'Manga / Interés',
     };
 
     return {
-      index: String(index + 1).padStart(2, "0"),
+      index: String(index + 1).padStart(2, '0'),
       title: meta.title,
       genre: meta.genre,
       image,
@@ -195,7 +195,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                 {
                   heroRows.map((row, rowIndex) => (
                     <div
-                      class={`hero-row ${rowIndex % 2 === 0 ? "hero-row-forward" : "hero-row-reverse"}`}
+                      class={`hero-row ${rowIndex % 2 === 0 ? 'hero-row-forward' : 'hero-row-reverse'}`}
                     >
                       <div class="hero-track">
                         {[...row, ...row].map((cover, coverIndex) => (
@@ -393,7 +393,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     resistentes y detallados.
                   </p>
                   <div class="merch-card-price-row">
-                    <span class="merch-price">Desde RD$150</span>
+                    <span class="merch-price">Desde RD$100</span>
                   </div>
                   <a
                     href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Quiero%20pedir%20un%20llavero"
@@ -444,7 +444,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     mochilas, chaquetas y más.
                   </p>
                   <div class="merch-card-price-row">
-                    <span class="merch-price">Desde RD$180</span>
+                    <span class="merch-price">Desde RD$150</span>
                   </div>
                   <a
                     href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Quiero%20pedir%20un%20pin"
@@ -499,7 +499,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     packs temáticos de tus series favoritas.
                   </p>
                   <div class="merch-card-price-row">
-                    <span class="merch-price">Desde RD$80</span>
+                    <span class="merch-price">Desde RD$10</span>
                   </div>
                   <a
                     href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Quiero%20pedir%20stickers"
@@ -595,7 +595,6 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
               <p class="catalog-section-lead">
                 Estas son las series que vamos a traer. Dinos cuál quieres
                 primero, mientras más personas pidan un título, antes llega.
-                Ediciones originales de <strong>Ivrea</strong>.
               </p>
             </div>
 
@@ -607,7 +606,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                 catalogItems.map((item, itemIndex) => (
                   <article
                     data-catalog-item
-                    class={`catalog-preview-item group flex flex-col transition-all duration-300 ${itemIndex < 6 ? "is-active" : ""}`}
+                    class={`catalog-preview-item group flex flex-col transition-all duration-300 ${itemIndex < 6 ? 'is-active' : ''}`}
                   >
                     <div class="catalog-card-img-wrap">
                       <Image
@@ -644,7 +643,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
 
                     <div class="catalog-card-body">
                       <span
-                        class={`catalog-genre-badge genre-${item.genre.split("/")[0].trim().toLowerCase().replace(/ó/g, "o").replace(/é/g, "e").replace(/á/g, "a").replace(/ /g, "-")}`}
+                        class={`catalog-genre-badge genre-${item.genre.split('/')[0].trim().toLowerCase().replace(/ó/g, 'o').replace(/é/g, 'e').replace(/á/g, 'a').replace(/ /g, '-')}`}
                       >
                         {item.genre}
                       </span>
@@ -1023,26 +1022,26 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
     <script is:inline>
       (() => {
         const root = document.documentElement;
-        const storageKey = "tansaku-theme";
-        const toggleButton = document.getElementById("theme-toggle");
-        const toggleLabel = document.getElementById("theme-toggle-label");
-        const iconSun = document.getElementById("theme-icon-sun");
-        const iconMoon = document.getElementById("theme-icon-moon");
+        const storageKey = 'tansaku-theme';
+        const toggleButton = document.getElementById('theme-toggle');
+        const toggleLabel = document.getElementById('theme-toggle-label');
+        const iconSun = document.getElementById('theme-icon-sun');
+        const iconMoon = document.getElementById('theme-icon-moon');
 
         const updateLabel = (theme) => {
           if (!toggleLabel) return;
           toggleLabel.textContent =
-            theme === "dark" ? "Modo claro" : "Modo oscuro";
+            theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
 
-          if (iconSun) iconSun.hidden = theme === "dark";
-          if (iconMoon) iconMoon.hidden = theme !== "dark";
+          if (iconSun) iconSun.hidden = theme === 'dark';
+          if (iconMoon) iconMoon.hidden = theme !== 'dark';
         };
 
         const applyTheme = (theme, persist) => {
-          root.setAttribute("data-theme", theme);
+          root.setAttribute('data-theme', theme);
           toggleButton?.setAttribute(
-            "aria-pressed",
-            theme === "dark" ? "true" : "false",
+            'aria-pressed',
+            theme === 'dark' ? 'true' : 'false',
           );
           updateLabel(theme);
 
@@ -1062,20 +1061,20 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
         }
 
         const initialTheme =
-          savedTheme === "dark" || savedTheme === "light" ? savedTheme : "dark";
+          savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'dark';
 
         applyTheme(initialTheme, false);
 
-        toggleButton?.addEventListener("click", () => {
+        toggleButton?.addEventListener('click', () => {
           const currentTheme =
-            root.getAttribute("data-theme") === "dark" ? "dark" : "light";
-          applyTheme(currentTheme === "dark" ? "light" : "dark", true);
+            root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+          applyTheme(currentTheme === 'dark' ? 'light' : 'dark', true);
         });
 
-        const previewGrid = document.getElementById("catalog-preview-grid");
+        const previewGrid = document.getElementById('catalog-preview-grid');
         if (previewGrid) {
           const cards = Array.from(
-            previewGrid.querySelectorAll("[data-catalog-item]"),
+            previewGrid.querySelectorAll('[data-catalog-item]'),
           );
           const visibleCount = Math.min(6, cards.length);
 
@@ -1088,7 +1087,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
           const selectedSet = new Set(selectedCards);
 
           cards.forEach((card) => {
-            card.classList.toggle("is-active", selectedSet.has(card));
+            card.classList.toggle('is-active', selectedSet.has(card));
           });
 
           selectedCards.forEach((card) => {
@@ -1280,46 +1279,46 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
     color: rgb(17 24 39);
   }
 
-  html[data-theme="dark"] body {
+  html[data-theme='dark'] body {
     background: #0b1118;
     color: #e5e7eb;
   }
 
-  html[data-theme="dark"] .min-h-screen {
+  html[data-theme='dark'] .min-h-screen {
     background: #0b1118;
   }
 
-  html[data-theme="dark"] .hero-classified {
+  html[data-theme='dark'] .hero-classified {
     background: #111827;
     border-color: rgb(55 65 81);
   }
 
-  html[data-theme="dark"] .hero-left-rail {
+  html[data-theme='dark'] .hero-left-rail {
     background: #0f172a;
     border-color: rgb(55 65 81);
   }
 
-  html[data-theme="dark"] .hero-rail-text {
+  html[data-theme='dark'] .hero-rail-text {
     color: rgb(226 232 240);
   }
 
-  html[data-theme="dark"] .hero-title {
+  html[data-theme='dark'] .hero-title {
     color: rgb(248 250 252);
   }
 
-  html[data-theme="dark"] .hero-lead {
+  html[data-theme='dark'] .hero-lead {
     color: rgb(203 213 225);
   }
 
-  html[data-theme="dark"] .hero-lead strong {
+  html[data-theme='dark'] .hero-lead strong {
     color: rgb(248 250 252);
   }
 
-  html[data-theme="dark"] .hero-copy-motion {
+  html[data-theme='dark'] .hero-copy-motion {
     opacity: 0.46;
   }
 
-  html[data-theme="dark"] .hero-copy-motion-mask {
+  html[data-theme='dark'] .hero-copy-motion-mask {
     background:
       radial-gradient(
         circle at 38% 34%,
@@ -1336,94 +1335,94 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
       );
   }
 
-  html[data-theme="dark"] .theme-toggle {
+  html[data-theme='dark'] .theme-toggle {
     background: rgb(15 23 42 / 0.88);
     color: rgb(226 232 240);
     border-color: rgb(71 85 105);
   }
 
-  html[data-theme="dark"] .theme-toggle:hover {
+  html[data-theme='dark'] .theme-toggle:hover {
     background: rgb(15 23 42 / 1);
     color: rgb(248 250 252);
     border-color: rgb(148 163 184);
   }
 
-  html[data-theme="dark"] .hero-contact-btn {
+  html[data-theme='dark'] .hero-contact-btn {
     border-color: rgb(148 163 184);
     color: rgb(241 245 249);
     background: rgb(15 23 42 / 0.7);
   }
 
-  html[data-theme="dark"] .hero-contact-btn:hover {
+  html[data-theme='dark'] .hero-contact-btn:hover {
     border-color: rgb(226 232 240);
     color: rgb(255 255 255);
     background: rgb(15 23 42 / 0.88);
   }
 
-  html[data-theme="dark"] #catalogo {
+  html[data-theme='dark'] #catalogo {
     background: #101720;
     border-color: rgb(51 65 85);
   }
 
-  html[data-theme="dark"] #catalogo h2 {
+  html[data-theme='dark'] #catalogo h2 {
     color: rgb(248 250 252);
   }
 
-  html[data-theme="dark"] #catalogo p {
+  html[data-theme='dark'] #catalogo p {
     color: rgb(203 213 225);
   }
 
-  html[data-theme="dark"] #catalogo article {
+  html[data-theme='dark'] #catalogo article {
     background: #0f172a;
     border-color: rgb(71 85 105);
   }
 
-  html[data-theme="dark"] #catalogo article:hover {
+  html[data-theme='dark'] #catalogo article:hover {
     border-color: rgb(239 68 68);
   }
 
-  html[data-theme="dark"] #catalogo .bg-black {
+  html[data-theme='dark'] #catalogo .bg-black {
     background: rgb(226 232 240);
     color: rgb(15 23 42);
   }
 
-  html[data-theme="dark"] #catalogo .text-black {
+  html[data-theme='dark'] #catalogo .text-black {
     color: rgb(248 250 252);
   }
 
-  html[data-theme="dark"] #catalogo .bg-gray-100 {
+  html[data-theme='dark'] #catalogo .bg-gray-100 {
     background: rgb(30 41 59);
     border-color: rgb(71 85 105);
   }
 
-  html[data-theme="dark"] #contacto > div {
+  html[data-theme='dark'] #contacto > div {
     background: #0f172a;
     border-color: rgb(71 85 105);
   }
 
-  html[data-theme="dark"] #contacto h2,
-  html[data-theme="dark"] #contacto p,
-  html[data-theme="dark"] #contacto label {
+  html[data-theme='dark'] #contacto h2,
+  html[data-theme='dark'] #contacto p,
+  html[data-theme='dark'] #contacto label {
     color: rgb(226 232 240);
   }
 
-  html[data-theme="dark"] #contacto input,
-  html[data-theme="dark"] #contacto select {
+  html[data-theme='dark'] #contacto input,
+  html[data-theme='dark'] #contacto select {
     background: rgb(15 23 42);
     color: rgb(226 232 240);
     border-color: rgb(71 85 105);
   }
 
-  html[data-theme="dark"] #contacto input::placeholder {
+  html[data-theme='dark'] #contacto input::placeholder {
     color: rgb(148 163 184);
   }
 
-  html[data-theme="dark"] #contacto option {
+  html[data-theme='dark'] #contacto option {
     background: rgb(15 23 42);
     color: rgb(226 232 240);
   }
 
-  html[data-theme="dark"] footer {
+  html[data-theme='dark'] footer {
     border-top: 1px solid rgb(51 65 85);
   }
 
@@ -1714,8 +1713,8 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
 
   /* ── GLOBAL TYPOGRAPHY ─────────────────────────── */
   :root {
-    --font-body: "Inter", system-ui, sans-serif;
-    --font-display: "Bebas Neue", "Impact", sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', 'Impact', sans-serif;
     --red-600: #dc2626;
     --red-700: #b91c1c;
     --red-500: #ef4444;
@@ -2344,104 +2343,104 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
   }
 
   /* ── DARK MODE: NEW ELEMENTS ────────────────────── */
-  html[data-theme="dark"] .hero-badge {
+  html[data-theme='dark'] .hero-badge {
     background: rgb(239 68 68 / 0.12);
     border-color: rgb(239 68 68 / 0.3);
   }
 
-  html[data-theme="dark"] .hero-discount {
+  html[data-theme='dark'] .hero-discount {
     background: rgb(239 68 68 / 0.15);
   }
 
-  html[data-theme="dark"] .hero-btn-secondary {
+  html[data-theme='dark'] .hero-btn-secondary {
     color: rgb(226 232 240);
     border-color: rgb(71 85 105);
   }
 
-  html[data-theme="dark"] .hero-btn-secondary:hover {
+  html[data-theme='dark'] .hero-btn-secondary:hover {
     border-color: var(--red-500);
     color: var(--red-500);
   }
 
-  html[data-theme="dark"] .hero-trust {
+  html[data-theme='dark'] .hero-trust {
     border-top-color: rgb(255 255 255 / 0.08);
   }
 
-  html[data-theme="dark"] .hero-trust-item {
+  html[data-theme='dark'] .hero-trust-item {
     color: rgb(148 163 184);
   }
 
-  html[data-theme="dark"] .hero-trust-sep {
+  html[data-theme='dark'] .hero-trust-sep {
     background: rgb(71 85 105);
   }
 
-  html[data-theme="dark"] .catalog-section {
+  html[data-theme='dark'] .catalog-section {
     background: #0d1520;
   }
 
-  html[data-theme="dark"] .catalog-section-title {
+  html[data-theme='dark'] .catalog-section-title {
     color: rgb(248 250 252);
   }
 
-  html[data-theme="dark"] .catalog-section-lead {
+  html[data-theme='dark'] .catalog-section-lead {
     color: rgb(148 163 184);
   }
 
-  html[data-theme="dark"] .catalog-section-lead strong {
+  html[data-theme='dark'] .catalog-section-lead strong {
     color: rgb(226 232 240);
   }
 
-  html[data-theme="dark"] .catalog-card-body {
+  html[data-theme='dark'] .catalog-card-body {
     background: rgb(15 23 42);
     border-color: rgb(51 65 85);
   }
 
-  html[data-theme="dark"] .catalog-card-title {
+  html[data-theme='dark'] .catalog-card-title {
     color: rgb(226 232 240);
   }
 
-  html[data-theme="dark"] .catalog-more-badge {
+  html[data-theme='dark'] .catalog-more-badge {
     background: rgb(15 23 42);
     border-color: rgb(51 65 85);
     color: rgb(100 116 139);
   }
 
-  html[data-theme="dark"] .genre-accion {
+  html[data-theme='dark'] .genre-accion {
     background: rgb(239 68 68 / 0.18);
     color: rgb(252 165 165);
     border-color: rgb(239 68 68 / 0.35);
   }
-  html[data-theme="dark"] .genre-drama {
+  html[data-theme='dark'] .genre-drama {
     background: rgb(99 102 241 / 0.18);
     color: rgb(165 180 252);
     border-color: rgb(99 102 241 / 0.35);
   }
-  html[data-theme="dark"] .genre-romance {
+  html[data-theme='dark'] .genre-romance {
     background: rgb(236 72 153 / 0.18);
     color: rgb(249 168 212);
     border-color: rgb(236 72 153 / 0.35);
   }
-  html[data-theme="dark"] .genre-comedia {
+  html[data-theme='dark'] .genre-comedia {
     background: rgb(234 179 8 / 0.18);
     color: rgb(253 224 71);
     border-color: rgb(234 179 8 / 0.35);
   }
-  html[data-theme="dark"] .genre-fantasia {
+  html[data-theme='dark'] .genre-fantasia {
     background: rgb(139 92 246 / 0.18);
     color: rgb(196 181 253);
     border-color: rgb(139 92 246 / 0.35);
   }
-  html[data-theme="dark"] .genre-aventura {
+  html[data-theme='dark'] .genre-aventura {
     background: rgb(34 197 94 / 0.18);
     color: rgb(134 239 172);
     border-color: rgb(34 197 94 / 0.35);
   }
-  html[data-theme="dark"] .genre-seinen {
+  html[data-theme='dark'] .genre-seinen {
     background: rgb(255 255 255 / 0.06);
     color: rgb(203 213 225);
     border-color: rgb(255 255 255 / 0.12);
   }
-  html[data-theme="dark"] .genre-shonen {
+  html[data-theme='dark'] .genre-shonen {
     background: rgb(59 130 246 / 0.14);
     color: rgb(147 197 253);
     border-color: rgb(59 130 246 / 0.3);
@@ -2809,37 +2808,37 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
   }
 
   /* ── DARK MODE: MERCH + ABOUT ───────────────────── */
-  html[data-theme="dark"] .merch-section {
+  html[data-theme='dark'] .merch-section {
     background: #0d1520;
     border-color: rgb(51 65 85);
   }
 
-  html[data-theme="dark"] .merch-section-title {
+  html[data-theme='dark'] .merch-section-title {
     color: rgb(248 250 252);
   }
 
-  html[data-theme="dark"] .merch-section-lead {
+  html[data-theme='dark'] .merch-section-lead {
     color: rgb(148 163 184);
   }
 
-  html[data-theme="dark"] .merch-card {
+  html[data-theme='dark'] .merch-card {
     background: rgb(15 23 42);
     border-color: rgb(51 65 85);
   }
 
-  html[data-theme="dark"] .merch-card:hover {
+  html[data-theme='dark'] .merch-card:hover {
     border-color: #16a34a;
   }
 
-  html[data-theme="dark"] .merch-card-title {
+  html[data-theme='dark'] .merch-card-title {
     color: rgb(226 232 240);
   }
 
-  html[data-theme="dark"] .merch-card-desc {
+  html[data-theme='dark'] .merch-card-desc {
     color: rgb(148 163 184);
   }
 
-  html[data-theme="dark"] .merch-tag-gray {
+  html[data-theme='dark'] .merch-tag-gray {
     background: rgb(255 255 255 / 0.06);
     color: rgb(148 163 184);
     border-color: rgb(255 255 255 / 0.1);
