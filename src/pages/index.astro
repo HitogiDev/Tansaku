@@ -158,6 +158,48 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
         ],
       })}
     />
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: '¿Cómo compro si no tienen tienda física?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Todo pasa por WhatsApp: nos escribes, te mandamos fotos de lo disponible, eliges y coordinamos un punto de encuentro en San Pedro de Macorís o La Romana. Ves tu pedido antes de pagar.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Cómo pago?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Efectivo, transferencia o tarjeta — siempre al momento de la entrega, con tu pedido en la mano, nunca por adelantado.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Cuánto cuesta y cuánto tarda la entrega?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'La entrega es gratis en San Pedro de Macorís y La Romana. Normalmente coordinamos en 1 a 3 días.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Y si el producto no me convence?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Lo revisas completo en la entrega, antes de pagar. Si no es lo que esperabas, no lo llevas y no pasa nada.',
+            },
+          },
+        ],
+      })}
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -383,11 +425,11 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         ><path
-                          d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"
-                        ></path><circle cx="12" cy="10" r="3"></circle></svg
+                          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                        ></path><path d="m9 12 2 2 4-4"></path></svg
                       ></span
                     >
-                    <span>Basado en RD</span>
+                    <span>Pagas al recibir</span>
                   </div>
                   <div class="hero-trust-sep"></div>
                   <div class="hero-trust-item">
@@ -427,7 +469,8 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
               </h2>
               <p class="merch-section-lead">
                 Llaveros, pines, stickers y más mercancía anime disponible
-                ahora.<br />Pide directo por WhatsApp.
+                ahora.<br />Pide por WhatsApp, entrega gratis en San Pedro y La
+                Romana, y pagas al recibir.
               </p>
             </div>
 
@@ -463,7 +506,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     <span class="merch-price">Desde RD$100</span>
                   </div>
                   <a
-                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Quiero%20pedir%20un%20llavero"
+                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20%C2%BFMe%20mandas%20fotos%20de%20los%20llaveros%20disponibles%3F"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="merch-whatsapp-btn"
@@ -479,7 +522,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                         d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
                       ></path></svg
                     >
-                    Pedir por WhatsApp
+                    Ver diseños por WhatsApp
                   </a>
                 </div>
               </article>
@@ -514,7 +557,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     <span class="merch-price">Desde RD$150</span>
                   </div>
                   <a
-                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Quiero%20pedir%20un%20pin"
+                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20%C2%BFMe%20mandas%20fotos%20de%20los%20pines%20disponibles%3F"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="merch-whatsapp-btn"
@@ -530,7 +573,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                         d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
                       ></path></svg
                     >
-                    Pedir por WhatsApp
+                    Ver diseños por WhatsApp
                   </a>
                 </div>
               </article>
@@ -569,7 +612,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     <span class="merch-price">Desde RD$10</span>
                   </div>
                   <a
-                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Quiero%20pedir%20stickers"
+                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20%C2%BFMe%20mandas%20fotos%20de%20los%20stickers%20disponibles%3F"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="merch-whatsapp-btn"
@@ -585,7 +628,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                         d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
                       ></path></svg
                     >
-                    Pedir por WhatsApp
+                    Ver diseños por WhatsApp
                   </a>
                 </div>
               </article>
@@ -641,6 +684,40 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                   </a>
                 </div>
               </article>
+            </div>
+
+            <div class="how-to-buy" id="como-comprar">
+              <h3 class="how-to-buy-title">¿CÓMO <span>COMPRAR?</span></h3>
+              <div class="how-to-buy-steps">
+                <div class="how-step">
+                  <span class="how-step-num">1</span>
+                  <h4 class="how-step-heading">Escríbenos</h4>
+                  <p class="how-step-desc">
+                    Dinos qué te interesa por WhatsApp y te mandamos fotos,
+                    diseños y precios al momento.
+                  </p>
+                </div>
+                <div class="how-step">
+                  <span class="how-step-num">2</span>
+                  <h4 class="how-step-heading">Coordinamos la entrega</h4>
+                  <p class="how-step-desc">
+                    Punto de encuentro en San Pedro de Macorís o La Romana.
+                    Gratis y normalmente en 1 a 3 días.
+                  </p>
+                </div>
+                <div class="how-step">
+                  <span class="how-step-num">3</span>
+                  <h4 class="how-step-heading">Pagas al recibir</h4>
+                  <p class="how-step-desc">
+                    Revisas tu pedido en la mano y pagas como prefieras:
+                    efectivo, transferencia o tarjeta.
+                  </p>
+                </div>
+              </div>
+              <p class="how-to-buy-note">
+                Sin riesgo: no pagas nada hasta tener tu pedido al frente.
+                Respondemos en menos de 24 horas.
+              </p>
             </div>
           </div>
         </section>
@@ -850,7 +927,117 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                   >
                   Hablar con nosotros
                 </a>
+                <a
+                  href="https://www.instagram.com/tansakustore"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="about-instagram-btn"
+                  id="about-btn-instagram"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><rect width="20" height="20" x="2" y="2" rx="5" ry="5"
+                    ></rect><path
+                      d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
+                    ></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"
+                    ></line></svg
+                  >
+                  Míranos en Instagram
+                </a>
               </div>
+            </div>
+          </div>
+        </section>
+        <!-- ══════════════════════════════════════════════════════════ -->
+
+        <!-- ══ SECCIÓN: PREGUNTAS FRECUENTES ═════════════════════════ -->
+        <section id="faq" class="faq-section">
+          <div class="faq-inner">
+            <div class="faq-header">
+              <div class="faq-eyebrow">Preguntas frecuentes</div>
+              <h2 class="faq-title">¿DUDAS? <span>NORMAL.</span></h2>
+              <p class="faq-lead">
+                Somos una tienda nueva y sabemos que comprarle por WhatsApp a
+                alguien que no conoces da cosa. Aquí va todo claro, sin
+                letra pequeña.
+              </p>
+            </div>
+
+            <div class="faq-list">
+              <details class="faq-item">
+                <summary class="faq-question"
+                  >¿Cómo compro si no tienen tienda física?</summary
+                >
+                <p class="faq-answer">
+                  Todo pasa por WhatsApp: nos escribes, te mandamos fotos de lo
+                  que hay disponible, eliges y coordinamos un punto de
+                  encuentro en San Pedro de Macorís o La Romana. Ves tu pedido
+                  antes de pagar.
+                </p>
+              </details>
+
+              <details class="faq-item">
+                <summary class="faq-question">¿Cómo pago?</summary>
+                <p class="faq-answer">
+                  Como te quede mejor: efectivo, transferencia o tarjeta. Y
+                  siempre pagas al momento de la entrega, con tu pedido en la
+                  mano — nunca por adelantado.
+                </p>
+              </details>
+
+              <details class="faq-item">
+                <summary class="faq-question"
+                  >¿Cuánto cuesta y cuánto tarda la entrega?</summary
+                >
+                <p class="faq-answer">
+                  La entrega es gratis en San Pedro de Macorís y La Romana.
+                  Normalmente coordinamos en 1 a 3 días.
+                </p>
+              </details>
+
+              <details class="faq-item">
+                <summary class="faq-question">¿Esto es de verdad?</summary>
+                <p class="faq-answer">
+                  Sí. Somos una tienda nueva, de fans para fans, y sabemos que
+                  la confianza se gana. Por eso no pagas por adelantado: ves tu
+                  pedido en la mano antes de soltar un peso. También puedes ver
+                  lo que hacemos en Instagram:
+                  <a
+                    href="https://www.instagram.com/tansakustore"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="faq-link">@tansakustore</a
+                  >.
+                </p>
+              </details>
+
+              <details class="faq-item">
+                <summary class="faq-question"
+                  >¿Y si el producto no me convence?</summary
+                >
+                <p class="faq-answer">
+                  Lo revisas completo en la entrega, antes de pagar. Si no es
+                  lo que esperabas, no lo llevas y no pasa nada.
+                </p>
+              </details>
+
+              <details class="faq-item">
+                <summary class="faq-question"
+                  >¿Cuándo llega el manga físico?</summary
+                >
+                <p class="faq-answer">
+                  Estamos armando el primer catálogo con los votos de la
+                  comunidad: mientras más gente pida una serie, antes llega.
+                  <a href="#contacto" class="faq-link">Deja tu voto aquí</a>.
+                </p>
+              </details>
             </div>
           </div>
         </section>
@@ -962,29 +1149,29 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                   </label>
 
                   <label class="form-field">
-                    <span class="form-label">Tu Email</span>
+                    <span class="form-label">Tu WhatsApp</span>
                     <input
-                      type="email"
-                      name="email"
+                      type="tel"
+                      name="whatsapp"
                       required
-                      id="field-email"
+                      id="field-whatsapp"
                       class="form-input"
-                      placeholder="tuemail@ejemplo.com"
+                      placeholder="809-000-0000"
                     />
                   </label>
                 </div>
 
                 <label class="form-field">
                   <span class="form-label"
-                    >Tu WhatsApp <span class="form-optional">(Opcional)</span
+                    >Tu Email <span class="form-optional">(Opcional)</span
                     ></span
                   >
                   <input
-                    type="tel"
-                    name="whatsapp"
-                    id="field-whatsapp"
+                    type="email"
+                    name="email"
+                    id="field-email"
                     class="form-input"
-                    placeholder="809-000-0000"
+                    placeholder="tuemail@ejemplo.com"
                   />
                 </label>
 
@@ -1038,7 +1225,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                       d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
                     ></path></svg
                   >
-                  Votar por mi serie y asegurar mi descuento
+                  Votar por mi serie
                 </button>
 
                 <p
@@ -1056,7 +1243,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     ><rect width="18" height="11" x="3" y="11" rx="2" ry="2"
                     ></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg
                   >
-                  100% gratis · Te avisamos cuando llegue tu serie
+                  100% gratis · Te avisamos por WhatsApp cuando llegue tu serie
                 </p>
               </form>
             </div>
@@ -1077,6 +1264,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
             <a href="#merch" class="footer-link">Merch</a>
             <a href="#catalogo" class="footer-link">Manga</a>
             <a href="#nosotros" class="footer-link">Nosotros</a>
+            <a href="#faq" class="footer-link">FAQ</a>
             <a href="#contacto" class="footer-link">Lista</a>
             <a
               href="https://www.instagram.com/tansakustore"
@@ -1091,6 +1279,26 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
         </div>
       </footer>
     </div>
+
+    <a
+      href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Tengo%20una%20pregunta"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="whatsapp-fab"
+      aria-label="Escríbenos por WhatsApp"
+    >
+      <svg
+        width="26"
+        height="26"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        ><path
+          d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
+        ></path></svg
+      >
+    </a>
 
     <script is:inline>
       (() => {
@@ -2034,6 +2242,12 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
     opacity: 1;
   }
 
+  @media (hover: none) {
+    .catalog-card-overlay {
+      opacity: 1;
+    }
+  }
+
   .catalog-card-overlay-btn {
     display: inline-flex;
     align-items: center;
@@ -2608,11 +2822,22 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
   .merch-card-icon-wrap {
     background: rgb(22 163 74 / 0.08);
     padding: 2rem;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #16a34a;
     border-bottom: 1px solid rgb(22 163 74 / 0.12);
+  }
+
+  .merch-card-icon-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .merch-icon-purple {
@@ -2984,6 +3209,306 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
     .hero-btn-secondary {
       padding: 0.75rem 1.25rem;
       font-size: 0.75rem;
+    }
+  }
+
+  /* ── CÓMO COMPRAR ───────────────────────────────── */
+  .how-to-buy {
+    max-width: 1100px;
+    margin: 3.5rem auto 0;
+    padding: 2.25rem 2rem;
+    border: 1px solid rgb(229 231 235);
+    background: rgb(249 250 251);
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  .how-to-buy-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: rgb(15 23 42);
+    margin: 0 0 2rem;
+  }
+
+  .how-to-buy-title span {
+    color: #16a34a;
+  }
+
+  .how-to-buy-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+    text-align: left;
+  }
+
+  .how-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    background: rgb(22 163 74 / 0.1);
+    border: 1px solid rgb(22 163 74 / 0.3);
+    color: #15803d;
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+  }
+
+  .how-step-heading {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: rgb(15 23 42);
+    margin: 0 0 0.4rem;
+  }
+
+  .how-step-desc {
+    font-size: 0.86rem;
+    color: rgb(71 85 105);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .how-to-buy-note {
+    margin: 2rem 0 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #15803d;
+  }
+
+  html[data-theme='dark'] .how-to-buy {
+    background: rgb(15 23 42);
+    border-color: rgb(51 65 85);
+  }
+
+  html[data-theme='dark'] .how-to-buy-title {
+    color: rgb(248 250 252);
+  }
+
+  html[data-theme='dark'] .how-step-heading {
+    color: rgb(226 232 240);
+  }
+
+  html[data-theme='dark'] .how-step-desc {
+    color: rgb(148 163 184);
+  }
+
+  html[data-theme='dark'] .how-to-buy-note {
+    color: rgb(74 222 128);
+  }
+
+  /* ── FAQ SECTION ────────────────────────────────── */
+  .faq-section {
+    background: #fff;
+    padding: 5rem 1.5rem;
+  }
+
+  .faq-inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .faq-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .faq-eyebrow {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red-600);
+    margin-bottom: 0.75rem;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid rgb(220 38 38 / 0.3);
+    background: rgb(220 38 38 / 0.07);
+    border-radius: 2px;
+  }
+
+  .faq-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 7vw, 4rem);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+    color: rgb(15 23 42);
+    margin: 0;
+  }
+
+  .faq-title span {
+    color: var(--red-600);
+  }
+
+  .faq-lead {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: rgb(99 115 130);
+    line-height: 1.6;
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .faq-item {
+    border: 1px solid rgb(229 231 235);
+    background: rgb(249 250 251);
+    border-radius: 4px;
+    transition: border-color 180ms ease;
+  }
+
+  .faq-item[open] {
+    border-color: rgb(220 38 38 / 0.4);
+  }
+
+  .faq-question {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgb(15 23 42);
+  }
+
+  .faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-question::after {
+    content: '+';
+    flex-shrink: 0;
+    font-size: 1.3rem;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--red-600);
+    transition: transform 200ms ease;
+  }
+
+  .faq-item[open] .faq-question::after {
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    padding: 0 1.25rem 1.15rem;
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgb(71 85 105);
+    line-height: 1.65;
+  }
+
+  .faq-link {
+    color: var(--red-600);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  html[data-theme='dark'] .faq-section {
+    background: #0d1520;
+  }
+
+  html[data-theme='dark'] .faq-title {
+    color: rgb(248 250 252);
+  }
+
+  html[data-theme='dark'] .faq-lead {
+    color: rgb(148 163 184);
+  }
+
+  html[data-theme='dark'] .faq-item {
+    background: rgb(15 23 42);
+    border-color: rgb(51 65 85);
+  }
+
+  html[data-theme='dark'] .faq-item[open] {
+    border-color: rgb(220 38 38 / 0.5);
+  }
+
+  html[data-theme='dark'] .faq-question {
+    color: rgb(226 232 240);
+  }
+
+  html[data-theme='dark'] .faq-answer {
+    color: rgb(148 163 184);
+  }
+
+  /* ── INSTAGRAM + WHATSAPP FAB ───────────────────── */
+  .about-instagram-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(226 232 240);
+    border: 1px solid rgb(255 255 255 / 0.25);
+    border-radius: 2px;
+    text-decoration: none;
+    transition:
+      border-color 180ms ease,
+      background 180ms ease;
+  }
+
+  .about-instagram-btn:hover {
+    border-color: #fff;
+    background: rgb(255 255 255 / 0.06);
+  }
+
+  .whatsapp-fab {
+    position: fixed;
+    right: 1.1rem;
+    bottom: calc(1.1rem + env(safe-area-inset-bottom));
+    z-index: 40;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 50%;
+    background: #25d366;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+    transition:
+      transform 180ms ease,
+      background 180ms ease;
+  }
+
+  .whatsapp-fab:hover {
+    transform: scale(1.06);
+    background: #128c7e;
+  }
+
+  /* ── RESPONSIVE: NUEVAS SECCIONES ───────────────── */
+  @media (max-width: 768px) {
+    .how-to-buy {
+      padding: 1.75rem 1.25rem;
+      margin-top: 2.5rem;
+    }
+
+    .how-to-buy-steps {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .faq-section {
+      padding: 3.5rem 1rem;
     }
   }
 </style>
