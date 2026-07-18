@@ -81,15 +81,81 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/x-icon" href="/tk.ico" />
-    <title>Tansaku | Manga, Figuras y Mercancía Anime</title>
+    <title>Tansaku | Manga, Figuras y Mercancía Anime en San Pedro y La Romana</title>
     <meta
       name="description"
       content="Tansaku es tu tienda de manga físico, llaveros, pines, stickers y mercancía anime en San Pedro de Macorís y La Romana. Compra ya o únete a la lista fundadora."
     />
+    <link rel="canonical" href="https://tansaku.site/" />
+    <meta name="theme-color" content="#0d0d0f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tansaku.site/" />
+    <meta property="og:site_name" content="Tansaku" />
+    <meta property="og:locale" content="es_DO" />
     <meta property="og:title" content="Tansaku | Manga y Merch Anime en RD" />
     <meta
       property="og:description"
       content="Manga, figuras y mercancía anime llegan a San Pedro y La Romana. Compra llaveros, pines y stickers ya mismo."
+    />
+    <meta property="og:image" content="https://tansaku.site/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Tansaku — Manga, figuras y merch anime en San Pedro de Macorís y La Romana"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tansaku | Manga y Merch Anime en RD" />
+    <meta
+      name="twitter:description"
+      content="Manga, figuras y mercancía anime en San Pedro de Macorís y La Romana. Llaveros, pines y stickers disponibles ya."
+    />
+    <meta name="twitter:image" content="https://tansaku.site/og.jpg" />
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Store',
+        name: 'Tansaku',
+        alternateName: '探索',
+        description:
+          'Tienda de manga físico, llaveros, pines, stickers y mercancía anime en San Pedro de Macorís y La Romana, República Dominicana.',
+        url: 'https://tansaku.site/',
+        image: 'https://tansaku.site/og.jpg',
+        telephone: '+1-809-879-5559',
+        priceRange: 'RD$10 - RD$1000',
+        currenciesAccepted: 'DOP',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'San Pedro de Macorís',
+          addressCountry: 'DO',
+        },
+        areaServed: [
+          { '@type': 'City', name: 'San Pedro de Macorís' },
+          { '@type': 'City', name: 'La Romana' },
+        ],
+        makesOffer: [
+          {
+            '@type': 'Offer',
+            itemOffered: { '@type': 'Product', name: 'Llaveros anime' },
+            priceCurrency: 'DOP',
+            price: '100',
+          },
+          {
+            '@type': 'Offer',
+            itemOffered: { '@type': 'Product', name: 'Pines metálicos anime' },
+            priceCurrency: 'DOP',
+            price: '150',
+          },
+          {
+            '@type': 'Offer',
+            itemOffered: { '@type': 'Product', name: 'Stickers anime' },
+            priceCurrency: 'DOP',
+            price: '10',
+          },
+        ],
+      })}
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
