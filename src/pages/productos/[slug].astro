@@ -1,0 +1,659 @@
+---
+import { Image } from "astro:assets";
+import "../../styles/global.css";
+import { products, type Product } from "../../data/products";
+
+export function getStaticPaths() {
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
+}
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const whatsappUrl = product.whatsappMessage
+  ? `https://wa.me/8098795559?text=${encodeURIComponent(product.whatsappMessage)}`
+  : "";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/tk.ico" />
+    <title>{product.name} | Tansaku</title>
+    <meta name="description" content={product.shortDescription} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem("tansaku-theme");
+          const theme = savedTheme === "dark" || savedTheme === "light"
+            ? savedTheme
+            : "dark";
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="product-header">
+      <a class="brand" href="/" aria-label="Ir al inicio de Tansaku">
+        <span class="brand-mark">探</span>
+        <span class="brand-name">TANSAKU</span>
+      </a>
+      <a class="back-link" href="/#merch">Volver al catálogo</a>
+    </header>
+
+    <main class="product-shell">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="/">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <a href="/#merch">Catálogo</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{product.name}</span>
+      </nav>
+
+      <section class="product-layout">
+        <div class="gallery" data-carousel>
+          <div
+            class="gallery-stage"
+            aria-live="polite"
+            aria-label={`Galería de ${product.name}`}
+          >
+            {
+              product.images.map((image, index) => (
+                <figure
+                  class="gallery-slide"
+                  data-slide={index}
+                  hidden={index !== 0}
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    widths={[520, 760, 1040]}
+                    sizes="(max-width: 850px) 92vw, 52vw"
+                    format="webp"
+                    quality={88}
+                    class="gallery-image"
+                  />
+                </figure>
+              ))
+            }
+            <span class="gallery-counter" data-counter>1 / {product.images.length}</span>
+          </div>
+
+          <div class="gallery-controls">
+            <button class="gallery-nav" type="button" data-previous>
+              Anterior
+            </button>
+            <div class="gallery-thumbnails" aria-label="Seleccionar foto">
+              {
+                product.images.map((image, index) => (
+                  <button
+                    class="gallery-thumbnail"
+                    type="button"
+                    data-thumbnail={index}
+                    aria-label={`Ver foto ${index + 1}: ${image.alt}`}
+                    aria-current={index === 0 ? "true" : "false"}
+                  >
+                    <Image
+                      src={image.src}
+                      alt=""
+                      widths={[112]}
+                      sizes="72px"
+                      format="webp"
+                      quality={70}
+                    />
+                  </button>
+                ))
+              }
+            </div>
+            <button class="gallery-nav" type="button" data-next>
+              Siguiente
+            </button>
+          </div>
+        </div>
+
+        <article class="product-copy">
+          <div class="product-kicker-row">
+            <span class="product-collection">{product.collection}</span>
+            <span class:list={["stock-badge", { available: product.available }]}
+              >{product.stockLabel}</span
+            >
+          </div>
+
+          <h1>{product.name}</h1>
+          <p class="product-lead">{product.shortDescription}</p>
+          <p class="product-description">{product.description}</p>
+
+          <dl class="product-specs">
+            {
+              product.details.map((detail) => (
+                <div>
+                  <dt>{detail.label}</dt>
+                  <dd>{detail.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div class="purchase-panel">
+            <div>
+              <span class="price-label">Precio</span>
+              <strong class="price">{product.price}</strong>
+            </div>
+            {
+              product.available ? (
+                <a
+                  class="purchase-button"
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Pedir por WhatsApp
+                </a>
+              ) : (
+                <span class="sold-out-button" aria-label={`${product.name} agotados`}>
+                  Agotados por ahora
+                </span>
+              )
+            }
+          </div>
+
+          <p class="delivery-note">
+            Coordinamos entrega en San Pedro de Macorís y La Romana.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      document.querySelectorAll<HTMLElement>("[data-carousel]").forEach((carousel) => {
+        const slides = Array.from(carousel.querySelectorAll<HTMLElement>("[data-slide]"));
+        const thumbnails = Array.from(
+          carousel.querySelectorAll<HTMLButtonElement>("[data-thumbnail]"),
+        );
+        const counter = carousel.querySelector<HTMLElement>("[data-counter]");
+        let currentIndex = 0;
+        let touchStartX = 0;
+
+        const showSlide = (requestedIndex: number) => {
+          currentIndex = (requestedIndex + slides.length) % slides.length;
+          slides.forEach((slide, index) => {
+            slide.hidden = index !== currentIndex;
+          });
+          thumbnails.forEach((thumbnail, index) => {
+            thumbnail.setAttribute(
+              "aria-current",
+              index === currentIndex ? "true" : "false",
+            );
+          });
+          if (counter) counter.textContent = `${currentIndex + 1} / ${slides.length}`;
+        };
+
+        carousel.querySelector("[data-previous]")?.addEventListener("click", () => {
+          showSlide(currentIndex - 1);
+        });
+        carousel.querySelector("[data-next]")?.addEventListener("click", () => {
+          showSlide(currentIndex + 1);
+        });
+        thumbnails.forEach((thumbnail, index) => {
+          thumbnail.addEventListener("click", () => showSlide(index));
+        });
+
+        carousel.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowLeft") showSlide(currentIndex - 1);
+          if (event.key === "ArrowRight") showSlide(currentIndex + 1);
+        });
+        carousel.addEventListener("touchstart", (event) => {
+          touchStartX = event.changedTouches[0]?.clientX ?? 0;
+        }, { passive: true });
+        carousel.addEventListener("touchend", (event) => {
+          const touchEndX = event.changedTouches[0]?.clientX ?? touchStartX;
+          const distance = touchEndX - touchStartX;
+          if (Math.abs(distance) < 45) return;
+          showSlide(distance > 0 ? currentIndex - 1 : currentIndex + 1);
+        }, { passive: true });
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  :global(*) {
+    box-sizing: border-box;
+  }
+
+  :global(:root) {
+    --ink: #0f172a;
+    --paper: #f6f4ef;
+    --panel: #ffffff;
+    --muted: #64748b;
+    --line: #d8dde5;
+    --red: #dc2626;
+    --red-dark: #b91c1c;
+    --green: #16a34a;
+  }
+
+  :global(html[data-theme="dark"]) {
+    --ink: #f8fafc;
+    --paper: #080d14;
+    --panel: #111923;
+    --muted: #9aa9bb;
+    --line: #2b394a;
+  }
+
+  :global(body) {
+    margin: 0;
+    min-width: 320px;
+    background:
+      radial-gradient(circle at 8% 10%, rgb(220 38 38 / 0.08), transparent 25rem),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+  }
+
+  .product-header {
+    min-height: 76px;
+    padding: 1rem clamp(1rem, 5vw, 4.5rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(14px);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    background: var(--red);
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 900;
+  }
+
+  .brand-name {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.65rem;
+    letter-spacing: 0.1em;
+  }
+
+  .back-link,
+  .breadcrumb a {
+    color: var(--ink);
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-underline-offset: 0.25rem;
+  }
+
+  .back-link:hover,
+  .breadcrumb a:hover {
+    color: var(--red);
+  }
+
+  .product-shell {
+    width: min(1220px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2rem 0 5rem;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-bottom: 1.5rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .product-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  .gallery {
+    min-width: 0;
+    outline: none;
+  }
+
+  .gallery-stage {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: #111827;
+    border: 1px solid var(--line);
+  }
+
+  .gallery-slide {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .gallery-slide[hidden] {
+    display: none;
+  }
+
+  .gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gallery-counter {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid rgb(255 255 255 / 0.25);
+    background: rgb(2 6 23 / 0.78);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  .gallery-controls {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 0.9rem;
+  }
+
+  .gallery-nav,
+  .gallery-thumbnail {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .gallery-nav {
+    min-height: 46px;
+    padding: 0 1rem;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .gallery-nav:hover,
+  .gallery-nav:focus-visible,
+  .gallery-thumbnail:hover,
+  .gallery-thumbnail:focus-visible,
+  .gallery-thumbnail[aria-current="true"] {
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px rgb(220 38 38 / 0.2);
+    outline: none;
+  }
+
+  .gallery-thumbnails {
+    display: flex;
+    justify-content: center;
+    gap: 0.65rem;
+  }
+
+  .gallery-thumbnail {
+    width: 60px;
+    height: 60px;
+    padding: 3px;
+  }
+
+  .gallery-thumbnail :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-copy {
+    position: sticky;
+    top: 2rem;
+    padding-top: 0.4rem;
+  }
+
+  .product-kicker-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .product-collection,
+  .stock-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--line);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .product-collection {
+    color: var(--red);
+  }
+
+  .stock-badge {
+    color: var(--red);
+    border-color: rgb(220 38 38 / 0.35);
+    background: rgb(220 38 38 / 0.08);
+  }
+
+  .stock-badge.available {
+    color: var(--green);
+    border-color: rgb(22 163 74 / 0.35);
+    background: rgb(22 163 74 / 0.08);
+  }
+
+  h1 {
+    margin: 0;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(3.7rem, 8vw, 6.8rem);
+    font-weight: 400;
+    line-height: 0.86;
+    letter-spacing: 0.025em;
+  }
+
+  .product-lead {
+    margin: 1.4rem 0 0;
+    color: var(--ink);
+    font-size: 1.14rem;
+    font-weight: 700;
+    line-height: 1.55;
+  }
+
+  .product-description {
+    margin: 0.9rem 0 0;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .product-specs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin: 2rem 0;
+    padding: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .product-specs div {
+    min-height: 88px;
+    padding: 1rem;
+    background: var(--panel);
+  }
+
+  .product-specs dt,
+  .price-label {
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .product-specs dd {
+    margin: 0.35rem 0 0;
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+
+  .purchase-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    background: var(--panel);
+  }
+
+  .purchase-panel > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .price {
+    color: var(--green);
+    font-size: 1.45rem;
+  }
+
+  .purchase-button,
+  .sold-out-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .purchase-button {
+    background: var(--green);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .purchase-button:hover {
+    background: #15803d;
+  }
+
+  .sold-out-button {
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--panel) 88%, var(--muted));
+    color: var(--muted);
+  }
+
+  .delivery-note {
+    margin: 0.9rem 0 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-align: right;
+  }
+
+  @media (max-width: 850px) {
+    .product-shell {
+      width: min(100% - 1.25rem, 680px);
+      padding-top: 1.2rem;
+    }
+
+    .product-layout {
+      grid-template-columns: 1fr;
+      gap: 2.4rem;
+    }
+
+    .product-copy {
+      position: static;
+    }
+
+    h1 {
+      font-size: clamp(3.5rem, 18vw, 6rem);
+    }
+  }
+
+  @media (max-width: 540px) {
+    .brand-name {
+      display: none;
+    }
+
+    .back-link {
+      font-size: 0.8rem;
+    }
+
+    .gallery-controls {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .gallery-thumbnails {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+
+    .product-specs {
+      grid-template-columns: 1fr;
+    }
+
+    .product-specs div {
+      min-height: auto;
+    }
+
+    .purchase-panel {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .delivery-note {
+      text-align: left;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
