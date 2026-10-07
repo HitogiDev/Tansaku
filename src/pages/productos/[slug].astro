@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import "../../styles/global.css";
 import { products, type Product } from "../../data/products";
+import tansakuLogo from "../../assets/brand/tansaku-logo.webp";
 
 export function getStaticPaths() {
   return products.map((product) => ({
@@ -51,8 +52,15 @@ const whatsappUrl = product.whatsappMessage
   <body>
     <header class="product-header">
       <a class="brand" href="/" aria-label="Ir al inicio de Tansaku">
-        <span class="brand-mark">探</span>
-        <span class="brand-name">TANSAKU</span>
+        <Image
+          src={tansakuLogo}
+          alt="Tansaku"
+          width={52}
+          height={52}
+          format="webp"
+          quality={92}
+          class="brand-logo"
+        />
       </a>
       <a class="back-link" href="/#merch">Volver al catálogo</a>
     </header>
@@ -283,26 +291,15 @@ const whatsappUrl = product.whatsappMessage
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
     color: var(--ink);
     text-decoration: none;
   }
 
-  .brand-mark {
-    display: grid;
-    place-items: center;
-    width: 2.35rem;
-    height: 2.35rem;
-    background: var(--red);
-    color: #fff;
-    font-size: 1.25rem;
-    font-weight: 900;
-  }
-
-  .brand-name {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.65rem;
-    letter-spacing: 0.1em;
+  .brand-logo {
+    display: block;
+    width: 3.25rem;
+    height: 3.25rem;
+    object-fit: contain;
   }
 
   .back-link,
@@ -613,10 +610,6 @@ const whatsappUrl = product.whatsappMessage
   }
 
   @media (max-width: 540px) {
-    .brand-name {
-      display: none;
-    }
-
     .back-link {
       font-size: 0.8rem;
     }
