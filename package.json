@@ -9,10 +9,14 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "dev:admin": "astro dev --config astro.config.admin.mjs --port 4322",
+    "build:admin": "astro build --config astro.config.admin.mjs",
+    "preview:admin": "astro preview --config astro.config.admin.mjs --port 4322",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
+    "@supabase/supabase-js": "^2.119.0",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^6.0.4",
     "tailwindcss": "^4.2.1"

@@ -686,6 +686,24 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
               </article>
             </div>
 
+            <div class="merch-catalog-link-row">
+              <a href="/catalogo/" class="merch-catalog-link" id="merch-btn-catalogo">
+                Ver catálogo completo
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+                >
+              </a>
+            </div>
+
             <div class="how-to-buy" id="como-comprar">
               <h3 class="how-to-buy-title">¿CÓMO <span>COMPRAR?</span></h3>
               <div class="how-to-buy-steps">
@@ -1261,6 +1279,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
             </p>
           </div>
           <div class="footer-links">
+            <a href="/catalogo/" class="footer-link">Catálogo</a>
             <a href="#merch" class="footer-link">Merch</a>
             <a href="#catalogo" class="footer-link">Manga</a>
             <a href="#nosotros" class="footer-link">Nosotros</a>
@@ -2934,6 +2953,34 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
     font-weight: 600;
     color: rgb(100 116 139);
     font-style: italic;
+  }
+
+  .merch-catalog-link-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.75rem;
+  }
+
+  .merch-catalog-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.4rem;
+    border: 2px solid var(--red-600);
+    color: var(--red-600);
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .merch-catalog-link:hover {
+    background: var(--red-600);
+    color: #fff;
   }
 
   .merch-whatsapp-btn {
