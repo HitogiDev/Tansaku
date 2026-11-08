@@ -91,24 +91,20 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
             <form id="product-form" class="adm-form">
               <input type="hidden" name="id" />
 
-              <div class="adm-photo">
-                <label class="adm-photo-drop" for="p-image">
-                  <img id="p-preview" alt="" hidden />
-                  <span id="p-photo-hint">Toca para subir una foto</span>
-                </label>
+              <div class="adm-field">
+                <span>Fotos <small id="p-photo-count"></small></span>
+                <div id="p-photos" class="adm-photos"></div>
                 <input
                   id="p-image"
-                  name="image"
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/avif,image/heic"
+                  multiple
                   hidden
                 />
-                <button
-                  type="button"
-                  id="p-image-remove"
-                  class="adm-btn-ghost adm-btn-sm"
-                  hidden>Quitar foto</button
-                >
+                <p class="adm-hint">
+                  Puedes elegir varias a la vez. La primera es la portada; usa ★
+                  para cambiarla.
+                </p>
               </div>
 
               <label class="adm-field">
@@ -199,7 +195,9 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
         getClient,
         imageUrl,
         formatPrice,
+        productImages,
         IMAGES_BUCKET,
+        MAX_PHOTOS,
         type Product,
       } from '../../../src/lib/shop';
 
@@ -212,6 +210,10 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
         $('logout').hidden = view !== 'app' && view !== 'denied';
       }
 
+      type Photo =
+        | { kind: 'existing'; path: string; url: string }
+        | { kind: 'new'; blob: Blob; url: string };
+
       const supabase = getClient();
 
       if (!supabase) {
@@ -219,10 +221,9 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
       } else {
         const sb = supabase;
         let products: Product[] = [];
-        let pendingFile: Blob | null = null;
-        let removeImage = false;
+        let photos: Photo[] = [];
         let editing: Product | null = null;
-        let previewUrl: string | null = null;
+        let processing = 0;
 
         // ── Auth ──────────────────────────────────────────
         async function route() {
@@ -295,15 +296,22 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
               li.className = 'adm-item';
               if (!p.published) li.classList.add('is-hidden');
 
+              const images = productImages(p);
               const thumb = document.createElement('div');
               thumb.className = 'adm-thumb';
-              const src = imageUrl(p.image_path);
+              const src = imageUrl(images[0] ?? null);
               if (src) {
                 const img = document.createElement('img');
                 img.src = src;
                 img.alt = '';
                 img.loading = 'lazy';
                 thumb.append(img);
+              }
+              if (images.length > 1) {
+                const n = document.createElement('span');
+                n.className = 'adm-thumb-count';
+                n.textContent = String(images.length);
+                thumb.append(n);
               }
 
               const info = document.createElement('div');
@@ -368,85 +376,124 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
           if (!confirm(`¿Borrar "${p.title}"? Esto no se puede deshacer.`)) return;
           const { error } = await sb.from('products').delete().eq('id', p.id);
           if (error) return alert(error.message);
-          if (p.image_path) await sb.storage.from(IMAGES_BUCKET).remove([p.image_path]);
+          const images = productImages(p);
+          if (images.length) await sb.storage.from(IMAGES_BUCKET).remove(images);
           products = products.filter((x) => x.id !== p.id);
           if (editing?.id === p.id) resetEditor();
           renderList();
         }
 
-        // ── Editor ────────────────────────────────────────
+        // ── Photos ────────────────────────────────────────
         const form = $<HTMLFormElement>('product-form');
         const fileInput = $<HTMLInputElement>('p-image');
-        const preview = $<HTMLImageElement>('p-preview');
+        const photosBox = $('p-photos');
         const status = $('p-status');
 
-        function setPreview(src: string | null) {
-          if (previewUrl) URL.revokeObjectURL(previewUrl);
-          previewUrl = src?.startsWith('blob:') ? src : null;
-          preview.hidden = !src;
-          if (src) preview.src = src;
-          else preview.removeAttribute('src');
-          $('p-photo-hint').hidden = Boolean(src);
-          $('p-image-remove').hidden = !src;
+        function clearPhotos() {
+          for (const ph of photos) if (ph.kind === 'new') URL.revokeObjectURL(ph.url);
+          photos = [];
         }
 
-        function field<T extends HTMLInputElement | HTMLTextAreaElement>(name: string) {
-          return form.elements.namedItem(name) as T;
+        function photoButton(label: string, title: string, fn: () => void) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'adm-photo-btn';
+          b.textContent = label;
+          b.title = title;
+          b.setAttribute('aria-label', title);
+          b.addEventListener('click', fn);
+          return b;
         }
 
-        function resetEditor() {
-          editing = null;
-          pendingFile = null;
-          removeImage = false;
-          form.reset();
-          field('id').value = '';
-          setPreview(null);
-          $('editor-title').textContent = 'Nueva publicación';
-          $('p-submit').textContent = 'Publicar';
-          $('p-cancel').hidden = true;
+        function move(from: number, to: number) {
+          const [ph] = photos.splice(from, 1);
+          photos.splice(to, 0, ph);
+          renderPhotos();
         }
 
-        function startEdit(p: Product) {
-          resetEditor();
-          editing = p;
-          field('id').value = p.id;
-          field('title').value = p.title;
-          field('price').value = String(p.price);
-          field('category').value = p.category;
-          field('description').value = p.description ?? '';
-          field<HTMLInputElement>('in_stock').checked = p.in_stock;
-          field<HTMLInputElement>('published').checked = p.published;
-          setPreview(imageUrl(p.image_path));
-          $('editor-title').textContent = 'Editar publicación';
-          $('p-submit').textContent = 'Guardar cambios';
-          $('p-cancel').hidden = false;
-          status.textContent = '';
-          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        function renderPhotos() {
+          const tiles = photos.map((ph, i) => {
+            const tile = document.createElement('div');
+            tile.className = 'adm-photo-tile';
+            const img = document.createElement('img');
+            img.src = ph.url;
+            img.alt = `Foto ${i + 1}`;
+            tile.append(img);
+
+            if (i === 0) {
+              const cover = document.createElement('span');
+              cover.className = 'adm-photo-cover';
+              cover.textContent = 'Portada';
+              tile.append(cover);
+            }
+
+            const bar = document.createElement('div');
+            bar.className = 'adm-photo-bar';
+            if (i > 0) {
+              bar.append(photoButton('◀', 'Mover a la izquierda', () => move(i, i - 1)));
+              bar.append(photoButton('★', 'Usar como portada', () => move(i, 0)));
+            }
+            if (i < photos.length - 1)
+              bar.append(photoButton('▶', 'Mover a la derecha', () => move(i, i + 1)));
+            const del = photoButton('✕', 'Quitar foto', () => {
+              const [removed] = photos.splice(i, 1);
+              if (removed.kind === 'new') URL.revokeObjectURL(removed.url);
+              renderPhotos();
+            });
+            del.classList.add('is-danger');
+            bar.append(del);
+            tile.append(bar);
+            return tile;
+          });
+
+          const nodes: HTMLElement[] = tiles;
+          if (photos.length < MAX_PHOTOS) {
+            const add = document.createElement('label');
+            add.htmlFor = 'p-image';
+            add.className = 'adm-photo-add';
+            add.innerHTML =
+              '<span aria-hidden="true">+</span><small>Agregar fotos</small>';
+            nodes.push(add);
+          }
+          photosBox.replaceChildren(...nodes);
+          $('p-photo-count').textContent = photos.length
+            ? `(${photos.length}/${MAX_PHOTOS})`
+            : '';
         }
-
-        $('p-cancel').addEventListener('click', resetEditor);
-
-        $('p-image-remove').addEventListener('click', () => {
-          pendingFile = null;
-          removeImage = true;
-          fileInput.value = '';
-          setPreview(null);
-        });
 
         fileInput.addEventListener('change', async () => {
-          const file = fileInput.files?.[0];
-          if (!file) return;
-          status.textContent = 'Preparando foto…';
-          try {
-            pendingFile = await compressImage(file);
-            removeImage = false;
-            setPreview(URL.createObjectURL(pendingFile));
-            status.textContent = '';
-          } catch {
-            pendingFile = null;
-            status.textContent =
-              'No se pudo leer esa imagen. Prueba con JPG, PNG o WebP.';
+          const files = Array.from(fileInput.files ?? []);
+          fileInput.value = '';
+          if (!files.length) return;
+
+          const room = MAX_PHOTOS - photos.length;
+          const accepted = files.slice(0, room);
+          let failed = 0;
+          processing++;
+          status.textContent =
+            accepted.length === 1
+              ? 'Preparando foto…'
+              : `Preparando ${accepted.length} fotos…`;
+
+          for (const file of accepted) {
+            try {
+              const blob = await compressImage(file);
+              photos.push({ kind: 'new', blob, url: URL.createObjectURL(blob) });
+              renderPhotos();
+            } catch {
+              failed++;
+            }
           }
+          processing--;
+
+          const notes: string[] = [];
+          if (files.length > room)
+            notes.push(`Máximo ${MAX_PHOTOS} fotos: se ignoraron ${files.length - room}.`);
+          if (failed)
+            notes.push(
+              `${failed} ${failed === 1 ? 'imagen no se pudo' : 'imágenes no se pudieron'} leer (usa JPG, PNG o WebP).`,
+            );
+          status.textContent = notes.join(' ');
         });
 
         /** Resize phone photos to max 1400px and convert to WebP (~150–300 KB). */
@@ -473,30 +520,79 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
           return jpeg;
         }
 
+        // ── Editor ────────────────────────────────────────
+        function field<T extends HTMLInputElement | HTMLTextAreaElement>(name: string) {
+          return form.elements.namedItem(name) as T;
+        }
+
+        function resetEditor() {
+          editing = null;
+          clearPhotos();
+          form.reset();
+          field('id').value = '';
+          renderPhotos();
+          $('editor-title').textContent = 'Nueva publicación';
+          $('p-submit').textContent = 'Publicar';
+          $('p-cancel').hidden = true;
+        }
+
+        function startEdit(p: Product) {
+          resetEditor();
+          editing = p;
+          field('id').value = p.id;
+          field('title').value = p.title;
+          field('price').value = String(p.price);
+          field('category').value = p.category;
+          field('description').value = p.description ?? '';
+          field<HTMLInputElement>('in_stock').checked = p.in_stock;
+          field<HTMLInputElement>('published').checked = p.published;
+          photos = productImages(p).map((path) => ({
+            kind: 'existing',
+            path,
+            url: imageUrl(path)!,
+          }));
+          renderPhotos();
+          $('editor-title').textContent = 'Editar publicación';
+          $('p-submit').textContent = 'Guardar cambios';
+          $('p-cancel').hidden = false;
+          status.textContent = '';
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        $('p-cancel').addEventListener('click', resetEditor);
+
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
+          if (processing) {
+            status.textContent = 'Espera a que terminen de prepararse las fotos.';
+            return;
+          }
           const submit = $<HTMLButtonElement>('p-submit');
           submit.disabled = true;
-          status.textContent = 'Guardando…';
+          const uploaded: string[] = [];
 
           try {
-            let image_path = editing?.image_path ?? null;
-            const oldPath = image_path;
-
-            if (pendingFile) {
-              const ext = pendingFile.type === 'image/webp' ? 'webp' : 'jpg';
+            const newCount = photos.filter((ph) => ph.kind === 'new').length;
+            const paths: string[] = [];
+            for (const ph of photos) {
+              if (ph.kind === 'existing') {
+                paths.push(ph.path);
+                continue;
+              }
+              status.textContent = `Subiendo fotos… (${uploaded.length + 1}/${newCount})`;
+              const ext = ph.blob.type === 'image/webp' ? 'webp' : 'jpg';
               const path = `products/${crypto.randomUUID()}.${ext}`;
               const { error } = await sb.storage
                 .from(IMAGES_BUCKET)
-                .upload(path, pendingFile, {
-                  contentType: pendingFile.type,
+                .upload(path, ph.blob, {
+                  contentType: ph.blob.type,
                   cacheControl: '31536000',
                 });
               if (error) throw error;
-              image_path = path;
-            } else if (removeImage) {
-              image_path = null;
+              uploaded.push(path);
+              paths.push(path);
             }
+            status.textContent = 'Guardando…';
 
             const record = {
               title: field('title').value.trim(),
@@ -505,8 +601,11 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
               description: field('description').value.trim() || null,
               in_stock: field<HTMLInputElement>('in_stock').checked,
               published: field<HTMLInputElement>('published').checked,
-              image_path,
+              image_path: paths[0] ?? null,
+              image_paths: paths,
             };
+
+            const oldPaths = editing ? productImages(editing) : [];
 
             if (editing) {
               const { data, error } = await sb
@@ -527,9 +626,8 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
               products = [data, ...products];
             }
 
-            if (oldPath && oldPath !== image_path) {
-              await sb.storage.from(IMAGES_BUCKET).remove([oldPath]);
-            }
+            const orphaned = oldPaths.filter((p) => !paths.includes(p));
+            if (orphaned.length) await sb.storage.from(IMAGES_BUCKET).remove(orphaned);
 
             const wasEditing = Boolean(editing);
             resetEditor();
@@ -538,7 +636,12 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
               ? '✓ Cambios guardados.'
               : '✓ Publicado. Ya aparece en el catálogo.';
           } catch (err) {
-            status.textContent = `Error: ${(err as Error).message}`;
+            // Don't leave photos from a failed save behind in storage.
+            if (uploaded.length) await sb.storage.from(IMAGES_BUCKET).remove(uploaded);
+            const msg = (err as Error).message;
+            status.textContent = msg.includes('image_paths')
+              ? 'Error: falta actualizar la base de datos. Corre supabase/migrations/002_multiple_photos.sql en Supabase.'
+              : `Error: ${msg}`;
           } finally {
             submit.disabled = false;
           }
@@ -548,6 +651,7 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
           if (event === 'SIGNED_OUT') show('login');
         });
 
+        renderPhotos();
         route();
       }
     </script>
@@ -556,12 +660,12 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
 
 <style is:global>
   :root {
-    --bg: #0d0d0f;
-    --surface: #16161a;
-    --surface-2: #1f1f25;
-    --text: #f4f4f5;
-    --muted: #a1a1aa;
-    --border: #2c2c33;
+    --bg: #0b1118;
+    --surface: #0f172a;
+    --surface-2: #1e293b;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: #334155;
     --accent: #ef4444;
     --accent-strong: #dc2626;
     color-scheme: dark;
@@ -693,6 +797,11 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
     min-width: 0;
   }
 
+  .adm-field > span small {
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
   .adm-field > span {
     font-size: 0.7rem;
     font-weight: 800;
@@ -805,33 +914,97 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
     }
   }
 
-  .adm-photo {
-    display: grid;
-    gap: 0.5rem;
-    justify-items: start;
+  .adm-hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.75rem;
   }
 
-  .adm-photo-drop {
+  .adm-photos {
     display: grid;
-    place-items: center;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    border: 1px dashed var(--border);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .adm-photo-tile,
+  .adm-photo-add {
+    position: relative;
+    aspect-ratio: 1;
+    border: 1px solid var(--border);
     background: var(--bg);
-    color: var(--muted);
-    font-size: 0.85rem;
-    cursor: pointer;
     overflow: hidden;
   }
 
-  .adm-photo-drop:hover {
-    border-color: var(--accent);
-  }
-
-  .adm-photo-drop img {
+  .adm-photo-tile img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+  }
+
+  .adm-photo-cover {
+    position: absolute;
+    left: 0.25rem;
+    top: 0.25rem;
+    padding: 0.1rem 0.3rem;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .adm-photo-bar {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.15rem;
+    padding: 0.2rem;
+    background: linear-gradient(transparent, rgb(0 0 0 / 0.75));
+  }
+
+  .adm-photo-btn {
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 0;
+    background: rgb(15 23 42 / 0.85);
+    color: #fff;
+    font-size: 0.7rem;
+    cursor: pointer;
+  }
+
+  .adm-photo-btn:hover {
+    background: var(--surface-2);
+  }
+
+  .adm-photo-btn.is-danger:hover {
+    background: var(--accent);
+  }
+
+  .adm-photo-add {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.1rem;
+    border-style: dashed;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .adm-photo-add span {
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+
+  .adm-photo-add small {
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+
+  .adm-photo-add:hover {
+    border-color: var(--accent);
+    color: var(--text);
   }
 
   .adm-list-head {
@@ -872,6 +1045,7 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
   }
 
   .adm-thumb {
+    position: relative;
     width: 4rem;
     height: 4rem;
     background: var(--surface-2);
@@ -882,6 +1056,17 @@ import { DEFAULT_CATEGORIES } from '../../../src/lib/shop';
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  .adm-thumb-count {
+    position: absolute;
+    right: 0.15rem;
+    bottom: 0.15rem;
+    padding: 0 0.25rem;
+    background: rgb(0 0 0 / 0.7);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
   }
 
   .adm-item-info {

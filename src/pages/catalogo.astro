@@ -20,7 +20,7 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
       content="Catálogo de Tansaku: manga, llaveros, pines, stickers, figuras y mercancía anime en San Pedro de Macorís y La Romana. Filtra por categoría y precio y pide por WhatsApp."
     />
     <link rel="canonical" href="https://tansaku.site/catalogo/" />
-    <meta name="theme-color" content="#0d0d0f" />
+    <meta name="theme-color" content="#0b1118" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://tansaku.site/catalogo/" />
     <meta property="og:site_name" content="Tansaku" />
@@ -92,7 +92,7 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
                 id="f-q"
                 name="q"
                 type="search"
-                placeholder="Ej. Chainsaw Man, llavero…"
+                placeholder="Ej. Chainsaw Man, poster…"
               />
             </div>
 
@@ -189,6 +189,48 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
       </div>
     </main>
 
+    <dialog id="product-dialog" class="cat-dialog" aria-labelledby="d-title">
+      <div class="cat-dialog-inner">
+        <button
+          type="button"
+          class="cat-dialog-close"
+          id="d-close"
+          aria-label="Cerrar">✕</button
+        >
+        <div class="cat-gallery">
+          <div id="d-track" class="cat-gallery-track" tabindex="0"></div>
+          <button
+            type="button"
+            id="d-prev"
+            class="cat-gallery-nav is-prev"
+            aria-label="Foto anterior">‹</button
+          >
+          <button
+            type="button"
+            id="d-next"
+            class="cat-gallery-nav is-next"
+            aria-label="Foto siguiente">›</button
+          >
+          <div id="d-dots" class="cat-gallery-dots"></div>
+        </div>
+        <div class="cat-dialog-body">
+          <span id="d-cat" class="cat-dialog-cat"></span>
+          <h2 id="d-title" class="cat-dialog-title"></h2>
+          <p id="d-price" class="cat-dialog-price"></p>
+          <p id="d-out" class="cat-dialog-out" hidden>
+            Agotado por ahora — escríbenos y te avisamos cuando vuelva.
+          </p>
+          <p id="d-desc" class="cat-dialog-desc"></p>
+          <a
+            id="d-wa"
+            class="cat-wa-btn"
+            target="_blank"
+            rel="noopener noreferrer">Pedir por WhatsApp</a
+          >
+        </div>
+      </div>
+    </dialog>
+
     <footer class="cat-footer">
       <div class="cat-wrap">
         <p>© {currentYear} Tansaku · Hecho con ❤️ en RD</p>
@@ -200,6 +242,7 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
         getClient,
         imageUrl,
         formatPrice,
+        productImages,
         whatsappLink,
         type Product,
       } from '../lib/shop';
@@ -300,9 +343,13 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
         article.className = 'cat-card';
         if (!p.in_stock) article.classList.add('is-out');
 
-        const media = document.createElement('div');
+        const images = productImages(p);
+        const media = document.createElement('button');
+        media.type = 'button';
         media.className = 'cat-card-media';
-        const src = imageUrl(p.image_path);
+        media.setAttribute('aria-label', `Ver fotos y detalles de ${p.title}`);
+        media.addEventListener('click', () => openProduct(p));
+        const src = imageUrl(images[0] ?? null);
         if (src) {
           const img = document.createElement('img');
           img.src = src;
@@ -324,12 +371,22 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
           out.textContent = 'Agotado';
           media.append(out);
         }
+        if (images.length > 1) {
+          const n = document.createElement('span');
+          n.className = 'cat-card-photos';
+          n.textContent = `${images.length} fotos`;
+          media.append(n);
+        }
 
         const body = document.createElement('div');
         body.className = 'cat-card-body';
         const h = document.createElement('h2');
         h.className = 'cat-card-title';
-        h.textContent = p.title;
+        const hb = document.createElement('button');
+        hb.type = 'button';
+        hb.textContent = p.title;
+        hb.addEventListener('click', () => openProduct(p));
+        h.append(hb);
         body.append(h);
         if (p.description) {
           const d = document.createElement('p');
@@ -354,6 +411,88 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
         article.append(media, body);
         return article;
       }
+
+      // ── Product detail dialog with photo gallery ──
+      const dialog = $<HTMLDialogElement>('product-dialog');
+      const track = $('d-track');
+      const dots = $('d-dots');
+      const prev = $<HTMLButtonElement>('d-prev');
+      const next = $<HTMLButtonElement>('d-next');
+
+      function currentSlide() {
+        return Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+      }
+
+      function goTo(i: number) {
+        track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+      }
+
+      function syncGallery() {
+        const i = currentSlide();
+        const total = track.children.length;
+        dots.querySelectorAll('button').forEach((d, j) =>
+          d.classList.toggle('is-active', j === i),
+        );
+        prev.disabled = i <= 0;
+        next.disabled = i >= total - 1;
+      }
+
+      function openProduct(p: Product) {
+        const images = productImages(p);
+        const slides = images.length
+          ? images.map((path, i) => {
+              const img = document.createElement('img');
+              img.src = imageUrl(path)!;
+              img.alt = `${p.title} — foto ${i + 1} de ${images.length}`;
+              img.decoding = 'async';
+              return img;
+            })
+          : [Object.assign(document.createElement('div'), {
+              className: 'cat-gallery-empty',
+              textContent: '探索',
+            })];
+        track.replaceChildren(...slides);
+        dots.replaceChildren(
+          ...(images.length > 1
+            ? images.map((_, i) => {
+                const d = document.createElement('button');
+                d.type = 'button';
+                d.setAttribute('aria-label', `Ver foto ${i + 1}`);
+                d.addEventListener('click', () => goTo(i));
+                return d;
+              })
+            : []),
+        );
+        const multi = images.length > 1;
+        prev.hidden = next.hidden = dots.hidden = !multi;
+
+        $('d-cat').textContent = p.category;
+        $('d-title').textContent = p.title;
+        $('d-price').textContent = formatPrice(Number(p.price));
+        $('d-desc').textContent = p.description ?? '';
+        $('d-out').hidden = p.in_stock;
+        const wa = $<HTMLAnchorElement>('d-wa');
+        wa.href = whatsappLink({ title: p.title, price: Number(p.price) });
+        wa.textContent = p.in_stock ? 'Pedir por WhatsApp' : 'Avísame por WhatsApp';
+
+        dialog.showModal();
+        track.scrollLeft = 0;
+        syncGallery();
+      }
+
+      track.addEventListener('scroll', () => requestAnimationFrame(syncGallery), {
+        passive: true,
+      });
+      prev.addEventListener('click', () => goTo(currentSlide() - 1));
+      next.addEventListener('click', () => goTo(currentSlide() + 1));
+      track.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') goTo(currentSlide() - 1);
+        if (e.key === 'ArrowRight') goTo(currentSlide() + 1);
+      });
+      $('d-close').addEventListener('click', () => dialog.close());
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) dialog.close();
+      });
 
       function apply() {
         const q = normalize(qInput.value.trim());
@@ -434,9 +573,7 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
         }
         const { data, error } = await supabase
           .from('products')
-          .select(
-            'id,title,description,price,category,image_path,in_stock,published,created_at',
-          )
+          .select('*')
           .eq('published', true)
           .order('created_at', { ascending: false });
 
@@ -477,12 +614,12 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
   }
 
   html[data-theme='dark'] {
-    --bg: #0d0d0f;
-    --surface: #16161a;
-    --surface-2: #1f1f25;
-    --text: #f4f4f5;
-    --muted: #a1a1aa;
-    --border: #2c2c33;
+    --bg: #0b1118;
+    --surface: #0f172a;
+    --surface-2: #1e293b;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: #334155;
     --accent: #ef4444;
     --accent-strong: #dc2626;
     --accent-soft: rgb(239 68 68 / 0.14);
@@ -834,9 +971,32 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
 
   .cat-card-media {
     position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
     aspect-ratio: 1;
     background: var(--surface-2);
     overflow: hidden;
+    cursor: zoom-in;
+    font: inherit;
+  }
+
+  .cat-card-media:focus-visible,
+  .cat-card-title button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .cat-card-photos {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    padding: 0.2rem 0.45rem;
+    background: rgb(0 0 0 / 0.72);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
   }
 
   .cat-card-media img {
@@ -892,6 +1052,20 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
     font-size: 0.95rem;
     font-weight: 800;
     line-height: 1.25;
+  }
+
+  .cat-card-title button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .cat-card-title button:hover {
+    color: var(--accent);
   }
 
   .cat-card-desc {
@@ -958,6 +1132,187 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
 
   .cat-empty .cat-wa-btn {
     margin-top: 1rem;
+  }
+
+  /* ── Product dialog ── */
+  .cat-dialog {
+    margin: auto;
+    width: min(56rem, calc(100% - 2rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    overflow: auto;
+  }
+
+  .cat-dialog::backdrop {
+    background: rgb(2 6 23 / 0.75);
+    backdrop-filter: blur(3px);
+  }
+
+  .cat-dialog-inner {
+    position: relative;
+    display: grid;
+  }
+
+  @media (min-width: 760px) {
+    .cat-dialog-inner {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+
+  .cat-dialog-close {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    z-index: 3;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 0;
+    background: rgb(0 0 0 / 0.6);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .cat-gallery {
+    position: relative;
+    background: var(--surface-2);
+  }
+
+  .cat-gallery-track {
+    display: flex;
+    aspect-ratio: 1;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .cat-gallery-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cat-gallery-track > * {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    scroll-snap-align: start;
+    object-fit: contain;
+  }
+
+  .cat-gallery-empty {
+    display: grid;
+    place-items: center;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--border);
+  }
+
+  .cat-gallery-nav {
+    position: absolute;
+    top: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-top: -1.25rem;
+    border: 0;
+    background: rgb(0 0 0 / 0.55);
+    color: #fff;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .cat-gallery-nav:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .cat-gallery-nav.is-prev {
+    left: 0.5rem;
+  }
+
+  .cat-gallery-nav.is-next {
+    right: 0.5rem;
+  }
+
+  .cat-gallery-dots {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.6rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+
+  .cat-gallery-dots button {
+    width: 0.55rem;
+    height: 0.55rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.45);
+    cursor: pointer;
+  }
+
+  .cat-gallery-dots button.is-active {
+    background: #fff;
+  }
+
+  .cat-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.25rem;
+  }
+
+  .cat-dialog-cat {
+    align-self: flex-start;
+    padding: 0.2rem 0.45rem;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .cat-dialog-title {
+    margin: 0;
+    padding-right: 2rem;
+    font-size: 1.35rem;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .cat-dialog-price {
+    margin: 0;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 2rem;
+    color: var(--accent);
+  }
+
+  .cat-dialog-out {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .cat-dialog-desc {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.55;
+    white-space: pre-line;
+  }
+
+  .cat-dialog-desc:empty {
+    display: none;
+  }
+
+  .cat-dialog-body .cat-wa-btn {
+    margin-top: auto;
   }
 
   .cat-footer {
