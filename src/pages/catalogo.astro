@@ -1,0 +1,973 @@
+---
+import '../styles/global.css';
+import { WHATSAPP_NUMBER } from '../lib/shop';
+
+const currentYear = new Date().getFullYear();
+const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+  'Hola Tansaku! ¿Qué tienen disponible?',
+)}`;
+---
+
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/tk.ico" />
+    <title>Catálogo | Tansaku — Manga y Merch Anime en RD</title>
+    <meta
+      name="description"
+      content="Catálogo de Tansaku: manga, llaveros, pines, stickers, figuras y mercancía anime en San Pedro de Macorís y La Romana. Filtra por categoría y precio y pide por WhatsApp."
+    />
+    <link rel="canonical" href="https://tansaku.site/catalogo/" />
+    <meta name="theme-color" content="#0d0d0f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tansaku.site/catalogo/" />
+    <meta property="og:site_name" content="Tansaku" />
+    <meta property="og:locale" content="es_DO" />
+    <meta property="og:title" content="Catálogo Tansaku | Manga y Merch Anime" />
+    <meta
+      property="og:description"
+      content="Mira todo lo disponible, filtra por categoría y precio, y pide por WhatsApp."
+    />
+    <meta property="og:image" content="https://tansaku.site/og.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('tansaku-theme');
+        if (t === 'light' || t === 'dark')
+          document.documentElement.setAttribute('data-theme', t);
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <header class="cat-topbar">
+      <div class="cat-wrap cat-topbar-inner">
+        <a href="/" class="cat-brand" aria-label="Tansaku — inicio">
+          <span class="cat-brand-kanji">探索</span>
+          <span class="cat-brand-name">Tansaku</span>
+        </a>
+        <nav class="cat-topnav">
+          <a href="/">Inicio</a>
+          <a href="/#faq">FAQ</a>
+          <button
+            type="button"
+            id="theme-toggle"
+            class="cat-theme-btn"
+            aria-label="Cambiar tema">☾</button
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main class="cat-wrap">
+      <section class="cat-hero">
+        <p class="cat-eyebrow"><span class="cat-dot"></span> Disponible ya</p>
+        <h1 class="cat-title">CATÁLOGO <span>TANSAKU</span></h1>
+        <p class="cat-lead">
+          Todo lo que tenemos ahora mismo. Filtra, elige y pide por WhatsApp —
+          entrega gratis en San Pedro y La Romana, pagas al recibir.
+        </p>
+      </section>
+
+      <div class="cat-layout">
+        <aside id="filters-panel" class="cat-filters" aria-label="Filtros">
+          <button
+            type="button"
+            id="filters-toggle"
+            class="cat-filters-toggle"
+            aria-expanded="false"
+            aria-controls="filters">Filtros y orden <span aria-hidden="true">▾</span></button
+          >
+          <form id="filters" class="cat-filters-form" autocomplete="off">
+            <div class="cat-field">
+              <label for="f-q">Buscar</label>
+              <input
+                id="f-q"
+                name="q"
+                type="search"
+                placeholder="Ej. Chainsaw Man, llavero…"
+              />
+            </div>
+
+            <fieldset class="cat-field">
+              <legend>Categoría</legend>
+              <div id="f-categories" class="cat-chips">
+                <button type="button" class="cat-chip is-active" data-category=""
+                  >Todas</button
+                >
+              </div>
+            </fieldset>
+
+            <fieldset class="cat-field">
+              <legend>Precio (RD$)</legend>
+              <div class="cat-price-row">
+                <input
+                  id="f-min"
+                  name="min"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  placeholder="Mín"
+                  aria-label="Precio mínimo"
+                />
+                <span aria-hidden="true">—</span>
+                <input
+                  id="f-max"
+                  name="max"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  placeholder="Máx"
+                  aria-label="Precio máximo"
+                />
+              </div>
+              <div id="f-price-presets" class="cat-chips cat-chips-sm">
+                <button type="button" class="cat-chip" data-min="" data-max="200"
+                  >Hasta 200</button
+                >
+                <button
+                  type="button"
+                  class="cat-chip"
+                  data-min="200"
+                  data-max="500">200 – 500</button
+                >
+                <button type="button" class="cat-chip" data-min="500" data-max=""
+                  >500+</button
+                >
+              </div>
+            </fieldset>
+
+            <div class="cat-field">
+              <label for="f-sort">Ordenar por</label>
+              <select id="f-sort" name="sort">
+                <option value="recent">Más recientes</option>
+                <option value="price-asc">Precio: menor a mayor</option>
+                <option value="price-desc">Precio: mayor a menor</option>
+                <option value="name">Nombre (A–Z)</option>
+              </select>
+            </div>
+
+            <label class="cat-check">
+              <input id="f-stock" name="stock" type="checkbox" />
+              Solo disponibles
+            </label>
+
+            <button type="button" id="f-reset" class="cat-reset"
+              >Limpiar filtros</button
+            >
+          </form>
+        </aside>
+
+        <section class="cat-results" aria-live="polite">
+          <p id="results-count" class="cat-count">Cargando…</p>
+          <div id="results-grid" class="cat-grid"></div>
+          <div id="results-empty" class="cat-empty" hidden>
+            <p class="cat-empty-title">No hay nada con esos filtros</p>
+            <p>Prueba otra categoría o un rango de precio distinto.</p>
+          </div>
+          <div id="results-error" class="cat-empty" hidden>
+            <p class="cat-empty-title">El catálogo se está preparando</p>
+            <p>
+              Mientras tanto, escríbenos y te mandamos fotos de todo lo
+              disponible.
+            </p>
+            <a
+              class="cat-wa-btn"
+              href={whatsappGeneral}
+              target="_blank"
+              rel="noopener noreferrer">Escribir por WhatsApp</a
+            >
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="cat-footer">
+      <div class="cat-wrap">
+        <p>© {currentYear} Tansaku · Hecho con ❤️ en RD</p>
+      </div>
+    </footer>
+
+    <script>
+      import {
+        getClient,
+        imageUrl,
+        formatPrice,
+        whatsappLink,
+        type Product,
+      } from '../lib/shop';
+
+      const $ = <T extends HTMLElement>(id: string) =>
+        document.getElementById(id) as T;
+
+      // Theme toggle (same key as the home page).
+      $('theme-toggle').addEventListener('click', () => {
+        const root = document.documentElement;
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        try {
+          localStorage.setItem('tansaku-theme', next);
+        } catch {}
+      });
+
+      const form = $<HTMLFormElement>('filters');
+      const qInput = $<HTMLInputElement>('f-q');
+      const minInput = $<HTMLInputElement>('f-min');
+      const maxInput = $<HTMLInputElement>('f-max');
+      const sortSelect = $<HTMLSelectElement>('f-sort');
+      const stockInput = $<HTMLInputElement>('f-stock');
+      const categoriesBox = $('f-categories');
+      const presetsBox = $('f-price-presets');
+      const grid = $('results-grid');
+      const count = $('results-count');
+      const empty = $('results-empty');
+      const errorBox = $('results-error');
+
+      let products: Product[] = [];
+      let category = '';
+
+      const normalize = (s: string) =>
+        s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+      // ── URL <-> filters (so filtered views can be shared) ──
+      function readUrl() {
+        const p = new URLSearchParams(location.search);
+        qInput.value = p.get('q') ?? '';
+        minInput.value = p.get('min') ?? '';
+        maxInput.value = p.get('max') ?? '';
+        sortSelect.value = p.get('sort') ?? 'recent';
+        if (!sortSelect.value) sortSelect.value = 'recent';
+        stockInput.checked = p.get('stock') === '1';
+        category = p.get('cat') ?? '';
+      }
+
+      function writeUrl() {
+        const p = new URLSearchParams();
+        if (qInput.value.trim()) p.set('q', qInput.value.trim());
+        if (category) p.set('cat', category);
+        if (minInput.value) p.set('min', minInput.value);
+        if (maxInput.value) p.set('max', maxInput.value);
+        if (sortSelect.value !== 'recent') p.set('sort', sortSelect.value);
+        if (stockInput.checked) p.set('stock', '1');
+        const qs = p.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+      }
+
+      function renderCategories() {
+        const counts = new Map<string, number>();
+        for (const p of products)
+          counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
+        const names = [...counts.keys()].sort((a, b) => a.localeCompare(b, 'es'));
+        if (category && !counts.has(category)) category = '';
+
+        categoriesBox.replaceChildren(
+          ...['', ...names].map((name) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'cat-chip';
+            b.dataset.category = name;
+            b.textContent = name
+              ? `${name} (${counts.get(name)})`
+              : `Todas (${products.length})`;
+            return b;
+          }),
+        );
+        syncChips();
+      }
+
+      function syncChips() {
+        categoriesBox.querySelectorAll<HTMLButtonElement>('.cat-chip').forEach((b) =>
+          b.classList.toggle('is-active', b.dataset.category === category),
+        );
+        presetsBox.querySelectorAll<HTMLButtonElement>('.cat-chip').forEach((b) =>
+          b.classList.toggle(
+            'is-active',
+            (b.dataset.min ?? '') === minInput.value &&
+              (b.dataset.max ?? '') === maxInput.value,
+          ),
+        );
+      }
+
+      function card(p: Product) {
+        const article = document.createElement('article');
+        article.className = 'cat-card';
+        if (!p.in_stock) article.classList.add('is-out');
+
+        const media = document.createElement('div');
+        media.className = 'cat-card-media';
+        const src = imageUrl(p.image_path);
+        if (src) {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = p.title;
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          media.append(img);
+        } else {
+          media.classList.add('is-empty');
+          media.textContent = '探索';
+        }
+        const badge = document.createElement('span');
+        badge.className = 'cat-card-cat';
+        badge.textContent = p.category;
+        media.append(badge);
+        if (!p.in_stock) {
+          const out = document.createElement('span');
+          out.className = 'cat-card-out';
+          out.textContent = 'Agotado';
+          media.append(out);
+        }
+
+        const body = document.createElement('div');
+        body.className = 'cat-card-body';
+        const h = document.createElement('h2');
+        h.className = 'cat-card-title';
+        h.textContent = p.title;
+        body.append(h);
+        if (p.description) {
+          const d = document.createElement('p');
+          d.className = 'cat-card-desc';
+          d.textContent = p.description;
+          body.append(d);
+        }
+        const row = document.createElement('div');
+        row.className = 'cat-card-row';
+        const price = document.createElement('span');
+        price.className = 'cat-card-price';
+        price.textContent = formatPrice(Number(p.price));
+        const a = document.createElement('a');
+        a.className = 'cat-wa-btn cat-wa-btn-sm';
+        a.href = whatsappLink({ title: p.title, price: Number(p.price) });
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = p.in_stock ? 'Pedir' : 'Avísame';
+        row.append(price, a);
+        body.append(row);
+
+        article.append(media, body);
+        return article;
+      }
+
+      function apply() {
+        const q = normalize(qInput.value.trim());
+        const min = minInput.value === '' ? -Infinity : Number(minInput.value);
+        const max = maxInput.value === '' ? Infinity : Number(maxInput.value);
+
+        const list = products.filter((p) => {
+          const price = Number(p.price);
+          if (category && p.category !== category) return false;
+          if (price < min || price > max) return false;
+          if (stockInput.checked && !p.in_stock) return false;
+          if (
+            q &&
+            !normalize(`${p.title} ${p.description ?? ''} ${p.category}`).includes(q)
+          )
+            return false;
+          return true;
+        });
+
+        switch (sortSelect.value) {
+          case 'price-asc':
+            list.sort((a, b) => Number(a.price) - Number(b.price));
+            break;
+          case 'price-desc':
+            list.sort((a, b) => Number(b.price) - Number(a.price));
+            break;
+          case 'name':
+            list.sort((a, b) => a.title.localeCompare(b.title, 'es'));
+            break;
+          default:
+            list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+        }
+
+        grid.replaceChildren(...list.map(card));
+        count.textContent =
+          list.length === 1 ? '1 producto' : `${list.length} productos`;
+        empty.hidden = list.length > 0;
+        syncChips();
+        writeUrl();
+      }
+
+      categoriesBox.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.cat-chip');
+        if (!b) return;
+        category = b.dataset.category ?? '';
+        apply();
+      });
+
+      presetsBox.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.cat-chip');
+        if (!b) return;
+        const already = b.classList.contains('is-active');
+        minInput.value = already ? '' : (b.dataset.min ?? '');
+        maxInput.value = already ? '' : (b.dataset.max ?? '');
+        apply();
+      });
+
+      $('filters-toggle').addEventListener('click', () => {
+        const open = $('filters-panel').classList.toggle('is-open');
+        $('filters-toggle').setAttribute('aria-expanded', String(open));
+      });
+
+      form.addEventListener('input', apply);
+      form.addEventListener('submit', (e) => e.preventDefault());
+      $('f-reset').addEventListener('click', () => {
+        form.reset();
+        category = '';
+        apply();
+      });
+
+      async function load() {
+        readUrl();
+        const supabase = getClient();
+        if (!supabase) {
+          count.textContent = '';
+          errorBox.hidden = false;
+          return;
+        }
+        const { data, error } = await supabase
+          .from('products')
+          .select(
+            'id,title,description,price,category,image_path,in_stock,published,created_at',
+          )
+          .eq('published', true)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error(error);
+          count.textContent = '';
+          errorBox.hidden = false;
+          return;
+        }
+        products = (data ?? []) as Product[];
+        if (products.length === 0) {
+          count.textContent = '';
+          errorBox.hidden = false;
+          return;
+        }
+        renderCategories();
+        apply();
+      }
+
+      load();
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root,
+  html[data-theme='light'] {
+    --bg: #f4f4f4;
+    --surface: #ffffff;
+    --surface-2: #ececec;
+    --text: #111113;
+    --muted: #5b5b63;
+    --border: #d4d4d8;
+    --accent: #dc2626;
+    --accent-strong: #b91c1c;
+    --accent-soft: rgb(220 38 38 / 0.1);
+    --wa: #16a34a;
+  }
+
+  html[data-theme='dark'] {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface-2: #1f1f25;
+    --text: #f4f4f5;
+    --muted: #a1a1aa;
+    --border: #2c2c33;
+    --accent: #ef4444;
+    --accent-strong: #dc2626;
+    --accent-soft: rgb(239 68 68 / 0.14);
+    --wa: #22c55e;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .cat-wrap {
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+    box-sizing: border-box;
+  }
+
+  .cat-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cat-topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.5rem;
+  }
+
+  .cat-brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .cat-brand-kanji {
+    color: var(--accent);
+    font-weight: 900;
+    font-size: 1.1rem;
+  }
+
+  .cat-brand-name {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  .cat-topnav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .cat-topnav a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .cat-topnav a:hover {
+    color: var(--text);
+  }
+
+  .cat-theme-btn {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .cat-hero {
+    padding: 2.5rem 0 1.5rem;
+  }
+
+  .cat-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .cat-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+
+  .cat-title {
+    margin: 0;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-weight: 400;
+    font-size: clamp(2.6rem, 7vw, 4.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+  }
+
+  .cat-title span {
+    color: var(--accent);
+  }
+
+  .cat-lead {
+    max-width: 40rem;
+    margin: 0.75rem 0 0;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .cat-layout {
+    display: grid;
+    gap: 1.5rem;
+    padding-bottom: 4rem;
+  }
+
+  @media (min-width: 900px) {
+    .cat-layout {
+      grid-template-columns: 16rem 1fr;
+      align-items: start;
+    }
+
+    .cat-filters {
+      position: sticky;
+      top: 4.5rem;
+    }
+  }
+
+  .cat-filters {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1rem;
+  }
+
+  .cat-filters-form {
+    display: grid;
+    gap: 1.1rem;
+  }
+
+  .cat-filters-toggle {
+    display: none;
+  }
+
+  @media (max-width: 899px) {
+    .cat-filters {
+      padding: 0;
+    }
+
+    .cat-filters-toggle {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border: 0;
+      background: none;
+      color: var(--text);
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .cat-filters-form {
+      display: none;
+      padding: 0 1rem 1rem;
+    }
+
+    .cat-filters.is-open .cat-filters-form {
+      display: grid;
+    }
+  }
+
+  .cat-field {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+
+  .cat-field > label,
+  .cat-field > legend {
+    padding: 0;
+    margin-bottom: 0.45rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .cat-field > label {
+    margin-bottom: 0;
+  }
+
+  .cat-filters input[type='search'],
+  .cat-filters input[type='number'],
+  .cat-filters select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.55rem 0.65rem;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    font: inherit;
+    font-size: 0.9rem;
+  }
+
+  .cat-filters input:focus-visible,
+  .cat-filters select:focus-visible,
+  .cat-chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .cat-price-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--muted);
+  }
+
+  .cat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .cat-chip {
+    padding: 0.38rem 0.65rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .cat-chips-sm .cat-chip {
+    font-size: 0.72rem;
+  }
+
+  .cat-chip:hover {
+    border-color: var(--accent);
+  }
+
+  .cat-chip.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .cat-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .cat-check input {
+    accent-color: var(--accent);
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .cat-reset {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .cat-count {
+    margin: 0 0 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  @media (min-width: 640px) {
+    .cat-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .cat-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .cat-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition:
+      border-color 160ms ease,
+      transform 160ms ease;
+  }
+
+  .cat-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .cat-card.is-out img {
+    filter: grayscale(0.85);
+    opacity: 0.7;
+  }
+
+  .cat-card-media {
+    position: relative;
+    aspect-ratio: 1;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+
+  .cat-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cat-card-media.is-empty {
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--border);
+  }
+
+  .cat-card-cat {
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5rem;
+    padding: 0.2rem 0.45rem;
+    background: rgb(0 0 0 / 0.72);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .cat-card-out {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    padding: 0.2rem 0.45rem;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .cat-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.75rem;
+  }
+
+  .cat-card-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .cat-card-desc {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cat-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .cat-card-price {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 1.45rem;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+  }
+
+  .cat-wa-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.1rem;
+    background: var(--wa);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  .cat-wa-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .cat-wa-btn-sm {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .cat-empty {
+    padding: 3rem 1rem;
+    border: 1px dashed var(--border);
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .cat-empty-title {
+    margin: 0 0 0.35rem;
+    color: var(--text);
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+
+  .cat-empty .cat-wa-btn {
+    margin-top: 1rem;
+  }
+
+  .cat-footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .cat-footer p {
+    margin: 0;
+  }
+</style>
