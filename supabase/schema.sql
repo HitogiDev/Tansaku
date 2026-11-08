@@ -41,6 +41,14 @@ create table if not exists public.products (
   updated_at timestamptz not null default now()
 );
 
+-- Varias fotos por publicación (la primera es la portada).
+alter table public.products
+  add column if not exists image_paths text[] not null default '{}';
+
+update public.products
+  set image_paths = array[image_path]
+  where image_path is not null and cardinality(image_paths) = 0;
+
 create index if not exists products_published_created_idx
   on public.products (published, created_at desc);
 

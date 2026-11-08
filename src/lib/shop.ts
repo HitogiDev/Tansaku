@@ -11,6 +11,7 @@ export const WHATSAPP_NUMBER = '8098795559';
 /** Suggested categories. The admin can also type a new one. */
 export const DEFAULT_CATEGORIES = [
   'Manga',
+  'Posters',
   'Llaveros',
   'Pines',
   'Stickers',
@@ -25,11 +26,22 @@ export type Product = {
   description: string | null;
   price: number;
   category: string;
+  /** Cover photo (same as image_paths[0]); kept for older rows. */
   image_path: string | null;
+  /** All photos, in display order. The first one is the cover. */
+  image_paths?: string[] | null;
   in_stock: boolean;
   published: boolean;
   created_at: string;
 };
+
+/** Max photos per product (enforced in the admin UI). */
+export const MAX_PHOTOS = 10;
+
+export function productImages(p: Pick<Product, 'image_path' | 'image_paths'>) {
+  if (p.image_paths?.length) return p.image_paths;
+  return p.image_path ? [p.image_path] : [];
+}
 
 export const isConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 

@@ -5,7 +5,7 @@ El sitio ahora tiene dos partes:
 | Dirección | Qué es | Código |
 | --- | --- | --- |
 | `tansaku.site/catalogo/` | Catálogo público con filtros por categoría, precio, búsqueda, orden y "solo disponibles". Cada producto tiene botón para pedir por WhatsApp. | `src/pages/catalogo.astro` |
-| `admin.tansaku.site` | Panel privado: iniciar sesión, subir publicaciones con foto, precio, categoría y descripción; editar, marcar agotado, ocultar o borrar. | `admin/src/pages/index.astro` |
+| `admin.tansaku.site` | Panel privado: iniciar sesión, subir publicaciones con fotos (hasta 10, varias a la vez), precio, categoría y descripción; editar, marcar agotado, ocultar o borrar. | `admin/src/pages/index.astro` |
 
 Como el sitio es estático (GitHub Pages, sin servidor), los datos, las fotos y el
 login viven en **Supabase** (plan gratis). Las dos partes leen el mismo proyecto.
@@ -41,6 +41,12 @@ login viven en **Supabase** (plan gratis). Las dos partes leen el mismo proyecto
    ponen las reglas del paso 2: sin estar en la tabla `admins` nadie puede
    crear, editar ni borrar. **Nunca** uses la `service_role` key aquí.
 
+### ¿Ya habías corrido `schema.sql` antes de que existieran las fotos múltiples?
+
+Corre también [`supabase/migrations/002_multiple_photos.sql`](supabase/migrations/002_multiple_photos.sql)
+en el SQL Editor (o vuelve a correr `schema.sql` completo: se puede repetir sin
+problema). Sin eso, el panel muestra un error al guardar.
+
 ## 2. Conectar el sitio público (tansaku.site)
 
 En GitHub: *Settings → Secrets and variables → Actions → pestaña **Variables** →
@@ -49,7 +55,7 @@ New repository variable*, crea:
 - `PUBLIC_SUPABASE_URL`
 - `PUBLIC_SUPABASE_ANON_KEY`
 
-El próximo push a `main` (o *Actions → Deploy to GitHub Pages → Run workflow*)
+El próximo push a `master` (o *Actions → Deploy to GitHub Pages → Run workflow*)
 publica `/catalogo/` ya conectado. Mientras no estén configuradas, el catálogo
 muestra "El catálogo se está preparando" con un botón de WhatsApp.
 
@@ -61,7 +67,7 @@ publica aparte en **Cloudflare Pages** (gratis) desde este mismo repositorio:
 1. <https://dash.cloudflare.com> → *Workers & Pages → Create → Pages → Connect to
    Git* → elige `HitogiDev/Tansaku`.
 2. Configuración de build:
-   - **Production branch:** `main`
+   - **Production branch:** `master`
    - **Framework preset:** None
    - **Build command:** `npm run build:admin`
    - **Build output directory:** `dist-admin`
@@ -76,7 +82,7 @@ publica aparte en **Cloudflare Pages** (gratis) desde este mismo repositorio:
    `https://admin.tansaku.site` a **Redirect URLs** (y ponlo como Site URL si
    quieres).
 
-Cada push a `main` vuelve a publicar ambos: GitHub Pages el sitio, Cloudflare el
+Cada push a `master` vuelve a publicar ambos: GitHub Pages el sitio, Cloudflare el
 panel.
 
 > ¿Prefieres Netlify o Vercel? Funciona igual: build `npm run build:admin`,
@@ -85,11 +91,12 @@ panel.
 ## Uso diario
 
 1. Abre `admin.tansaku.site` e inicia sesión.
-2. Toca el recuadro para subir la foto (desde el celular puedes tomarla en el
-   momento). Se reduce y comprime automáticamente antes de subirla.
+2. Toca **+ Agregar fotos** y elige una o varias a la vez (hasta 10). Se reducen
+   y comprimen automáticamente. La primera es la portada: usa ★ para cambiarla,
+   ◀ ▶ para ordenarlas y ✕ para quitar una.
 3. Escribe título, precio, categoría (elige una o escribe una nueva) y,
    si quieres, descripción → **Publicar**. Aparece al instante en
-   `tansaku.site/catalogo/`.
+   `tansaku.site/catalogo/`. Al tocar un producto se abre con todas sus fotos.
 4. En la lista puedes **Editar**, **Marcar agotado** (sigue visible con la
    etiqueta "Agotado" y el botón "Avísame"), **Ocultar** (deja de verse en el
    catálogo) o **Borrar**.
