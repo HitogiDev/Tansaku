@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # admin panel build output
 dist-admin/
+
+# brand assets (local only)
+brand/
