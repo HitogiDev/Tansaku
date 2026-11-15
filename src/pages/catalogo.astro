@@ -58,7 +58,7 @@ const icons = {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Dela+Gothic+One&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dela+Gothic+One&family=Inter:wght@500;600;700;800&family=Noto+Sans+JP:wght@700&display=swap"
       rel="stylesheet"
     />
     <script is:inline>
@@ -85,6 +85,7 @@ const icons = {
         <nav class="nav-links" aria-label="Secciones">
           <a href="/">Inicio</a>
           <a href="/#merch">Merch</a>
+          <a href="/#catalogo">Manga</a>
           <a href="/#contacto">Pide tu serie</a>
           <a href="/#faq">FAQ</a>
         </nav>
@@ -779,9 +780,13 @@ const icons = {
     --cyan: #5eead4;
     --wa: #25d366;
     --shadow: #dc2626;
-    --font-display: 'Dela Gothic One', 'Arial Black', Impact, sans-serif;
-    --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    /* Guía de marca §05: Bebas Neue titulares, Dela Gothic One stickers /
+       números / japonés, Inter todo lo demás, Noto Sans JP el kanji de fondo. */
+    --font-display: 'Bebas Neue', 'Arial Narrow', Impact, sans-serif;
+    --font-fun: 'Dela Gothic One', 'Arial Black', sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-label: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-jp: 'Noto Sans JP', 'Dela Gothic One', sans-serif;
     --nav-h: 3.75rem;
     color-scheme: dark;
   }
@@ -808,6 +813,7 @@ const icons = {
     background: var(--bg);
     color: var(--text);
     font-family: var(--font-body);
+    font-weight: 500;
     font-size: 1rem;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
@@ -1069,7 +1075,7 @@ const icons = {
     position: absolute;
     right: -0.06em;
     bottom: -0.22em;
-    font-family: var(--font-display);
+    font-family: var(--font-jp);
     font-size: clamp(5rem, 24vw, 13rem);
     line-height: 1;
     white-space: nowrap;
@@ -1089,16 +1095,16 @@ const icons = {
     gap: 0.55rem;
     margin: 0 0 0.9rem;
     color: var(--muted);
-    font-family: var(--font-mono);
+    font-family: var(--font-label);
+    font-weight: 800;
     font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
   .eyebrow-jp {
     color: var(--red-text);
-    font-family: var(--font-display);
+    font-family: var(--font-fun);
     letter-spacing: 0.05em;
   }
 
@@ -1122,8 +1128,9 @@ const icons = {
   .hero-title {
     margin: 0;
     font-family: var(--font-display);
+    letter-spacing: 0.05em;
     font-weight: 400;
-    font-size: clamp(2rem, 9.5vw, 4.4rem);
+    font-size: clamp(2.4rem, 11.4vw, 5.28rem);
     line-height: 1.12;
     text-transform: uppercase;
   }
@@ -1297,10 +1304,10 @@ const icons = {
 
   .field-label {
     padding: 0;
-    font-family: var(--font-mono);
+    font-family: var(--font-label);
+    font-weight: 800;
     font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
@@ -1368,9 +1375,9 @@ const icons = {
   }
 
   .chip-count {
-    font-family: var(--font-mono);
+    font-family: var(--font-label);
+    font-weight: 800;
     font-size: 0.68rem;
-    font-weight: 500;
     opacity: 0.7;
   }
 
@@ -1486,7 +1493,8 @@ const icons = {
     align-items: center;
     gap: 0.6rem;
     font-family: var(--font-display);
-    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+    font-size: 1.56rem;
     text-transform: uppercase;
   }
 
@@ -1510,9 +1518,10 @@ const icons = {
   .count {
     margin: 0 0 1rem;
     color: var(--muted);
-    font-family: var(--font-mono);
+    font-family: var(--font-label);
+    font-weight: 800;
     font-size: 0.74rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
@@ -1580,7 +1589,7 @@ const icons = {
   }
 
   .card-empty-kanji {
-    font-family: var(--font-display);
+    font-family: var(--font-fun);
     font-size: 2.6rem;
     color: var(--hair);
     -webkit-text-stroke: 2px var(--muted);
@@ -1591,10 +1600,10 @@ const icons = {
     display: inline-block;
     padding: 0.2rem 0.45rem;
     border: 2px solid var(--ink);
-    font-family: var(--font-mono);
+    font-family: var(--font-label);
+    font-weight: 800;
     font-size: 0.62rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.14em;
     line-height: 1.25;
     text-transform: uppercase;
   }
@@ -1618,9 +1627,10 @@ const icons = {
     padding: 0.15rem 0.4rem;
     background: rgb(13 13 15 / 0.78);
     color: #fff6e5;
-    font-family: var(--font-mono);
+    font-family: var(--font-label);
+    font-weight: 800;
     font-size: 0.6rem;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
@@ -1632,7 +1642,7 @@ const icons = {
     border: 3px solid #fff;
     background: var(--red);
     color: #fff;
-    font-family: var(--font-display);
+    font-family: var(--font-fun);
     font-size: clamp(0.85rem, 4vw, 1.15rem);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -1704,7 +1714,7 @@ const icons = {
   }
 
   .card-price {
-    font-family: var(--font-display);
+    font-family: var(--font-fun);
     font-size: 1.02rem;
     line-height: 1.2;
     color: var(--yellow);
@@ -1785,7 +1795,7 @@ const icons = {
   }
 
   .empty-kana {
-    font-family: var(--font-display);
+    font-family: var(--font-fun);
     font-size: 3rem;
     line-height: 1.1;
     color: transparent;
@@ -1795,7 +1805,8 @@ const icons = {
   .empty-title {
     color: var(--text);
     font-family: var(--font-display);
-    font-size: 1.15rem;
+    letter-spacing: 0.05em;
+    font-size: 1.38rem;
     text-transform: uppercase;
   }
 
@@ -1879,7 +1890,9 @@ const icons = {
     display: grid;
     place-items: center;
     font-family: var(--font-display);
-    font-size: 4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 4.8rem;
     color: var(--hair);
   }
 
@@ -1959,15 +1972,16 @@ const icons = {
   .pd-title {
     margin: 0.2rem 0 0;
     font-family: var(--font-display);
+    letter-spacing: 0.05em;
     font-weight: 400;
-    font-size: clamp(1.35rem, 6vw, 1.9rem);
+    font-size: clamp(1.62rem, 7.2vw, 2.28rem);
     line-height: 1.15;
     text-transform: uppercase;
   }
 
   .pd-price {
     margin: 0;
-    font-family: var(--font-display);
+    font-family: var(--font-fun);
     font-size: 1.6rem;
     line-height: 1.1;
     color: var(--yellow);
@@ -2037,7 +2051,7 @@ const icons = {
     position: absolute;
     right: -0.05em;
     bottom: -0.28em;
-    font-family: var(--font-display);
+    font-family: var(--font-jp);
     font-size: clamp(8rem, 34vw, 18rem);
     line-height: 1;
     white-space: nowrap;
@@ -2056,7 +2070,8 @@ const icons = {
   .footer-name {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.7rem;
+    letter-spacing: 0.05em;
+    font-size: 2.04rem;
     line-height: 1;
     text-transform: uppercase;
   }
@@ -2064,9 +2079,10 @@ const icons = {
   .footer-tagline {
     margin: 0.5rem 0 0;
     color: var(--muted);
-    font-family: var(--font-mono);
+    font-family: var(--font-label);
+    font-weight: 800;
     font-size: 0.72rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
@@ -2218,7 +2234,7 @@ const icons = {
     }
 
     .hero-title {
-      font-size: clamp(2.8rem, 4.6vw, 4rem);
+      font-size: clamp(3.36rem, 5.52vw, 4.8rem);
     }
 
     .hero-kana {
