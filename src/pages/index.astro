@@ -87,7 +87,6 @@ const icons = {
   bag: '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
   poster:
     '<rect x="4" y="2" width="16" height="20" rx="1"/><circle cx="10" cy="8" r="2"/><path d="m20 16-4-4-8 8"/>',
-  pin: '<circle cx="12" cy="10" r="7"/><path d="m9.5 10 1.8 1.8 3.4-3.6"/><path d="M12 17v5"/>',
   sticker:
     '<path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M15 3v6h6"/><path d="M10 16s.8 1 2 1c1.3 0 2-1 2-1"/><path d="M8.5 11h.01"/><path d="M15.5 11h.01"/>',
   spark:
@@ -107,8 +106,7 @@ const icons = {
   plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
 };
 
-// Lo que hay hoy (guía de marca §01): pósters y stickers en stock; pines
-// próximamente, sin fecha ni precio. Manga, figuras y ropa no se mencionan.
+// Lo que hay hoy (guía de marca §01): pósters y stickers en stock.
 const merch = [
   {
     id: 'posters',
@@ -142,22 +140,6 @@ const merch = [
     cta: 'Ver stickers',
     soon: false,
   },
-  {
-    id: 'pines',
-    kana: 'ピンズ',
-    icon: icons.pin,
-    tone: 'yellow',
-    stock: 'Próximamente',
-    tag: 'Pronto',
-    title: 'Pines',
-    desc: 'Próximamente. Cuando los tengamos en la mano, lo decimos en Instagram primero.',
-    priceNote: '',
-    price: '',
-    combos: [],
-    href: 'https://www.instagram.com/tansakustore',
-    cta: 'Síguenos en Instagram',
-    soon: true,
-  },
 ];
 
 const steps = [
@@ -183,7 +165,6 @@ const steps = [
 
 const tickerItems = [
   'Posters',
-  'Pines',
   'Stickers',
   'Manga físico pronto',
   'Entrega gratis',
@@ -1971,10 +1952,6 @@ const tickerItems = [
     font-size: 0.95rem;
   }
 
-  .merch-card:first-child {
-    grid-column: 1 / -1;
-  }
-
   .merch-body .btn {
     min-height: 2.75rem;
     padding-inline: 0.5rem;
@@ -2948,11 +2925,9 @@ const tickerItems = [
     }
 
     .merch-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .merch-card:first-child {
-      grid-column: auto;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: 52rem;
+      margin-inline: auto;
     }
 
     .merch-card {
