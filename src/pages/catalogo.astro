@@ -1,7 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import '../styles/global.css';
-import logo from '../assets/brand/tansaku-logo.png';
+import logoDark from '../assets/logos/horizontal.png';
+import logoLight from '../assets/logos/horizontal-claro.png';
 import { WHATSAPP_NUMBER } from '../lib/shop';
 
 const currentYear = new Date().getFullYear();
@@ -36,18 +37,18 @@ const icons = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/x-icon" href="/tk.ico" />
-    <title>Catálogo | Tansaku — Manga y Merch Anime en RD</title>
+    <title>Catálogo | Tansaku — Pósters y stickers de anime</title>
     <meta
       name="description"
-      content="Catálogo de Tansaku: manga, llaveros, pines, stickers, figuras y mercancía anime en San Pedro de Macorís y La Romana. Filtra por categoría y precio y pide por WhatsApp."
+      content="Catálogo de Tansaku: pósters y stickers de anime en San Pedro de Macorís. Filtra por categoría y precio, pide por WhatsApp y pagas al recibir."
     />
     <link rel="canonical" href="https://tansaku.site/catalogo/" />
-    <meta name="theme-color" content="#0b0a0d" />
+    <meta name="theme-color" content="#0b1118" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://tansaku.site/catalogo/" />
     <meta property="og:site_name" content="Tansaku" />
     <meta property="og:locale" content="es_DO" />
-    <meta property="og:title" content="Catálogo Tansaku | Manga y Merch Anime" />
+    <meta property="og:title" content="Catálogo Tansaku | Pósters y stickers de anime" />
     <meta
       property="og:description"
       content="Mira todo lo disponible, filtra por categoría y precio, y pide por WhatsApp."
@@ -78,13 +79,13 @@ const icons = {
     <header class="nav">
       <div class="wrap nav-inner">
         <a href="/" class="brand" aria-label="Tansaku — inicio">
-          <Image src={logo} alt="" class="brand-logo" widths={[64, 128]} sizes="34px" format="webp" loading="eager" />
-          <span class="brand-name">Tansaku</span>
+          <Image src={logoDark} alt="Tansaku" class="brand-logo brand-logo-dark" widths={[128, 256]} sizes="128px" format="webp" loading="eager" />
+          <Image src={logoLight} alt="Tansaku" class="brand-logo brand-logo-light" widths={[128, 256]} sizes="128px" format="webp" loading="eager" />
         </a>
         <nav class="nav-links" aria-label="Secciones">
           <a href="/">Inicio</a>
           <a href="/#merch">Merch</a>
-          <a href="/#catalogo">Manga</a>
+          <a href="/#contacto">Pide tu serie</a>
           <a href="/#faq">FAQ</a>
         </nav>
         <div class="nav-actions">
@@ -128,7 +129,7 @@ const icons = {
           <h1 class="hero-title">Catálogo <span class="hl">Tansaku</span></h1>
           <p class="hero-lead">
             Todo lo que tenemos ahora mismo. Filtra, elige y pide por WhatsApp —
-            entrega gratis en San Pedro y La Romana, <strong>pagas al recibir</strong>.
+            entrega gratis en San Pedro de Macorís y <strong>pagas al recibir</strong>.
           </p>
         </div>
       </section>
@@ -311,7 +312,7 @@ const icons = {
           <ul class="pd-perks">
             <li>
               <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.truck} />
-              Entrega gratis en San Pedro y La Romana
+              Entrega gratis en San Pedro de Macorís
             </li>
             <li>
               <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.check} />
@@ -336,13 +337,13 @@ const icons = {
       <div class="wrap footer-inner">
         <div>
           <p class="footer-name">Tansaku</p>
-          <p class="footer-tagline">Manga · Merch Anime · República Dominicana</p>
+          <p class="footer-tagline">Pósters y stickers de anime · San Pedro de Macorís</p>
         </div>
         <nav class="footer-links" aria-label="Pie de página">
           <a href="/">Inicio</a>
           <a href="/#como-comprar">Cómo comprar</a>
           <a href="/#faq">FAQ</a>
-          <a href="/#contacto">Vota tu manga</a>
+          <a href="/#contacto">Pide tu serie</a>
           <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Instagram</a>
         </nav>
         <p class="footer-copy">© {currentYear} Tansaku · Hecho con ❤️ en RD</p>
@@ -386,7 +387,7 @@ const icons = {
         $('theme-icon-moon').hidden = theme === 'dark';
         document
           .querySelector('meta[name="theme-color"]')
-          ?.setAttribute('content', theme === 'dark' ? '#0b0a0d' : '#f6f0e3');
+          ?.setAttribute('content', theme === 'dark' ? '#0b1118' : '#fff6e5');
         if (!persist) return;
         try {
           localStorage.setItem('tansaku-theme', theme);
@@ -762,21 +763,22 @@ const icons = {
   /* ── Tokens (keep in sync with src/pages/index.astro) ─────── */
   :root,
   html[data-theme='dark'] {
-    --ink: #0b0a0d;
-    --paper: #f6f0e3;
-    --bg: #0b0a0d;
-    --bg-alt: #121016;
-    --surface: #18151d;
-    --text: #f6f0e3;
-    --muted: #aaa4b0;
-    --stroke: #f6f0e3;
-    --hair: rgb(246 240 227 / 0.14);
-    --dot: rgb(246 240 227 / 0.13);
-    --red: #ff3344;
-    --yellow: #ffd60a;
-    --cyan: #3ce0d2;
+    --ink: #0d0d0f;
+    --paper: #fff6e5;
+    --bg: #0b1118; /* Noche */
+    --bg-alt: #101823;
+    --surface: #16202b;
+    --text: #ffffff;
+    --muted: #cbd5e1; /* Humo */
+    --stroke: #ffffff;
+    --hair: rgb(255 246 229 / 0.14);
+    --dot: rgb(255 246 229 / 0.13);
+    --red: #dc2626; /* Rojo Tansaku: fondos, sellos, titulares grandes */
+    --red-text: #ef4444; /* Rojo claro: texto rojo sobre Noche */
+    --yellow: #ffd23f;
+    --cyan: #5eead4;
     --wa: #25d366;
-    --shadow: #ff3344;
+    --shadow: #dc2626;
     --font-display: 'Dela Gothic One', 'Arial Black', Impact, sans-serif;
     --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
@@ -785,17 +787,18 @@ const icons = {
   }
 
   html[data-theme='light'] {
-    --bg: #f6f0e3;
-    --bg-alt: #ece3cf;
-    --surface: #fffaf0;
-    --text: #0b0a0d;
-    --muted: #5e5864;
-    --stroke: #0b0a0d;
-    --hair: rgb(11 10 13 / 0.16);
-    --dot: rgb(11 10 13 / 0.13);
-    --red: #e0162b;
-    --cyan: #13b8aa;
-    --shadow: #0b0a0d;
+    --bg: #fff6e5;
+    --bg-alt: #f6e8cc;
+    --surface: #ffffff;
+    --text: #0d0d0f;
+    --muted: #4b5563;
+    --stroke: #0d0d0f;
+    --hair: rgb(13 13 15 / 0.16);
+    --dot: rgb(13 13 15 / 0.13);
+    --red: #dc2626;
+    --red-text: #dc2626;
+    --cyan: #5eead4;
+    --shadow: #0d0d0f;
     color-scheme: light;
   }
 
@@ -949,26 +952,22 @@ const icons = {
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 16px;
+    padding-right: 16px;
     color: var(--text);
     text-decoration: none;
   }
 
-  /* Logo: sello tal cual (guía de marca §07) — sin giro, borde ni sombra.
-     Espacio libre = mitad del diámetro del sello en los 4 lados. */
+  /* Logo horizontal tal cual (guía de marca §07), igual que en index.astro. */
   .brand-logo {
     display: block;
     flex: none;
-    width: 30px;
+    width: auto;
     height: 30px;
   }
 
-  .brand-name {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    letter-spacing: 0.04em;
-    line-height: 1;
-    text-transform: uppercase;
+  html[data-theme='dark'] .brand-logo-dark,
+  html[data-theme='light'] .brand-logo-light {
+    display: none;
   }
 
   .nav-links {
@@ -1098,7 +1097,7 @@ const icons = {
   }
 
   .eyebrow-jp {
-    color: var(--red);
+    color: var(--red-text);
     font-family: var(--font-display);
     letter-spacing: 0.05em;
   }
@@ -1445,7 +1444,7 @@ const icons = {
     position: fixed;
     inset: 0;
     z-index: 70;
-    background: rgb(11 10 13 / 0.6);
+    background: rgb(13 13 15 / 0.6);
     backdrop-filter: blur(2px);
   }
 
@@ -1617,8 +1616,8 @@ const icons = {
     right: 0.45rem;
     bottom: 0.45rem;
     padding: 0.15rem 0.4rem;
-    background: rgb(11 10 13 / 0.78);
-    color: #f6f0e3;
+    background: rgb(13 13 15 / 0.78);
+    color: #fff6e5;
     font-family: var(--font-mono);
     font-size: 0.6rem;
     letter-spacing: 0.06em;
@@ -1680,7 +1679,7 @@ const icons = {
 
   .card-title button:hover {
     text-decoration: underline;
-    text-decoration-color: var(--red);
+    text-decoration-color: var(--red-text);
     text-decoration-thickness: 2px;
     text-underline-offset: 3px;
   }
@@ -1712,7 +1711,7 @@ const icons = {
   }
 
   html[data-theme='light'] .card-price {
-    color: var(--red);
+    color: var(--red-text);
   }
 
   .card-row .btn {
@@ -1830,7 +1829,7 @@ const icons = {
   }
 
   .pd::backdrop {
-    background: rgb(11 10 13 / 0.65);
+    background: rgb(13 13 15 / 0.65);
     backdrop-filter: blur(3px);
   }
 
@@ -1975,14 +1974,14 @@ const icons = {
   }
 
   html[data-theme='light'] .pd-price {
-    color: var(--red);
+    color: var(--red-text);
   }
 
   .pd-out {
     margin: 0;
     padding: 0.5rem 0.7rem;
     border: 2px solid var(--red);
-    color: var(--red);
+    color: var(--red-text);
     font-size: 0.88rem;
     font-weight: 700;
   }
@@ -2022,7 +2021,7 @@ const icons = {
   .pd-perks .ico {
     width: 1.15rem;
     height: 1.15rem;
-    color: var(--red);
+    color: var(--red-text);
   }
 
   /* ── Footer ─────────────────────────────────────────────────── */
@@ -2088,7 +2087,7 @@ const icons = {
   }
 
   .footer-links a:hover {
-    color: var(--red);
+    color: var(--red-text);
   }
 
   .footer-copy {
@@ -2207,12 +2206,7 @@ const icons = {
     }
 
     .brand-logo {
-      width: 34px;
       height: 34px;
-    }
-
-    .brand {
-      gap: 18px;
     }
 
     .nav-links {
