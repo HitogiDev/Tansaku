@@ -182,13 +182,14 @@ const steps = [
 ];
 
 const tickerItems = [
-  'Pósters 11x17',
+  'Posters',
+  'Pines',
   'Stickers',
-  'Manga próximamente',
+  'Manga físico pronto',
+  'Entrega gratis',
+  'San Pedro de Macorís',
+  'La Romana',
   'Pagas al recibir',
-  'Entrega gratis en San Pedro de Macorís',
-  'Respuesta rápida',
-  'Fans sirviendo fans',
 ];
 ---
 
@@ -453,20 +454,6 @@ const tickerItems = [
             </div>
           </div>
 
-          <ul class="hero-trust">
-            <li>
-              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.bag} />
-              <span>Pósters y stickers en stock</span>
-            </li>
-            <li>
-              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.check} />
-              <span>Pagas al recibir</span>
-            </li>
-            <li>
-              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.mapPin} />
-              <span>Entrega gratis en San Pedro de Macorís</span>
-            </li>
-          </ul>
         </div>
       </section>
 
@@ -1662,40 +1649,6 @@ const tickerItems = [
     }
   }
 
-  .hero-trust {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border: 2px solid var(--stroke);
-    background: var(--bg);
-  }
-
-  .hero-trust li {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.8rem 0.4rem;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    line-height: 1.2;
-    text-align: center;
-    text-transform: uppercase;
-  }
-
-  .hero-trust li + li {
-    border-left: 2px solid var(--stroke);
-  }
-
-  .hero-trust .ico {
-    width: 1.25rem;
-    height: 1.25rem;
-    color: var(--red-text);
-  }
-
   /* ── Ticker ─────────────────────────────────────────────────── */
   .ticker {
     position: relative;
@@ -2833,14 +2786,6 @@ const tickerItems = [
       padding-block: 5.5rem;
     }
 
-    .hero-trust li {
-      flex-direction: row;
-      justify-content: center;
-      gap: 0.6rem;
-      padding: 0.95rem 0.6rem;
-      font-size: 0.76rem;
-    }
-
     .merch-grid {
       gap: 1.25rem;
     }
@@ -2946,9 +2891,7 @@ const tickerItems = [
 
     .hero-inner {
       grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-      grid-template-areas:
-        'copy art'
-        'trust trust';
+      grid-template-areas: 'copy art';
       align-items: center;
       gap: 3rem 2rem;
       padding-block: 4.5rem 4rem;
@@ -2960,10 +2903,6 @@ const tickerItems = [
 
     .hero-art {
       grid-area: art;
-    }
-
-    .hero-trust {
-      grid-area: trust;
     }
 
     .hero-title {
