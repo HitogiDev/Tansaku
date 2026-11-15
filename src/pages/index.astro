@@ -1,8 +1,15 @@
 ---
 import { Image } from 'astro:assets';
 import '../styles/global.css';
+import logoDark from '../assets/logos/horizontal.png';
+import logoLight from '../assets/logos/horizontal-claro.png';
+import { WHATSAPP_NUMBER } from '../lib/shop';
 
 const currentYear = new Date().getFullYear();
+const INSTAGRAM_URL = 'https://www.instagram.com/tansakustore';
+
+const wa = (text: string) =>
+  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 
 function shuffleArray<T>(array: T[]) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -19,9 +26,6 @@ const coverModules = import.meta.glob(
     import: 'default',
   },
 ) as Record<string, import('astro').ImageMetadata>;
-
-const covers = shuffleArray(Object.values(coverModules));
-const minItemsPerRow = Math.max(covers.length, 16);
 
 const mangaMetaBySlug: Record<string, { title: string; genre: string }> = {
   akane: { title: 'Akane Banashi', genre: 'Drama / Shonen' },
@@ -49,7 +53,7 @@ const mangaMetaBySlug: Record<string, { title: string; genre: string }> = {
 
 const catalogItems = Object.entries(coverModules)
   .sort(([a], [b]) => a.localeCompare(b))
-  .map(([path, image], index) => {
+  .map(([path, image]) => {
     const fileName = path.split('/').pop() ?? '';
     const slug = fileName.split('.')[0]?.toLowerCase() ?? '';
     const meta = mangaMetaBySlug[slug] ?? {
@@ -59,56 +63,151 @@ const catalogItems = Object.entries(coverModules)
       genre: 'Manga / Interés',
     };
 
-    return {
-      index: String(index + 1).padStart(2, '0'),
-      title: meta.title,
-      genre: meta.genre,
-      image,
-    };
+    return { title: meta.title, genre: meta.genre, image };
   });
 
-const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
-  Array.from(
-    { length: minItemsPerRow },
-    (_, imageIndex) => covers[(rowIndex * 3 + imageIndex) % covers.length],
-  ),
-);
+// Three random covers fanned out in the hero.
+const heroCovers = shuffleArray([...catalogItems]).slice(0, 3);
+
+// Starburst sticker shape (clip-path polygon).
+const burst = (points = 14, inner = 0.82) =>
+  Array.from({ length: points * 2 }, (_, i) => {
+    const r = i % 2 ? inner : 1;
+    const a = (Math.PI * i) / points;
+    return `${(50 + 50 * r * Math.cos(a)).toFixed(2)}% ${(50 + 50 * r * Math.sin(a)).toFixed(2)}%`;
+  }).join(',');
+const burstShape = `polygon(${burst()})`;
+
+const WA_ICON =
+  'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z';
+
+// Stroke icons (24×24, lucide-style paths).
+const icons = {
+  arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  bag: '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  poster:
+    '<rect x="4" y="2" width="16" height="20" rx="1"/><circle cx="10" cy="8" r="2"/><path d="m20 16-4-4-8 8"/>',
+  sticker:
+    '<path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M15 3v6h6"/><path d="M10 16s.8 1 2 1c1.3 0 2-1 2-1"/><path d="M8.5 11h.01"/><path d="M15.5 11h.01"/>',
+  spark:
+    '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  mapPin:
+    '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  gift: '<path d="M20 12v10H4V12"/><rect width="20" height="5" x="2" y="7"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>',
+  check:
+    '<path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  instagram:
+    '<rect width="20" height="20" x="2" y="2" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
+  plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+};
+
+// Lo que hay hoy (guía de marca §01): pósters y stickers en stock.
+const merch = [
+  {
+    id: 'posters',
+    kana: 'ポスター',
+    icon: icons.poster,
+    tone: 'red',
+    stock: 'En stock',
+    tag: '11x17',
+    title: 'Pósters 11x17',
+    desc: 'Tus series favoritas para tu pared. El tamaño de dos hojas de papel juntas.',
+    priceNote: '1 póster',
+    price: 'RD$100',
+    combos: ['2 por RD$180', '3 por RD$250'],
+    href: wa('Hola Tansaku, ¿me mandas el catálogo de pósters?'),
+    cta: 'Ver pósters',
+    soon: false,
+  },
+  {
+    id: 'stickers',
+    kana: 'ステッカー',
+    icon: icons.sticker,
+    tone: 'cyan',
+    stock: 'En stock',
+    tag: 'c/u',
+    title: 'Stickers',
+    desc: 'Para la laptop, el termo o donde quieras. Elige de tus series favoritas.',
+    priceNote: 'Cada uno',
+    price: 'RD$10',
+    combos: [],
+    href: wa('Hola Tansaku, ¿me mandas los stickers que tienes?'),
+    cta: 'Ver stickers',
+    soon: false,
+  },
+];
+
+const steps = [
+  {
+    num: '01',
+    kana: 'メッセージ',
+    title: 'Escríbenos',
+    desc: 'Dinos qué te interesa por WhatsApp y te mandamos fotos, diseños y precios al momento.',
+  },
+  {
+    num: '02',
+    kana: 'デリバリー',
+    title: 'Coordinamos la entrega',
+    desc: 'Punto de encuentro en San Pedro de Macorís. La entrega es gratis y normalmente en 1 a 3 días.',
+  },
+  {
+    num: '03',
+    kana: 'ペイ',
+    title: 'Pagas al recibir',
+    desc: 'Revisas tu pedido en la mano y pagas en efectivo o por transferencia.',
+  },
+];
+
+const tickerItems = [
+  'Posters',
+  'Stickers',
+  'Manga físico pronto',
+  'Entrega gratis',
+  'San Pedro de Macorís',
+  'La Romana',
+  'Pagas al recibir',
+];
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/x-icon" href="/tk.ico" />
-    <title>Tansaku | Manga, Posters y Mercancía Anime en San Pedro y La Romana</title>
+    <title>Tansaku | Pósters y stickers de anime en San Pedro de Macorís</title>
     <meta
       name="description"
-      content="Tansaku es tu tienda de manga físico, posters, pines, stickers y mercancía anime en San Pedro de Macorís y La Romana. Compra ya o únete a la lista fundadora."
+      content="Pósters de anime 11x17 desde RD$100 y stickers a RD$10 en San Pedro de Macorís. Entrega gratis en San Pedro y pagas al recibir."
     />
     <link rel="canonical" href="https://tansaku.site/" />
-    <meta name="theme-color" content="#0d0d0f" />
+    <meta name="theme-color" content="#0b1118" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://tansaku.site/" />
     <meta property="og:site_name" content="Tansaku" />
     <meta property="og:locale" content="es_DO" />
-    <meta property="og:title" content="Tansaku | Manga y Merch Anime en RD" />
+    <meta property="og:title" content="Tansaku | Pósters y stickers de anime" />
     <meta
       property="og:description"
-      content="Manga, posters y mercancía anime llegan a San Pedro y La Romana. Compra posters, pines y stickers ya mismo."
+      content="Pósters 11x17 desde RD$100 y stickers a RD$10. Entrega gratis en San Pedro de Macorís y pagas al recibir."
     />
     <meta property="og:image" content="https://tansaku.site/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="Tansaku — Manga, posters y merch anime en San Pedro de Macorís y La Romana"
+      content="Tansaku — Pósters y stickers de anime en San Pedro de Macorís"
     />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Tansaku | Manga y Merch Anime en RD" />
+    <meta name="twitter:title" content="Tansaku | Pósters y stickers de anime" />
     <meta
       name="twitter:description"
-      content="Manga, posters y mercancía anime en San Pedro de Macorís y La Romana. Posters, pines y stickers disponibles ya."
+      content="Pósters 11x17 desde RD$100 y stickers a RD$10 en San Pedro de Macorís. Pagas al recibir."
     />
     <meta name="twitter:image" content="https://tansaku.site/og.jpg" />
     <script
@@ -120,12 +219,12 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
         name: 'Tansaku',
         alternateName: '探索',
         description:
-          'Tienda de manga físico, posters, pines, stickers y mercancía anime en San Pedro de Macorís y La Romana, República Dominicana.',
+          'Tienda otaku local de pósters y stickers de anime en San Pedro de Macorís, República Dominicana. Pagas al recibir.',
         url: 'https://tansaku.site/',
         image: 'https://tansaku.site/og.jpg',
         telephone: '+1-809-879-5559',
         sameAs: ['https://www.instagram.com/tansakustore'],
-        priceRange: 'RD$10 - RD$1000',
+        priceRange: 'RD$10 - RD$250',
         currenciesAccepted: 'DOP',
         address: {
           '@type': 'PostalAddress',
@@ -134,22 +233,17 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
         },
         areaServed: [
           { '@type': 'City', name: 'San Pedro de Macorís' },
-          { '@type': 'City', name: 'La Romana' },
         ],
         makesOffer: [
           {
             '@type': 'Offer',
-            itemOffered: { '@type': 'Product', name: 'Posters anime' },
-          },
-          {
-            '@type': 'Offer',
-            itemOffered: { '@type': 'Product', name: 'Pines metálicos anime' },
+            itemOffered: { '@type': 'Product', name: 'Póster de anime 11x17' },
             priceCurrency: 'DOP',
-            price: '150',
+            price: '100',
           },
           {
             '@type': 'Offer',
-            itemOffered: { '@type': 'Product', name: 'Stickers anime' },
+            itemOffered: { '@type': 'Product', name: 'Sticker de anime' },
             priceCurrency: 'DOP',
             price: '10',
           },
@@ -168,7 +262,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
             name: '¿Cómo compro si no tienen tienda física?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Todo pasa por WhatsApp: nos escribes, te mandamos fotos de lo disponible, eliges y coordinamos un punto de encuentro en San Pedro de Macorís o La Romana. Ves tu pedido antes de pagar.',
+              text: 'Todo pasa por WhatsApp: nos escribes, te mandamos fotos de lo disponible, eliges y coordinamos un punto de encuentro en San Pedro de Macorís. Ves tu pedido antes de pagar.',
             },
           },
           {
@@ -176,7 +270,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
             name: '¿Cómo pago?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Efectivo, transferencia o tarjeta — siempre al momento de la entrega, con tu pedido en la mano, nunca por adelantado.',
+              text: 'Efectivo o transferencia, siempre al momento de la entrega, con tu pedido en la mano, nunca por adelantado.',
             },
           },
           {
@@ -184,7 +278,31 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
             name: '¿Cuánto cuesta y cuánto tarda la entrega?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'La entrega es gratis en San Pedro de Macorís y La Romana. Normalmente coordinamos en 1 a 3 días.',
+              text: 'La entrega es gratis en San Pedro de Macorís. Normalmente coordinamos en 1 a 3 días.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Entregan en La Romana?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Por ahora la entrega gratis es solo en San Pedro de Macorís. Si eso cambia, lo anunciamos aquí.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Cuánto cuestan los pósters?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: '1 póster 11x17 RD$100, 2 por RD$180 y 3 por RD$250. Los stickers, RD$10 cada uno.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Tienen manga?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Todavía no, pero llega próximamente. Mientras, pide la serie que quieres en el formulario: las más pedidas llegan primero.',
             },
           },
           {
@@ -201,961 +319,539 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dela+Gothic+One&family=Inter:wght@500;600;700;800&family=Noto+Sans+JP:wght@700&display=swap"
       rel="stylesheet"
     />
+    <script is:inline>
+      // Runs before paint: applies the saved theme and flags JS for reveals.
+      (() => {
+        const root = document.documentElement;
+        root.classList.add('js');
+        try {
+          const t = localStorage.getItem('tansaku-theme');
+          if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t);
+        } catch {}
+      })();
+    </script>
   </head>
-  <body class="bg-white text-gray-900 font-sans antialiased">
-    <div class="min-h-screen bg-gray-50">
-      <main>
-        <section
-          class="hero-classified relative overflow-hidden border-b border-gray-300"
-        >
+  <body>
+    <a href="#merch" class="skip-link">Saltar al contenido</a>
+
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <a href="/" class="brand" aria-label="Tansaku — inicio">
+          <Image src={logoDark} alt="Tansaku" class="brand-logo brand-logo-dark" widths={[128, 256]} sizes="128px" format="webp" loading="eager" />
+          <Image src={logoLight} alt="Tansaku" class="brand-logo brand-logo-light" widths={[128, 256]} sizes="128px" format="webp" loading="eager" />
+        </a>
+        <nav class="nav-links" aria-label="Secciones">
+          <a href="#merch">Merch</a>
+          <a href="#catalogo">Manga</a>
+          <a href="#nosotros">Nosotros</a>
+          <a href="#faq">FAQ</a>
+          <a href="#contacto">Pide tu serie</a>
+        </nav>
+        <div class="nav-actions">
           <button
             id="theme-toggle"
             type="button"
             class="theme-toggle"
             aria-label="Cambiar tema"
           >
-            <span class="theme-toggle-inner">
-              <span id="theme-icon-sun" class="theme-icon" aria-hidden="true">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="4"
-                    stroke="currentColor"
-                    stroke-width="2"></circle>
-                  <path
-                    d="M12 2V5"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"></path>
-                  <path
-                    d="M12 19V22"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"></path>
-                  <path
-                    d="M2 12H5"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"></path>
-                  <path
-                    d="M19 12H22"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"></path>
-                  <path
-                    d="M4.93 4.93L7.05 7.05"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"></path>
-                  <path
-                    d="M16.95 16.95L19.07 19.07"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"></path>
-                  <path
-                    d="M4.93 19.07L7.05 16.95"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"></path>
-                  <path
-                    d="M16.95 7.05L19.07 4.93"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"></path>
-                </svg>
-              </span>
-              <span id="theme-icon-moon" class="theme-icon" aria-hidden="true">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M21 12.79A9 9 0 1 1 11.21 3C11.34 3 11.47 3 11.6 3.01C10.68 4.2 10.2 5.67 10.25 7.17C10.35 10.54 13.11 13.3 16.48 13.4C17.98 13.45 19.45 12.97 20.64 12.05C20.65 12.18 20.65 12.31 20.65 12.44C20.65 12.56 20.65 12.67 21 12.79Z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"></path>
-                </svg>
-              </span>
-              <span id="theme-toggle-label">Modo oscuro</span>
+            <span id="theme-icon-sun" class="theme-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.sun} />
             </span>
+            <span id="theme-icon-moon" class="theme-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.moon} />
+            </span>
+            <span id="theme-toggle-label" class="sr-only">Modo claro</span>
           </button>
+          <a href="/catalogo/" class="btn btn-primary btn-sm" id="nav-btn-catalogo">
+            Catálogo
+          </a>
+        </div>
+      </div>
+    </header>
 
-          <div class="hero-grid">
-            <aside
-              class="hero-left-rail hero-left-rail-mobile-hidden relative border-r border-gray-300"
-            >
-              <p class="hero-rail-text">Tansaku</p>
-            </aside>
+    <main>
+      <!-- ══ HERO ═════════════════════════════════════════════════ -->
+      <section class="hero">
+        <div class="hero-bg" aria-hidden="true">
+          <div class="hero-lines"></div>
+          <div class="hero-dots"></div>
+          <span class="hero-kanji">探索</span>
+        </div>
 
-            <div class="hero-copy-col">
-              <div class="hero-copy-motion" aria-hidden="true">
-                {
-                  heroRows.map((row, rowIndex) => (
-                    <div
-                      class={`hero-row ${rowIndex % 2 === 0 ? 'hero-row-forward' : 'hero-row-reverse'}`}
-                    >
-                      <div class="hero-track">
-                        {[...row, ...row].map((cover, coverIndex) => (
-                          <Image
-                            src={cover}
-                            alt=""
-                            loading="eager"
-                            fetchpriority="low"
-                            widths={[128]}
-                            sizes="(max-width: 1024px) 72px, 96px"
-                            format="webp"
-                            quality={65}
-                            class="hero-cover"
-                            style={`--delay:${(coverIndex % 6) * 0.25}s;`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                }
-              </div>
-              <div class="hero-copy-motion-mask" aria-hidden="true"></div>
-
-              <div class="relative z-10 hero-content-animate">
-                <div class="hero-badge">
-                  <span class="hero-badge-dot"></span>
-                  <span>¡Merch disponible ya!</span>
-                </div>
-                <h1 class="hero-title">
-                  MANGA,
-                  <br />
-                  POSTERS Y
-                  <br />
-                  MERCH ANIME
-                  <br />
-                  EN <span>SAN PEDRO</span>
-                  <br />
-                  Y <span>LA ROMANA</span>
-                </h1>
-                <p class="hero-lead">
-                  Tu tienda otaku en
-                  <strong>San Pedro de Macorís y La Romana.</strong>
-                  Compra <strong class="hero-discount"
-                    >posters, pines y stickers</strong
-                  >
-                  ya mismo.
-                  <br />
-                  ¡Y el manga físico llega pronto!
-                </p>
-                <div class="hero-cta-row">
-                  <a href="#merch" id="hero-cta-main" class="hero-btn-primary">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      ><path
-                        d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
-                      ></path><line x1="3" y1="6" x2="21" y2="6"></line><path
-                        d="M16 10a4 4 0 0 1-8 0"></path></svg
-                    >
-                    Comprar ahora
-                  </a>
-                  <a
-                    href="/catalogo/"
-                    id="hero-cta-secondary"
-                    class="hero-btn-secondary"
-                  >
-                    Ver catálogo
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"
-                      ></path></svg
-                    >
-                  </a>
-                </div>
-                <div class="hero-trust">
-                  <div class="hero-trust-item">
-                    <span class="hero-trust-icon"
-                      ><svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        ><path
-                          d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
-                        ></path><line x1="3" y1="6" x2="21" y2="6"></line><path
-                          d="M16 10a4 4 0 0 1-8 0"></path></svg
-                      ></span
-                    >
-                    <span>Merch disponible ya</span>
-                  </div>
-                  <div class="hero-trust-sep"></div>
-                  <div class="hero-trust-item">
-                    <span class="hero-trust-icon"
-                      ><svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        ><path
-                          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
-                        ></path><path d="m9 12 2 2 4-4"></path></svg
-                      ></span
-                    >
-                    <span>Pagas al recibir</span>
-                  </div>
-                  <div class="hero-trust-sep"></div>
-                  <div class="hero-trust-item">
-                    <span class="hero-trust-icon"
-                      ><svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        ><path
-                          d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
-                        ></path></svg
-                      ></span
-                    >
-                    <span>+15 series de manga</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ══ SECCIÓN: COMPRA YA (MERCH) ══════════════════════════ -->
-        <section id="merch" class="merch-section">
-          <div class="container mx-auto max-w-7xl px-4">
-            <div class="merch-section-header">
-              <div class="merch-section-eyebrow">
-                <span class="merch-eyebrow-dot"></span>
-                Disponible ya
-              </div>
-              <h2 class="merch-section-title">
-                COMPRA <span>HOY MISMO</span>
-              </h2>
-              <p class="merch-section-lead">
-                Posters, pines, stickers y más mercancía anime disponible
-                ahora.<br />Pide por WhatsApp, entrega gratis en San Pedro y La
-                Romana, y pagas al recibir.
-              </p>
-            </div>
-
-            <div class="merch-grid">
-              <!-- Card 1: Posters -->
-              <article class="merch-card" id="merch-posters">
-                <div class="merch-card-icon-wrap">
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><rect x="4" y="2" width="16" height="20" rx="1"></rect><circle
-                      cx="10"
-                      cy="8"
-                      r="2"></circle><path d="m20 16-4-4-8 8"></path></svg
-                  >
-                </div>
-                <div class="merch-card-body">
-                  <div class="merch-card-tags">
-                    <span class="merch-tag merch-tag-green">En stock</span>
-                    <span class="merch-tag merch-tag-gray">Varios tamaños</span>
-                  </div>
-                  <h3 class="merch-card-title">Posters Anime</h3>
-                  <p class="merch-card-desc">
-                    Tus series favoritas en tu pared. Impresión de alta calidad,
-                    colores vivos y varios tamaños.
-                  </p>
-                  <div class="merch-card-price-row">
-                    <span class="merch-price">Precio según tamaño</span>
-                  </div>
-                  <a
-                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20%C2%BFMe%20mandas%20fotos%20de%20los%20posters%20disponibles%3F"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="merch-whatsapp-btn"
-                    id="merch-btn-posters"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                      ><path
-                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
-                      ></path></svg
-                    >
-                    Ver diseños por WhatsApp
-                  </a>
-                </div>
-              </article>
-
-              <!-- Card 2: Pines -->
-              <article class="merch-card" id="merch-pines">
-                <div class="merch-card-icon-wrap merch-icon-purple">
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4"
-                    ></path><path d="M12 16h.01"></path></svg
-                  >
-                </div>
-                <div class="merch-card-body">
-                  <div class="merch-card-tags">
-                    <span class="merch-tag merch-tag-green">En stock</span>
-                    <span class="merch-tag merch-tag-gray">Coleccionables</span>
-                  </div>
-                  <h3 class="merch-card-title">Pines Metálicos</h3>
-                  <p class="merch-card-desc">
-                    Pines de esmalte de tus personajes favoritos. Perfectos para
-                    mochilas, chaquetas y más.
-                  </p>
-                  <div class="merch-card-price-row">
-                    <span class="merch-price">Desde RD$150</span>
-                  </div>
-                  <a
-                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20%C2%BFMe%20mandas%20fotos%20de%20los%20pines%20disponibles%3F"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="merch-whatsapp-btn"
-                    id="merch-btn-pines"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                      ><path
-                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
-                      ></path></svg
-                    >
-                    Ver diseños por WhatsApp
-                  </a>
-                </div>
-              </article>
-
-              <!-- Card 3: Stickers -->
-              <article class="merch-card" id="merch-stickers">
-                <div class="merch-card-icon-wrap merch-icon-yellow">
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path
-                      d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"
-                    ></path><path d="M15 3v6h6"></path><path
-                      d="M10 16s.8 1 2 1c1.3 0 2-1 2-1"></path><path
-                      d="M8.5 11h.01"></path><path d="M15.5 11h.01"></path></svg
-                  >
-                </div>
-                <div class="merch-card-body">
-                  <div class="merch-card-tags">
-                    <span class="merch-tag merch-tag-green">En stock</span>
-                    <span class="merch-tag merch-tag-gray">Pack disponible</span
-                    >
-                  </div>
-                  <h3 class="merch-card-title">Stickers Anime</h3>
-                  <p class="merch-card-desc">
-                    Stickers laminados y resistentes al agua. Disponibles en
-                    packs temáticos de tus series favoritas.
-                  </p>
-                  <div class="merch-card-price-row">
-                    <span class="merch-price">Desde RD$10</span>
-                  </div>
-                  <a
-                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20%C2%BFMe%20mandas%20fotos%20de%20los%20stickers%20disponibles%3F"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="merch-whatsapp-btn"
-                    id="merch-btn-stickers"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                      ><path
-                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
-                      ></path></svg
-                    >
-                    Ver diseños por WhatsApp
-                  </a>
-                </div>
-              </article>
-
-              <!-- Card 4: Más merch -->
-              <article class="merch-card merch-card-cta" id="merch-mas">
-                <div class="merch-card-icon-wrap merch-icon-red">
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path
-                      d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"
-                    ></path></svg
-                  >
-                </div>
-                <div class="merch-card-body">
-                  <div class="merch-card-tags">
-                    <span class="merch-tag merch-tag-red">Próximamente</span>
-                    <span class="merch-tag merch-tag-gray">Más variedad</span>
-                  </div>
-                  <h3 class="merch-card-title">Llaveros y más</h3>
-                  <p class="merch-card-desc">
-                    Llaveros, ropa y más mercancía anime. ¿Qué
-                    quieres ver? Dinos por WhatsApp.
-                  </p>
-                  <div class="merch-card-price-row">
-                    <span class="merch-price-coming">Escríbenos y pedimos</span>
-                  </div>
-                  <a
-                    href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Quisiera%20saber%20si%20tienen..."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="merch-whatsapp-btn merch-whatsapp-btn-outline"
-                    id="merch-btn-mas"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                      ><path
-                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
-                      ></path></svg
-                    >
-                    Consultar disponibilidad
-                  </a>
-                </div>
-              </article>
-            </div>
-
-            <div class="merch-catalog-link-row">
-              <a href="/catalogo/" class="merch-catalog-link" id="merch-btn-catalogo">
-                Ver catálogo completo
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                  ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
-                >
+        <div class="wrap hero-inner">
+          <div class="hero-copy">
+            <h1 class="hero-title">
+              <span class="hero-title-line">Pósters y</span>
+              <span class="hero-title-line">stickers</span>
+              <span class="hero-title-line hero-title-accent">de anime</span>
+              <span class="hero-title-place">
+                en <b>San Pedro de Macorís</b>
+              </span>
+            </h1>
+            <p class="hero-lead">
+              Somos fans igual que tú. Pósters y stickers de tus series
+              favoritas, con entrega gratis en San Pedro de Macorís y
+              <strong>pagas al recibir.</strong> El manga llega
+              <strong class="hl-text">próximamente.</strong>
+            </p>
+            <div class="hero-cta-row">
+              <a href="#merch" id="hero-cta-main" class="btn btn-primary">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.bag} />
+                Comprar ahora
+              </a>
+              <a href="/catalogo/" id="hero-cta-secondary" class="btn btn-ghost">
+                Ver catálogo
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.arrow} />
               </a>
             </div>
-
-            <div class="how-to-buy" id="como-comprar">
-              <h3 class="how-to-buy-title">¿CÓMO <span>COMPRAR?</span></h3>
-              <div class="how-to-buy-steps">
-                <div class="how-step">
-                  <span class="how-step-num">1</span>
-                  <h4 class="how-step-heading">Escríbenos</h4>
-                  <p class="how-step-desc">
-                    Dinos qué te interesa por WhatsApp y te mandamos fotos,
-                    diseños y precios al momento.
-                  </p>
-                </div>
-                <div class="how-step">
-                  <span class="how-step-num">2</span>
-                  <h4 class="how-step-heading">Coordinamos la entrega</h4>
-                  <p class="how-step-desc">
-                    Punto de encuentro en San Pedro de Macorís o La Romana.
-                    Gratis y normalmente en 1 a 3 días.
-                  </p>
-                </div>
-                <div class="how-step">
-                  <span class="how-step-num">3</span>
-                  <h4 class="how-step-heading">Pagas al recibir</h4>
-                  <p class="how-step-desc">
-                    Revisas tu pedido en la mano y pagas como prefieras:
-                    efectivo, transferencia o tarjeta.
-                  </p>
-                </div>
-              </div>
-              <p class="how-to-buy-note">
-                Sin riesgo: no pagas nada hasta tener tu pedido al frente.
-                Respondemos en menos de 24 horas.
-              </p>
-            </div>
           </div>
-        </section>
-        <!-- ══════════════════════════════════════════════════════════ -->
 
-        <section
-          id="catalogo"
-          class="catalog-section catalog-compact border-y border-gray-200 py-10 md:py-14"
-        >
-          <div class="container mx-auto max-w-7xl px-4">
-            <div class="catalog-section-header mb-6 md:mb-8">
-              <div class="catalog-section-eyebrow">
-                Próximamente · Manga Físico
-              </div>
-              <h2 class="catalog-section-title">
-                MANGA FÍSICO
-                <span>EN CAMINO</span>
-              </h2>
-              <p class="catalog-section-lead">
-                Estos son <strong>solo algunos ejemplos</strong> de series que
-                podemos traer, no la lista final. Pide la que tú quieras: mientras
-                más personas pidan un título, antes llega.
-              </p>
-            </div>
-
-            <div
-              id="catalog-preview-grid"
-              class="grid grid-cols-3 gap-3 md:gap-4 lg:grid-cols-6"
-            >
+          <div class="hero-art" aria-hidden="true">
+            <div class="fan">
               {
-                catalogItems.map((item, itemIndex) => (
-                  <article
-                    data-catalog-item
-                    class={`catalog-preview-item group flex flex-col transition-all duration-300 ${itemIndex < 6 ? 'is-active' : ''}`}
-                  >
-                    <div class="catalog-card-img-wrap">
-                      <Image
-                        src={item.image}
-                        alt={`Portada de ${item.title}`}
-                        loading="lazy"
-                        widths={[160, 240, 320]}
-                        sizes="(max-width: 1024px) 31vw, 15vw"
-                        format="webp"
-                        quality={74}
-                        class="catalog-card-img aspect-3/4 h-full w-full object-cover"
-                      />
-                      <div class="catalog-card-overlay">
-                        <a href="#contacto" class="catalog-card-overlay-btn">
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          >
-                            <>
-                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </>
-                          </svg>
-                          Avísame si llega
-                        </a>
-                      </div>
-                    </div>
-
-                    <div class="catalog-card-body">
-                      <span
-                        class={`catalog-genre-badge genre-${item.genre.split('/')[0].trim().toLowerCase().replace(/ó/g, 'o').replace(/é/g, 'e').replace(/á/g, 'a').replace(/ /g, '-')}`}
-                      >
-                        {item.genre}
-                      </span>
-                      <h3 class="catalog-card-title">{item.title}</h3>
-                    </div>
-                  </article>
+                heroCovers.map((cover, i) => (
+                  <div class={`fan-card fan-card-${i + 1}`}>
+                    <Image
+                      src={cover.image}
+                      alt=""
+                      loading="eager"
+                      fetchpriority={i === 1 ? 'high' : 'auto'}
+                      widths={[200, 320, 440]}
+                      sizes="(max-width: 899px) 36vw, 220px"
+                      format="webp"
+                      quality={76}
+                    />
+                  </div>
                 ))
               }
-            </div>
-
-            <div class="catalog-section-footer">
-              <div class="catalog-more-badge">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  ><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"
-                  ></path></svg
-                >
-                Son solo ejemplos · Pide cualquier serie y la buscamos
-              </div>
+              <span class="sticker sticker-burst" style={`clip-path:${burstShape}`}>
+                <span>Entrega<br /><b>GRATIS</b></span>
+              </span>
+              <span class="sticker sticker-stamp">Pagas al recibir</span>
+              <span class="sticker sticker-kana">Manga próximamente</span>
             </div>
           </div>
-        </section>
 
-        <!-- ══ SECCIÓN: SOBRE NOSOTROS ═══════════════════════════════ -->
-        <section id="nosotros" class="about-section">
-          <div class="about-inner">
-            <div class="about-text-col">
-              <div class="about-eyebrow">
-                Sobre Nosotros · San Pedro de Macorís
+        </div>
+      </section>
+
+      <!-- ══ TICKER ═══════════════════════════════════════════════ -->
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track">
+          {
+            [0, 1].map(() => (
+              <div class="ticker-group">
+                {tickerItems.map((item) => (
+                  <span class="ticker-item">
+                    {item}
+                    <span class="ticker-star">★</span>
+                  </span>
+                ))}
               </div>
-              <h2 class="about-title">¿Quiénes somos?</h2>
-              <p class="about-lead">
-                Somos una tienda otaku local, nacida en <strong
-                  >San Pedro de Macorís</strong
-                > con cobertura en
-                <strong>La Romana</strong>. No somos una corporación. Somos fans
-                igual que tú, cansados de no encontrar merch de anime sin tener
-                que ir a Santo Domingo.
-              </p>
-              <p class="about-lead" style="margin-top: 1rem;">
-                Empezamos con mercancía: posters, pines y stickers que puedes
-                pedir ya mismo por WhatsApp. Cada compra nos acerca más a traer
-                el manga físico que todos queremos.
-              </p>
-              <div class="about-badges">
-                <div class="about-badge">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"
-                    ></path><circle cx="12" cy="10" r="3"></circle></svg
-                  >
-                  San Pedro de Macorís, RD
-                </div>
-                <div class="about-badge">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path
-                      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12 19.79 19.79 0 0 1 1.99 3.44 2 2 0 0 1 3.96 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"
-                    ></path></svg
-                  >
-                  Respuesta en menos de 24h
-                </div>
-                <div class="about-badge">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path
-                      d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"
-                    ></path></svg
-                  >
-                  Fans sirviendo fans
-                </div>
-              </div>
-            </div>
-            <div class="about-cta-col">
-              <div class="about-cta-card">
-                <div class="about-cta-icon">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                    ><path
-                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
-                    ></path></svg
-                  >
-                </div>
-                <h3 class="about-cta-title">¿Tienes dudas?</h3>
-                <p class="about-cta-desc">
-                  Escríbenos por WhatsApp. Respondemos rápido y te ayudamos a
-                  encontrar lo que buscas.
-                </p>
-                <a
-                  href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Tengo%20una%20pregunta"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="about-whatsapp-btn"
-                  id="about-btn-whatsapp"
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- ══ MERCH ════════════════════════════════════════════════ -->
+      <section id="merch" class="section merch-section">
+        <div class="wrap">
+          <header class="sec-head reveal">
+            <p class="eyebrow"><span class="eyebrow-num">01</span> Disponible ya <span class="eyebrow-jp">グッズ</span></p>
+            <h2 class="sec-title">Compra <span class="hl">hoy mismo</span></h2>
+            <p class="sec-lead">
+              Pósters y stickers en stock hoy. Pide por WhatsApp, entrega gratis
+              en San Pedro de Macorís y pagas al recibir.
+            </p>
+          </header>
+
+          <div class="merch-grid">
+            {
+              merch.map((item) => (
+                <article
+                  class={`merch-card tone-${item.tone} reveal`}
+                  id={`merch-${item.id}`}
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                    ><path
-                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
-                    ></path></svg
-                  >
-                  Hablar con nosotros
-                </a>
-                <a
-                  href="https://www.instagram.com/tansakustore"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="about-instagram-btn"
-                  id="about-btn-instagram"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><rect width="20" height="20" x="2" y="2" rx="5" ry="5"
-                    ></rect><path
-                      d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
-                    ></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"
-                    ></line></svg
-                  >
-                  Míranos en Instagram
-                </a>
-              </div>
-            </div>
+                  <div class="merch-visual" aria-hidden="true">
+                    <span class="merch-kana">{item.kana}</span>
+                    <span class="merch-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={item.icon} />
+                    </span>
+                  </div>
+                  <div class="merch-body">
+                    <div class="merch-tags">
+                      <span class={`tag ${item.soon ? 'tag-soon' : 'tag-stock'}`}>
+                        {item.stock}
+                      </span>
+                      <span class="tag tag-plain">{item.tag}</span>
+                    </div>
+                    <h3 class="merch-title">{item.title}</h3>
+                    <p class="merch-desc">{item.desc}</p>
+                    {item.price ? (
+                      <p class="merch-price">
+                        <span class="merch-price-note">{item.priceNote}</span>
+                        <span class="merch-price-value">{item.price}</span>
+                        {item.combos.map((combo) => (
+                          <span class="merch-price-combo">{combo}</span>
+                        ))}
+                      </p>
+                    ) : (
+                      <p class="merch-price">
+                        <span class="merch-price-value merch-price-soon">Próximamente</span>
+                      </p>
+                    )}
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class={`btn btn-block ${item.soon ? 'btn-ghost' : 'btn-wa'}`}
+                      id={`merch-btn-${item.id}`}
+                    >
+                      {item.soon ? (
+                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.instagram} />
+                      ) : (
+                        <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_ICON} /></svg>
+                      )}
+                      <span>{item.cta}{!item.soon && <span class="btn-extra"> por WhatsApp</span>}</span>
+                    </a>
+                  </div>
+                </article>
+              ))
+            }
           </div>
-        </section>
-        <!-- ══════════════════════════════════════════════════════════ -->
 
-        <!-- ══ SECCIÓN: PREGUNTAS FRECUENTES ═════════════════════════ -->
-        <section id="faq" class="faq-section">
-          <div class="faq-inner">
-            <div class="faq-header">
-              <div class="faq-eyebrow">Preguntas frecuentes</div>
-              <h2 class="faq-title">¿DUDAS? <span>NORMAL.</span></h2>
-              <p class="faq-lead">
-                Somos una tienda nueva y sabemos que comprarle por WhatsApp a
-                alguien que no conoces da cosa. Aquí va todo claro, sin
-                letra pequeña.
-              </p>
-            </div>
+          <div class="center-row reveal">
+            <a href="/catalogo/" class="btn btn-primary" id="merch-btn-catalogo">
+              Ver catálogo completo
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.arrow} />
+            </a>
+          </div>
 
-            <div class="faq-list">
-              <details class="faq-item">
-                <summary class="faq-question"
-                  >¿Cómo compro si no tienen tienda física?</summary
+          <div class="how" id="como-comprar">
+            <h3 class="how-title reveal">¿Cómo <span class="hl-red">comprar?</span></h3>
+            <ol class="how-steps">
+              {
+                steps.map((step) => (
+                  <li class="how-step reveal">
+                    <span class="how-num" aria-hidden="true">{step.num}</span>
+                    <span class="how-kana" aria-hidden="true">{step.kana}</span>
+                    <h4 class="how-heading">{step.title}</h4>
+                    <p class="how-desc">{step.desc}</p>
+                  </li>
+                ))
+              }
+            </ol>
+            <p class="how-note reveal">
+              <b>Sin riesgo:</b> no pagas nada hasta tener tu pedido al frente.
+              Te respondemos rápido por WhatsApp: 809-879-5559.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ MANGA (PRÓXIMAMENTE) ═════════════════════════════════ -->
+      <section id="catalogo" class="section manga-section">
+        <div class="wrap">
+          <header class="sec-head reveal">
+            <p class="eyebrow"><span class="eyebrow-num">02</span> Próximamente · Manga físico <span class="eyebrow-jp">マンガ</span></p>
+            <h2 class="sec-title">Manga físico <span class="hl">en camino</span></h2>
+            <p class="sec-lead">
+              Estos son <strong>solo algunos ejemplos</strong> de series que
+              podemos traer, no la lista final. Pide la que tú quieras: mientras
+              más personas pidan un título, antes llega.
+            </p>
+          </header>
+        </div>
+
+        <div class="manga-rail-wrap">
+          <div id="catalog-preview-grid" class="manga-rail">
+            {
+              catalogItems.map((item, itemIndex) => (
+                <article
+                  data-catalog-item
+                  class={`catalog-preview-item manga-card ${itemIndex < 6 ? 'is-active' : ''}`}
                 >
-                <p class="faq-answer">
-                  Todo pasa por WhatsApp: nos escribes, te mandamos fotos de lo
-                  que hay disponible, eliges y coordinamos un punto de
-                  encuentro en San Pedro de Macorís o La Romana. Ves tu pedido
-                  antes de pagar.
-                </p>
-              </details>
-
-              <details class="faq-item">
-                <summary class="faq-question">¿Cómo pago?</summary>
-                <p class="faq-answer">
-                  Como te quede mejor: efectivo, transferencia o tarjeta. Y
-                  siempre pagas al momento de la entrega, con tu pedido en la
-                  mano — nunca por adelantado.
-                </p>
-              </details>
-
-              <details class="faq-item">
-                <summary class="faq-question"
-                  >¿Cuánto cuesta y cuánto tarda la entrega?</summary
-                >
-                <p class="faq-answer">
-                  La entrega es gratis en San Pedro de Macorís y La Romana.
-                  Normalmente coordinamos en 1 a 3 días.
-                </p>
-              </details>
-
-              <details class="faq-item">
-                <summary class="faq-question">¿Esto es de verdad?</summary>
-                <p class="faq-answer">
-                  Sí. Somos una tienda nueva, de fans para fans, y sabemos que
-                  la confianza se gana. Por eso no pagas por adelantado: ves tu
-                  pedido en la mano antes de soltar un peso. También puedes ver
-                  lo que hacemos en Instagram:
                   <a
-                    href="https://www.instagram.com/tansakustore"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="faq-link">@tansakustore</a
-                  >.
-                </p>
-              </details>
-
-              <details class="faq-item">
-                <summary class="faq-question"
-                  >¿Y si el producto no me convence?</summary
-                >
-                <p class="faq-answer">
-                  Lo revisas completo en la entrega, antes de pagar. Si no es
-                  lo que esperabas, no lo llevas y no pasa nada.
-                </p>
-              </details>
-
-              <details class="faq-item">
-                <summary class="faq-question"
-                  >¿Cuándo llega el manga físico?</summary
-                >
-                <p class="faq-answer">
-                  Estamos armando el primer catálogo con los votos de la
-                  comunidad: mientras más gente pida una serie, antes llega.
-                  <a href="#contacto" class="faq-link">Deja tu voto aquí</a>.
-                </p>
-              </details>
-            </div>
+                    href="#contacto"
+                    class="manga-cover"
+                    data-vote-title={item.title}
+                    aria-label={`Avísame si llega ${item.title}`}
+                  >
+                    <Image
+                      src={item.image}
+                      alt={`Portada de ${item.title}`}
+                      loading="lazy"
+                      widths={[200, 280, 400]}
+                      sizes="(max-width: 899px) 44vw, 190px"
+                      format="webp"
+                      quality={74}
+                    />
+                    <span class="manga-bell">
+                      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.bell} />
+                      Avísame
+                    </span>
+                  </a>
+                  <div class="manga-meta">
+                    <span class="manga-genre">{item.genre}</span>
+                    <h3 class="manga-title">{item.title}</h3>
+                  </div>
+                </article>
+              ))
+            }
           </div>
-        </section>
-        <!-- ══════════════════════════════════════════════════════════ -->
+        </div>
 
-        <section id="contacto" class="contact-section">
-          <div class="contact-inner">
-            <div class="contact-left">
-              <div class="contact-eyebrow">Tu voto · Manga en camino</div>
-              <h2 class="contact-title">
-                Dinos qué manga quieres y llévate un descuento.
-              </h2>
-              <p class="contact-lead">
-                Cuéntanos qué series te interesan. Cuantos más fanáticos pidan
-                un título, más rápido lo traemos. Y si ya nos compraste merch,
-                tienes 10% de descuento en tu primer manga.
+        <div class="wrap">
+          <p class="manga-note reveal">
+            <span class="manga-note-swipe">Desliza →</span>
+            Son solo ejemplos · Pide cualquier serie y la buscamos
+          </p>
+        </div>
+      </section>
+
+      <!-- ══ NOSOTROS ═════════════════════════════════════════════ -->
+      <section id="nosotros" class="section about-section">
+        <div class="wrap about-inner">
+          <div class="about-text reveal">
+            <p class="eyebrow"><span class="eyebrow-num">03</span> Sobre nosotros · San Pedro de Macorís <span class="eyebrow-jp">ファン</span></p>
+            <h2 class="sec-title">¿Quiénes <span class="hl">somos?</span></h2>
+            <div class="bubble">
+              <p>
+                Somos de <strong>San Pedro de Macorís</strong> y vendemos merch
+                de anime sin que tengas que ir a la capital. No somos una
+                corporación: somos fans igual que tú.
               </p>
-              <div class="contact-perks">
-                <div class="contact-perk">
-                  <div class="contact-perk-icon">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      ><polyline points="20 12 20 22 4 22 4 12"></polyline><rect
-                        width="20"
-                        height="5"
-                        x="2"
-                        y="7"></rect><line x1="12" x2="12" y1="22" y2="7"
-                      ></line><path
-                        d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"
-                      ></path><path
-                        d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"
-                      ></path></svg
-                    >
-                  </div>
-                  <div>
-                    <strong>10% de descuento</strong>
-                    <p>En tu primer manga si ya tienes una compra</p>
-                  </div>
-                </div>
-                <div class="contact-perk">
-                  <div class="contact-perk-icon">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      ><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"
-                      ></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"
-                      ></path></svg
-                    >
-                  </div>
-                  <div>
-                    <strong>Primero en la lista</strong>
-                    <p>Te avisamos cuando llegue tu serie</p>
-                  </div>
-                </div>
-                <div class="contact-perk">
-                  <div class="contact-perk-icon">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      ><polyline points="9 11 12 14 22 4"></polyline><path
-                        d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
-                      ></path></svg
-                    >
-                  </div>
-                  <div>
-                    <strong>Voto en el catálogo</strong>
-                    <p>Tu serie favorita puede llegar</p>
-                  </div>
-                </div>
-              </div>
+              <p>
+                Hoy tenemos pósters 11x17 y stickers que puedes pedir ya mismo
+                por WhatsApp. Y el manga físico llega próximamente: cuando lo
+                tengamos en la mano, lo anunciamos aquí primero.
+              </p>
             </div>
+            <ul class="about-badges">
+              <li>
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.mapPin} />
+                San Pedro de Macorís, RD
+              </li>
+              <li>
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.clock} />
+                Respuesta rápida por WhatsApp
+              </li>
+              <li>
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.spark} />
+                Fans sirviendo fans
+              </li>
+            </ul>
+          </div>
 
-            <div class="contact-right">
-              <form
-                action="https://formspree.io/f/xkoqvawb"
-                method="POST"
-                class="contact-form"
-              >
+          <aside class="about-card reveal">
+            <span class="about-card-kana" aria-hidden="true">もしもし</span>
+            <h3 class="about-card-title">¿Tienes dudas?</h3>
+            <p class="about-card-desc">
+              Escríbenos por WhatsApp. Respondemos rápido y te ayudamos a
+              encontrar lo que buscas.
+            </p>
+            <a
+              href={wa('Hola Tansaku! Tengo una pregunta')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-wa btn-block"
+              id="about-btn-whatsapp"
+            >
+              <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_ICON} /></svg>
+              Hablar con nosotros
+            </a>
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-ghost btn-block"
+              id="about-btn-instagram"
+            >
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.instagram} />
+              Míranos en Instagram
+            </a>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ══ FAQ ══════════════════════════════════════════════════ -->
+      <section id="faq" class="section faq-section">
+        <div class="wrap faq-inner">
+          <header class="sec-head reveal">
+            <p class="eyebrow"><span class="eyebrow-num">04</span> Preguntas frecuentes <span class="eyebrow-jp">しつもん</span></p>
+            <h2 class="sec-title">¿Dudas? <span class="hl">Normal.</span></h2>
+            <p class="sec-lead">
+              Somos una tienda nueva y sabemos que comprarle por WhatsApp a
+              alguien que no conoces da cosa. Aquí va todo claro, sin letra
+              pequeña.
+            </p>
+          </header>
+
+          <div class="faq-list reveal">
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>¿Cómo compro si no tienen tienda física?</span>
+                <svg class="ico faq-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" set:html={icons.plus} />
+              </summary>
+              <p class="faq-answer">
+                Todo pasa por WhatsApp: nos escribes, te mandamos fotos de lo
+                que hay disponible, eliges y coordinamos un punto de encuentro
+                en San Pedro de Macorís. Ves tu pedido antes de pagar.
+              </p>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>¿Cómo pago?</span>
+                <svg class="ico faq-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" set:html={icons.plus} />
+              </summary>
+              <p class="faq-answer">
+                Como te quede mejor: efectivo o transferencia. Y
+                siempre pagas al momento de la entrega, con tu pedido en la
+                mano — nunca por adelantado.
+              </p>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>¿Cuánto cuesta y cuánto tarda la entrega?</span>
+                <svg class="ico faq-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" set:html={icons.plus} />
+              </summary>
+              <p class="faq-answer">
+                La entrega es gratis en San Pedro de Macorís. Normalmente
+                coordinamos en 1 a 3 días.
+              </p>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>¿Entregan en La Romana?</span>
+                <svg class="ico faq-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" set:html={icons.plus} />
+              </summary>
+              <p class="faq-answer">
+                Por ahora la entrega gratis es solo en San Pedro de Macorís. Si
+                eso cambia, lo anunciamos aquí.
+              </p>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>¿Cuánto cuestan los pósters?</span>
+                <svg class="ico faq-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" set:html={icons.plus} />
+              </summary>
+              <p class="faq-answer">
+                1 póster 11x17 RD$100, 2 por RD$180 y 3 por RD$250. Los
+                stickers, RD$10 cada uno.
+              </p>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>¿Esto es de verdad?</span>
+                <svg class="ico faq-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" set:html={icons.plus} />
+              </summary>
+              <p class="faq-answer">
+                Sí. Somos una tienda nueva, de fans para fans, y sabemos que la
+                confianza se gana. Por eso no pagas por adelantado: ves tu
+                pedido en la mano antes de soltar un peso. También puedes ver
+                lo que hacemos en Instagram:
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="faq-link">@tansakustore</a
+                >.
+              </p>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>¿Y si el producto no me convence?</span>
+                <svg class="ico faq-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" set:html={icons.plus} />
+              </summary>
+              <p class="faq-answer">
+                Lo revisas completo en la entrega, antes de pagar. Si no es lo
+                que esperabas, no lo llevas y no pasa nada.
+              </p>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>¿Tienen manga?</span>
+                <svg class="ico faq-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" set:html={icons.plus} />
+              </summary>
+              <p class="faq-answer">
+                Todavía no, pero llega próximamente. Mientras, pide la serie
+                que quieres en el formulario: las más pedidas llegan primero.
+                <a href="#contacto" class="faq-link">Pide tu serie aquí</a>.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ CONTACTO / VOTO ══════════════════════════════════════ -->
+      <section id="contacto" class="section contact-section">
+        <div class="contact-bg" aria-hidden="true"></div>
+        <div class="wrap contact-inner">
+          <div class="contact-left reveal">
+            <p class="eyebrow"><span class="eyebrow-num">05</span> Pide tu serie <span class="eyebrow-jp">リクエスト</span></p>
+            <h2 class="sec-title contact-title">
+              ¿No ves tu serie? <span class="hl">Pídela.</span>
+            </h2>
+            <p class="sec-lead">
+              Dinos qué serie quieres en póster, en sticker o en manga cuando
+              llegue. Lo anotamos: mientras más gente la pida, antes la traemos.
+            </p>
+            <ul class="perks">
+              <li class="perk">
+                <span class="perk-icon">
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.bell} />
+                </span>
+                <div>
+                  <strong>Te avisamos</strong>
+                  <p>Te escribimos por WhatsApp cuando la tengamos</p>
+                </div>
+              </li>
+              <li class="perk">
+                <span class="perk-icon">
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.spark} />
+                </span>
+                <div>
+                  <strong>Tu pedido cuenta</strong>
+                  <p>Las series más pedidas llegan primero</p>
+                </div>
+              </li>
+              <li class="perk">
+                <span class="perk-icon">
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.check} />
+                </span>
+                <div>
+                  <strong>Sin compromiso</strong>
+                  <p>Pedirla no te obliga a comprar nada</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="contact-right reveal">
+            <form
+              action="https://formspree.io/f/xkoqvawb"
+              method="POST"
+              class="ballot"
+            >
+              <div class="ballot-head" aria-hidden="true">
+                <span>Pide tu serie</span>
+                <span class="ballot-head-jp">リクエスト</span>
+              </div>
+
+              <div class="ballot-body">
                 <div class="form-row">
                   <label class="form-field">
-                    <span class="form-label">Tu Nombre</span>
+                    <span class="form-label">Tu nombre</span>
                     <input
                       type="text"
                       name="nombre"
@@ -1163,6 +859,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                       id="field-nombre"
                       class="form-input"
                       placeholder="Tu nombre"
+                      autocomplete="name"
                     />
                   </label>
 
@@ -1175,14 +872,14 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                       id="field-whatsapp"
                       class="form-input"
                       placeholder="809-000-0000"
+                      autocomplete="tel"
                     />
                   </label>
                 </div>
 
                 <label class="form-field">
                   <span class="form-label"
-                    >Tu Email <span class="form-optional">(Opcional)</span
-                    ></span
+                    >Tu email <span class="form-optional">(opcional)</span></span
                   >
                   <input
                     type="email"
@@ -1190,6 +887,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     id="field-email"
                     class="form-input"
                     placeholder="tuemail@ejemplo.com"
+                    autocomplete="email"
                   />
                 </label>
 
@@ -1208,12 +906,13 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                       >San Pedro de Macorís</option
                     >
                     <option value="La Romana">La Romana</option>
+                    <option value="Otro">Otro lugar</option>
                   </select>
                 </label>
 
                 <label class="form-field">
                   <span class="form-label"
-                    >¿Qué serie te gustaría que traigamos?</span
+                    >¿Qué serie quieres?</span
                   >
                   <input
                     type="text"
@@ -1221,116 +920,65 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
                     required
                     id="field-serie"
                     class="form-input"
-                    placeholder="Dandadan, Blue Lock, Berserk..."
+                    placeholder="Gachiakuta, Jujutsu Kaisen, Frieren..."
                   />
                 </label>
 
                 <button
                   type="submit"
                   id="form-submit-btn"
-                  class="form-submit-btn"
+                  class="btn btn-primary btn-block btn-lg"
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path d="M12 20h9"></path><path
-                      d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
-                    ></path></svg
-                  >
-                  Votar por mi serie
+                  Pedir mi serie
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.arrow} />
                 </button>
 
-                <p
-                  class="form-disclaimer flex items-center justify-center gap-1.5"
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><rect width="18" height="11" x="3" y="11" rx="2" ry="2"
-                    ></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg
-                  >
-                  100% gratis · Te avisamos por WhatsApp cuando llegue tu serie
+                <p class="form-disclaimer">
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.lock} />
+                  Gratis · Te escribimos por WhatsApp cuando la tengamos
                 </p>
-              </form>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="footer-inner">
-          <div class="footer-brand">
-            <p class="footer-logo">探索</p>
-            <p class="footer-name">Tansaku</p>
-            <p class="footer-tagline">
-              Manga · Merch Anime · República Dominicana
-            </p>
-          </div>
-          <a href="/catalogo/" class="footer-catalog-btn">
-            Ver catálogo
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
-            >
-          </a>
-          <div class="footer-links">
-            <a href="#merch" class="footer-link">Merch</a>
-            <a href="#catalogo" class="footer-link">Manga</a>
-            <a href="#nosotros" class="footer-link">Nosotros</a>
-            <a href="#faq" class="footer-link">FAQ</a>
-            <a href="#contacto" class="footer-link">Lista</a>
-            <a
-              href="https://www.instagram.com/tansakustore"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="footer-link">Instagram</a
-            >
-          </div>
-          <div class="footer-copy">
-            <p>© {currentYear} Tansaku · Hecho con ❤️ en RD</p>
+              </div>
+            </form>
           </div>
         </div>
-      </footer>
-    </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-kanji" aria-hidden="true">探索</div>
+      <div class="wrap footer-inner">
+        <div class="footer-brand">
+          <p class="footer-name">Tansaku</p>
+          <p class="footer-tagline">
+            Pósters y stickers de anime · San Pedro de Macorís
+          </p>
+        </div>
+        <a href="/catalogo/" class="btn btn-primary footer-catalog-btn">
+          Ver catálogo
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.arrow} />
+        </a>
+        <nav class="footer-links" aria-label="Pie de página">
+          <a href="#merch">Merch</a>
+          <a href="#catalogo">Manga</a>
+          <a href="#nosotros">Nosotros</a>
+          <a href="#faq">FAQ</a>
+          <a href="#contacto">Pide tu serie</a>
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"
+            >Instagram</a
+          >
+        </nav>
+        <p class="footer-copy">© {currentYear} Tansaku · Hecho con ❤️ en RD</p>
+      </div>
+    </footer>
 
     <a
-      href="https://wa.me/8098795559?text=Hola%20Tansaku!%20Tengo%20una%20pregunta"
+      href={wa('Hola Tansaku! Tengo una pregunta')}
       target="_blank"
       rel="noopener noreferrer"
       class="whatsapp-fab"
       aria-label="Escríbenos por WhatsApp"
     >
-      <svg
-        width="26"
-        height="26"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-        ><path
-          d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
-        ></path></svg
-      >
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_ICON} /></svg>
     </a>
 
     <script is:inline>
@@ -1341,15 +989,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
         const toggleLabel = document.getElementById('theme-toggle-label');
         const iconSun = document.getElementById('theme-icon-sun');
         const iconMoon = document.getElementById('theme-icon-moon');
-
-        const updateLabel = (theme) => {
-          if (!toggleLabel) return;
-          toggleLabel.textContent =
-            theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
-
-          if (iconSun) iconSun.hidden = theme === 'dark';
-          if (iconMoon) iconMoon.hidden = theme !== 'dark';
-        };
+        const themeMeta = document.querySelector('meta[name="theme-color"]');
 
         const applyTheme = (theme, persist) => {
           root.setAttribute('data-theme', theme);
@@ -1357,7 +997,16 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
             'aria-pressed',
             theme === 'dark' ? 'true' : 'false',
           );
-          updateLabel(theme);
+          if (toggleLabel)
+            toggleLabel.textContent =
+              theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
+          // Show the icon of the theme you would switch to.
+          if (iconSun) iconSun.hidden = theme !== 'dark';
+          if (iconMoon) iconMoon.hidden = theme === 'dark';
+          themeMeta?.setAttribute(
+            'content',
+            theme === 'dark' ? '#0b1118' : '#fff6e5',
+          );
 
           if (!persist) return;
           try {
@@ -1367,17 +1016,10 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
           }
         };
 
-        let savedTheme = null;
-        try {
-          savedTheme = window.localStorage.getItem(storageKey);
-        } catch {
-          savedTheme = null;
-        }
-
-        const initialTheme =
-          savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'dark';
-
-        applyTheme(initialTheme, false);
+        applyTheme(
+          root.getAttribute('data-theme') === 'light' ? 'light' : 'dark',
+          false,
+        );
 
         toggleButton?.addEventListener('click', () => {
           const currentTheme =
@@ -1385,6 +1027,7 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
           applyTheme(currentTheme === 'dark' ? 'light' : 'dark', true);
         });
 
+        // Manga preview: show a random 6 covers on each load.
         const previewGrid = document.getElementById('catalog-preview-grid');
         if (previewGrid) {
           const cards = Array.from(
@@ -1407,13 +1050,1014 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
           selectedCards.forEach((card) => {
             previewGrid.appendChild(card);
           });
+
+          // Tapping a cover pre-fills the vote form with that series.
+          previewGrid.addEventListener('click', (event) => {
+            const link = event.target.closest?.('[data-vote-title]');
+            const field = document.getElementById('field-serie');
+            if (link && field && !field.value)
+              field.value = link.getAttribute('data-vote-title');
+          });
+        }
+
+        // Scroll reveals.
+        const revealEls = document.querySelectorAll('.reveal');
+        if ('IntersectionObserver' in window) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-in');
+                observer.unobserve(entry.target);
+              });
+            },
+            { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+          );
+          revealEls.forEach((el) => observer.observe(el));
+        } else {
+          revealEls.forEach((el) => el.classList.add('is-in'));
         }
       })();
     </script>
   </body>
 </html>
 
-<style>
+<style is:global>
+  /* ── Tokens ─────────────────────────────────────────────────── */
+  :root,
+  html[data-theme='dark'] {
+    --ink: #0d0d0f;
+    --paper: #fff6e5;
+    --bg: #0b1118; /* Noche */
+    --bg-alt: #101823;
+    --surface: #16202b;
+    --text: #ffffff;
+    --muted: #cbd5e1; /* Humo */
+    --stroke: #ffffff;
+    --hair: rgb(255 246 229 / 0.14);
+    --dot: rgb(255 246 229 / 0.13);
+    --red: #dc2626; /* Rojo Tansaku: fondos, sellos, titulares grandes */
+    --red-text: #ef4444; /* Rojo claro: texto rojo sobre Noche */
+    --yellow: #ffd23f;
+    --cyan: #5eead4;
+    --wa: #25d366;
+    --shadow: #dc2626;
+    /* Guía de marca §05: Bebas Neue titulares, Dela Gothic One stickers /
+       números / japonés, Inter todo lo demás, Noto Sans JP el kanji de fondo. */
+    --font-display: 'Bebas Neue', 'Arial Narrow', Impact, sans-serif;
+    --font-fun: 'Dela Gothic One', 'Arial Black', sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-label: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-jp: 'Noto Sans JP', 'Dela Gothic One', sans-serif;
+    color-scheme: dark;
+  }
+
+  html[data-theme='light'] {
+    --bg: #fff6e5;
+    --bg-alt: #f6e8cc;
+    --surface: #ffffff;
+    --text: #0d0d0f;
+    --muted: #4b5563;
+    --stroke: #0d0d0f;
+    --hair: rgb(13 13 15 / 0.16);
+    --dot: rgb(13 13 15 / 0.13);
+    --red: #dc2626;
+    --red-text: #dc2626;
+    --cyan: #5eead4;
+    --shadow: #0d0d0f;
+    color-scheme: light;
+  }
+
+  /* ── Base ───────────────────────────────────────────────────── */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  main {
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--yellow);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 3px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  .ico {
+    width: 1.05em;
+    height: 1.05em;
+    flex: none;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -4rem;
+    z-index: 100;
+    background: var(--yellow);
+    color: var(--ink);
+    font-weight: 800;
+    padding: 0.6rem 0.9rem;
+    border: 2px solid var(--ink);
+  }
+
+  .skip-link:focus {
+    top: 0.75rem;
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────── */
+  .btn {
+    --btn-bg: transparent;
+    --btn-fg: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 3rem;
+    padding: 0.7rem 1.15rem;
+    border: 2px solid var(--stroke);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-family: var(--font-body);
+    font-size: 0.86rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition:
+      transform 140ms ease,
+      box-shadow 140ms ease,
+      background-color 140ms ease;
+  }
+
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--shadow);
+  }
+
+  .btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--shadow);
+  }
+
+  .btn-primary {
+    --btn-bg: var(--yellow);
+    --btn-fg: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .btn-wa {
+    --btn-bg: var(--wa);
+    --btn-fg: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .btn-ghost {
+    --btn-bg: var(--bg);
+  }
+
+  .btn-sm {
+    min-height: 2.5rem;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.74rem;
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+
+  .btn-lg {
+    min-height: 3.5rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-block {
+    width: 100%;
+  }
+
+  /* ── Nav ────────────────────────────────────────────────────── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 2px solid var(--stroke);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.75rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    padding-right: 16px;
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  /* Logo horizontal tal cual (guía de marca §07): sin giro, borde, sombra
+     ni efectos. Versión de texto claro en oscuro y de texto negro en claro.
+     30px de alto → 112px de ancho (mínimo 110px) y 15px de espacio libre
+     (mitad del sello) arriba y abajo dentro de la barra de 60px. */
+  .brand-logo {
+    display: block;
+    flex: none;
+    width: auto;
+    height: 30px;
+  }
+
+  html[data-theme='dark'] .brand-logo-dark,
+  html[data-theme='light'] .brand-logo-light {
+    display: none;
+  }
+
+  .nav-links {
+    display: none;
+    gap: 1.6rem;
+  }
+
+  .nav-links a {
+    position: relative;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding-block: 0.4rem;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--red);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 180ms ease;
+  }
+
+  .nav-links a:hover::after {
+    transform: scaleX(1);
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 2px solid var(--stroke);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      background-color 140ms ease,
+      color 140ms ease;
+  }
+
+  .theme-toggle:hover {
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  .theme-icon {
+    display: grid;
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .theme-icon[hidden] {
+    display: none;
+  }
+
+  /* ── Hero ───────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .hero-lines {
+    position: absolute;
+    inset: -30%;
+    background: repeating-conic-gradient(
+      from 0deg at 72% 46%,
+      var(--dot) 0deg 0.45deg,
+      transparent 0.45deg 4deg
+    );
+    -webkit-mask-image: radial-gradient(
+      circle at 72% 46%,
+      transparent 0 16%,
+      #000 62%
+    );
+    mask-image: radial-gradient(circle at 72% 46%, transparent 0 16%, #000 62%);
+    opacity: 0.75;
+  }
+
+  .hero-dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--red) 1.6px, transparent 2px);
+    background-size: 11px 11px;
+    -webkit-mask-image: linear-gradient(
+      200deg,
+      #000 0%,
+      transparent 34%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(200deg, #000 0%, transparent 34%, transparent 100%);
+    opacity: 0.55;
+  }
+
+  .hero-kanji {
+    position: absolute;
+    right: -0.08em;
+    bottom: -0.2em;
+    font-family: var(--font-jp);
+    font-size: clamp(11rem, 44vw, 30rem);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--hair);
+    writing-mode: vertical-rl;
+    user-select: none;
+  }
+
+  .hero-inner {
+    display: grid;
+    gap: 2rem;
+    padding-block: 2.25rem 2.5rem;
+  }
+
+  .hero-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3.6rem, 18vw, 7.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .hero-title-line {
+    display: block;
+  }
+
+  .hero-title-accent {
+    color: var(--red-text);
+  }
+
+  .hero-title-place {
+    display: inline-block;
+    margin-top: 0.85rem;
+    padding: 0.45em 0.7em 0.5em;
+    background: var(--yellow);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    font-size: clamp(0.82rem, 3.7vw, 1.35rem);
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    transform: rotate(-2deg);
+    box-shadow: 4px 4px 0 var(--shadow);
+  }
+
+  .hero-title-place b {
+    font-weight: 400;
+  }
+
+  .hero-lead {
+    margin: 1.5rem 0 0;
+    max-width: 34rem;
+    font-size: 1.02rem;
+    color: var(--muted);
+  }
+
+  .hero-lead strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .hero-lead .hl-text {
+    background: linear-gradient(transparent 62%, color-mix(in srgb, var(--red) 55%, transparent) 62%);
+  }
+
+  .hero-cta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+    margin-top: 1.6rem;
+  }
+
+  .hero-cta-row .btn {
+    padding-inline: 0.6rem;
+  }
+
+  /* Fanned covers */
+  .hero-art {
+    position: relative;
+  }
+
+  .fan {
+    position: relative;
+    width: min(100%, 24rem);
+    margin-inline: auto;
+    aspect-ratio: 10 / 7.4;
+  }
+
+  .fan-card {
+    position: absolute;
+    top: 6%;
+    width: 40%;
+    aspect-ratio: 2 / 3;
+    border: 2px solid var(--stroke);
+    background: var(--surface);
+    box-shadow: 5px 5px 0 var(--shadow);
+    overflow: hidden;
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .fan-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fan-card-1 {
+    left: 4%;
+    transform: rotate(-11deg) translateY(6%);
+  }
+
+  .fan-card-2 {
+    left: 30%;
+    z-index: 2;
+    transform: rotate(-1deg);
+  }
+
+  .fan-card-3 {
+    left: 56%;
+    transform: rotate(10deg) translateY(7%);
+  }
+
+  .fan:hover .fan-card-1 {
+    transform: rotate(-15deg) translate(-8%, 4%);
+  }
+
+  .fan:hover .fan-card-2 {
+    transform: rotate(-1deg) translateY(-4%);
+  }
+
+  .fan:hover .fan-card-3 {
+    transform: rotate(14deg) translate(8%, 5%);
+  }
+
+  .sticker {
+    position: absolute;
+    z-index: 3;
+    font-family: var(--font-fun);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .sticker-burst {
+    right: -2%;
+    top: -6%;
+    display: grid;
+    place-items: center;
+    width: 31%;
+    aspect-ratio: 1;
+    background: var(--yellow);
+    color: var(--ink);
+    text-align: center;
+    font-size: clamp(0.56rem, 2.5vw, 0.78rem);
+    transform: rotate(12deg);
+    animation: wobble 5s ease-in-out infinite;
+  }
+
+  .sticker-stamp {
+    left: -1%;
+    bottom: 2%;
+    padding: 0.5em 0.75em;
+    border: 2px solid var(--ink);
+    background: var(--red);
+    color: #fff;
+    font-size: clamp(0.62rem, 2.8vw, 0.82rem);
+    letter-spacing: 0.04em;
+    transform: rotate(-6deg);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .sticker-kana {
+    left: 0;
+    top: -4%;
+    padding: 0.35em 0.55em 0.45em;
+    background: var(--paper);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    font-size: clamp(0.7rem, 3vw, 0.9rem);
+    transform: rotate(-5deg);
+  }
+
+  .sticker-burst b {
+    display: block;
+    margin-top: 0.15em;
+    font-weight: 400;
+    font-size: 1.35em;
+    color: var(--red-text);
+  }
+
+  html[data-theme='dark'] .sticker-burst b {
+    color: #dc2626;
+  }
+
+  html[data-theme='dark'] .sticker-stamp {
+    box-shadow: 3px 3px 0 var(--paper);
+  }
+
+  @keyframes wobble {
+    0%,
+    100% {
+      transform: rotate(12deg) scale(1);
+    }
+    50% {
+      transform: rotate(4deg) scale(1.06);
+    }
+  }
+
+  /* ── Ticker ─────────────────────────────────────────────────── */
+  .ticker {
+    position: relative;
+    z-index: 2;
+    width: 104%;
+    margin: 0.4rem -2% 0;
+    overflow: hidden;
+    background: var(--yellow);
+    color: var(--ink);
+    border-block: 2px solid var(--ink);
+    transform: rotate(-1.2deg);
+  }
+
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: ticker 32s linear infinite;
+  }
+
+  .ticker-group {
+    display: flex;
+    flex: none;
+  }
+
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0.6rem 0 0.7rem 1.1rem;
+    font-family: var(--font-display);
+    font-size: 1.14rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ticker-star {
+    color: #dc2626;
+  }
+
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ── Sections ───────────────────────────────────────────────── */
+  .section {
+    position: relative;
+    padding-block: 4rem;
+  }
+
+  .sec-head {
+    max-width: 44rem;
+    margin-bottom: 2rem;
+  }
+
+  .eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.9rem;
+    font-family: var(--font-label);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .eyebrow-num {
+    padding: 0.15rem 0.45rem;
+    background: var(--red);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  html[data-theme='dark'] .eyebrow-num {
+    color: var(--ink);
+  }
+
+  .eyebrow-jp {
+    font-family: var(--font-fun);
+    letter-spacing: 0.05em;
+    color: var(--red-text);
+  }
+
+  .sec-title {
+    margin: 0;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    font-weight: 400;
+    font-size: clamp(2.8rem, 13vw, 5.4rem);
+    line-height: 0.98;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .hl {
+    display: inline-block;
+    padding: 0 0.22em 0.06em;
+    background: var(--yellow);
+    color: var(--ink);
+    transform: rotate(-1.5deg);
+  }
+
+  .hl-red {
+    color: var(--red-text);
+  }
+
+  .sec-lead {
+    margin: 1.1rem 0 0;
+    max-width: 38rem;
+    color: var(--muted);
+    font-size: 1rem;
+  }
+
+  .sec-lead strong {
+    color: var(--text);
+  }
+
+  .center-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  /* ── Merch ──────────────────────────────────────────────────── */
+  .merch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .merch-card {
+    --tone: var(--red);
+    --tone-fg: #fff;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid var(--stroke);
+    background: var(--surface);
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .merch-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 var(--shadow);
+  }
+
+  .tone-yellow {
+    --tone: var(--yellow);
+    --tone-fg: var(--ink);
+  }
+
+  .tone-cyan {
+    --tone: var(--cyan);
+    --tone-fg: var(--ink);
+  }
+
+  .tone-paper {
+    --tone: var(--bg-alt);
+    --tone-fg: var(--text);
+  }
+
+  .merch-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 6.5rem;
+    overflow: hidden;
+    background: var(--tone);
+    color: var(--tone-fg);
+    border-bottom: 2px solid var(--stroke);
+  }
+
+  .merch-visual::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(currentColor 1.3px, transparent 1.7px);
+    background-size: 9px 9px;
+    opacity: 0.22;
+    -webkit-mask-image: linear-gradient(120deg, transparent 30%, #000);
+    mask-image: linear-gradient(120deg, transparent 30%, #000);
+  }
+
+  .merch-kana {
+    position: absolute;
+    left: 0.5rem;
+    bottom: -0.12em;
+    font-family: var(--font-fun);
+    font-size: 2.6rem;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0.22;
+  }
+
+  .merch-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .merch-icon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .merch-card:hover .merch-icon {
+    transform: rotate(-10deg) scale(1.1);
+  }
+
+  .merch-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0.8rem;
+  }
+
+  .merch-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .tag {
+    padding: 0.18rem 0.42rem;
+    border: 1.5px solid var(--stroke);
+    font-family: var(--font-label);
+    font-weight: 800;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .tag-stock {
+    background: var(--wa);
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .tag-soon {
+    background: var(--red);
+    border-color: var(--ink);
+    color: #fff;
+  }
+
+  .tag-plain {
+    display: none;
+    color: var(--muted);
+    border-color: var(--hair);
+  }
+
+  .merch-title {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    font-weight: 400;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .merch-desc {
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .merch-price {
+    display: flex;
+    flex-direction: column;
+    margin: auto 0 0;
+    padding-block: 0.85rem;
+  }
+
+  .merch-price-note {
+    font-family: var(--font-label);
+    font-weight: 800;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .merch-price-value {
+    font-family: var(--font-fun);
+    font-size: 1.1rem;
+    line-height: 1.25;
+    color: var(--yellow);
+  }
+
+  html[data-theme='light'] .merch-price-value {
+    color: var(--red-text);
+  }
+
+  .merch-price-combo {
+    font-family: var(--font-label);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+
+  .merch-price-soon {
+    font-size: 0.95rem;
+  }
+
+  .merch-body .btn {
+    min-height: 2.75rem;
+    padding-inline: 0.5rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+
+  .btn-extra {
+    display: none;
+  }
+
+  /* ── Cómo comprar ───────────────────────────────────────────── */
+  .how {
+    margin-top: 4rem;
+  }
+
+  .how-title {
+    margin: 0 0 1.5rem;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    font-weight: 400;
+    font-size: clamp(1.92rem, 8.4vw, 3.12rem);
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .how-steps {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .how-step {
+    position: relative;
+    overflow: hidden;
+    padding: 1.2rem 1.1rem 1.3rem 5.2rem;
+    border: 2px solid var(--stroke);
+    background: var(--surface);
+  }
+
+  .how-step::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 7rem;
+    height: 7rem;
+    background-image: radial-gradient(var(--dot) 1.4px, transparent 1.8px);
+    background-size: 8px 8px;
+    -webkit-mask-image: linear-gradient(315deg, #000, transparent 70%);
+    mask-image: linear-gradient(315deg, #000, transparent 70%);
+    pointer-events: none;
+  }
+
+  .how-num {
+    position: absolute;
+    left: 0.9rem;
+    top: 0.85rem;
+    font-family: var(--font-fun);
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--red-text);
+  }
+
+  .how-kana {
+    display: block;
+    font-family: var(--font-fun);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .how-heading {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    font-weight: 400;
+    font-size: 1.26rem;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+
+  .how-desc {
+    margin: 0.45rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .how-note {
+    margin: 1.4rem 0 0;
+    padding: 0.85rem 1rem;
+    border: 2px dashed var(--stroke);
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .how-note b {
+    color: var(--text);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
   .catalog-preview-item {
     display: none;
   }
@@ -1422,2238 +2066,990 @@ const heroRows = Array.from({ length: 4 }, (_, rowIndex) =>
     display: flex;
   }
 
-  .hero-classified {
-    background: #f4f4f4;
+  /* ── Manga ──────────────────────────────────────────────────── */
+  .manga-section {
+    background: var(--bg-alt);
+    border-block: 2px solid var(--stroke);
+    background-image: radial-gradient(var(--dot) 1.2px, transparent 1.6px);
+    background-size: 14px 14px;
   }
 
-  .theme-toggle {
-    position: absolute;
-    right: 0.75rem;
-    top: 0.75rem;
-    z-index: 30;
-    border: 1px solid rgb(209 213 219);
-    background: rgb(255 255 255 / 0.86);
-    color: rgb(31 41 55);
-    padding: 0.42rem 0.62rem;
-    font-size: 0.64rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    backdrop-filter: blur(6px);
-    transition:
-      background-color 180ms ease,
-      color 180ms ease,
-      border-color 180ms ease;
-  }
-
-  .theme-toggle-inner {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.34rem;
-  }
-
-  .theme-icon {
-    width: 0.82rem;
-    height: 0.82rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .theme-icon svg {
+  .manga-rail-wrap {
     width: 100%;
-    height: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
   }
 
-  .theme-toggle:hover {
-    border-color: rgb(17 24 39);
-    color: rgb(17 24 39);
-    background: rgb(255 255 255 / 0.98);
-  }
-
-  .hero-contact-btn {
-    border: 2px solid rgb(148 163 184);
-    color: rgb(15 23 42);
-    background: rgb(255 255 255 / 0.84);
-    backdrop-filter: blur(4px);
-  }
-
-  .hero-contact-btn:hover {
-    border-color: rgb(15 23 42);
-    color: rgb(2 6 23);
-    background: rgb(255 255 255 / 0.96);
-  }
-
-  .hero-grid {
-    min-height: min(88vh, 860px);
-    display: grid;
-    grid-template-columns: minmax(84px, 110px) minmax(0, 1fr);
-  }
-
-  .catalog-section-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: minmax(84px, 110px) minmax(0, 1fr);
-  }
-
-  .hero-left-rail {
-    overflow: hidden;
-    background: #ececec;
-  }
-
-  .hero-copy-motion {
-    position: absolute;
-    inset: -1.2rem -2rem;
-    display: grid;
-    align-content: center;
-    gap: 0.6rem;
-    transform: rotate(-8deg) scale(1.14);
-    opacity: 0.34;
-    filter: grayscale(90%) contrast(100%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .hero-copy-motion-mask {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(
-        circle at 38% 34%,
-        rgb(244 244 244 / 0.62) 0%,
-        rgb(244 244 244 / 0.44) 48%,
-        rgb(244 244 244 / 0.34) 72%,
-        rgb(244 244 244 / 0.58) 100%
-      ),
-      linear-gradient(
-        180deg,
-        rgb(244 244 244 / 0.6) 0%,
-        rgb(244 244 244 / 0.38) 44%,
-        rgb(244 244 244 / 0.62) 100%
-      );
-    z-index: 1;
-    pointer-events: none;
-  }
-
-  .hero-rail-text {
-    position: absolute;
-    z-index: 2;
-    left: 50%;
-    top: 50%;
-    margin: 0;
-    writing-mode: vertical-rl;
-    transform: translate(-50%, -50%) rotate(180deg);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: clamp(2rem, 2.5vw, 2.6rem);
-    font-weight: 700;
-    color: rgb(17 24 39);
-  }
-
-  .hero-copy-col {
-    position: relative;
-    overflow: hidden;
-    padding: clamp(2rem, 4vw, 4.1rem) clamp(1.5rem, 4vw, 6rem);
+  .manga-rail {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .hero-kicker {
-    margin: 0;
-    color: rgb(120 120 120);
-    text-transform: uppercase;
-    letter-spacing: 0.28em;
-    font-size: 0.86rem;
-    font-weight: 600;
-  }
-
-  .hero-title {
-    margin: 1.1rem 0 0;
-    font-size: clamp(2.4rem, 8.5vw, 6.2rem);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-    font-weight: 900;
-    color: rgb(17 24 39);
-  }
-
-  .hero-title span {
-    color: rgb(220 38 38);
-  }
-
-  .hero-lead {
-    margin-top: clamp(1.7rem, 3.2vw, 3rem);
-    max-width: 38rem;
-    font-size: clamp(1.12rem, 1.85vw, 2rem);
-    line-height: 1.45;
-    color: rgb(93 102 112);
-  }
-
-  .hero-lead strong {
-    color: rgb(17 24 39);
-  }
-
-  html[data-theme='dark'] body {
-    background: #0b1118;
-    color: #e5e7eb;
-  }
-
-  html[data-theme='dark'] .min-h-screen {
-    background: #0b1118;
-  }
-
-  html[data-theme='dark'] .hero-classified {
-    background: #111827;
-    border-color: rgb(55 65 81);
-  }
-
-  html[data-theme='dark'] .hero-left-rail {
-    background: #0f172a;
-    border-color: rgb(55 65 81);
-  }
-
-  html[data-theme='dark'] .hero-rail-text {
-    color: rgb(226 232 240);
-  }
-
-  html[data-theme='dark'] .hero-title {
-    color: rgb(248 250 252);
-  }
-
-  html[data-theme='dark'] .hero-lead {
-    color: rgb(203 213 225);
-  }
-
-  html[data-theme='dark'] .hero-lead strong {
-    color: rgb(248 250 252);
-  }
-
-  html[data-theme='dark'] .hero-copy-motion {
-    opacity: 0.46;
-  }
-
-  html[data-theme='dark'] .hero-copy-motion-mask {
-    background:
-      radial-gradient(
-        circle at 38% 34%,
-        rgb(15 23 42 / 0.66) 0%,
-        rgb(15 23 42 / 0.42) 48%,
-        rgb(15 23 42 / 0.3) 72%,
-        rgb(15 23 42 / 0.62) 100%
-      ),
-      linear-gradient(
-        180deg,
-        rgb(15 23 42 / 0.62) 0%,
-        rgb(15 23 42 / 0.36) 44%,
-        rgb(15 23 42 / 0.62) 100%
-      );
-  }
-
-  html[data-theme='dark'] .theme-toggle {
-    background: rgb(15 23 42 / 0.88);
-    color: rgb(226 232 240);
-    border-color: rgb(71 85 105);
-  }
-
-  html[data-theme='dark'] .theme-toggle:hover {
-    background: rgb(15 23 42 / 1);
-    color: rgb(248 250 252);
-    border-color: rgb(148 163 184);
-  }
-
-  html[data-theme='dark'] .hero-contact-btn {
-    border-color: rgb(148 163 184);
-    color: rgb(241 245 249);
-    background: rgb(15 23 42 / 0.7);
-  }
-
-  html[data-theme='dark'] .hero-contact-btn:hover {
-    border-color: rgb(226 232 240);
-    color: rgb(255 255 255);
-    background: rgb(15 23 42 / 0.88);
-  }
-
-  html[data-theme='dark'] #catalogo {
-    background: #101720;
-    border-color: rgb(51 65 85);
-  }
-
-  html[data-theme='dark'] #catalogo h2 {
-    color: rgb(248 250 252);
-  }
-
-  html[data-theme='dark'] #catalogo p {
-    color: rgb(203 213 225);
-  }
-
-  html[data-theme='dark'] #catalogo article {
-    background: #0f172a;
-    border-color: rgb(71 85 105);
-  }
-
-  html[data-theme='dark'] #catalogo article:hover {
-    border-color: rgb(239 68 68);
-  }
-
-  html[data-theme='dark'] #catalogo .bg-black {
-    background: rgb(226 232 240);
-    color: rgb(15 23 42);
-  }
-
-  html[data-theme='dark'] #catalogo .text-black {
-    color: rgb(248 250 252);
-  }
-
-  html[data-theme='dark'] #catalogo .bg-gray-100 {
-    background: rgb(30 41 59);
-    border-color: rgb(71 85 105);
-  }
-
-  html[data-theme='dark'] #contacto > div {
-    background: #0f172a;
-    border-color: rgb(71 85 105);
-  }
-
-  html[data-theme='dark'] #contacto h2,
-  html[data-theme='dark'] #contacto p,
-  html[data-theme='dark'] #contacto label {
-    color: rgb(226 232 240);
-  }
-
-  html[data-theme='dark'] #contacto input,
-  html[data-theme='dark'] #contacto select {
-    background: rgb(15 23 42);
-    color: rgb(226 232 240);
-    border-color: rgb(71 85 105);
-  }
-
-  html[data-theme='dark'] #contacto input::placeholder {
-    color: rgb(148 163 184);
-  }
-
-  html[data-theme='dark'] #contacto option {
-    background: rgb(15 23 42);
-    color: rgb(226 232 240);
-  }
-
-  html[data-theme='dark'] footer {
-    border-top: 1px solid rgb(51 65 85);
-  }
-
-  .hero-row {
-    overflow: hidden;
-  }
-
-  .hero-track {
-    display: flex;
-    width: max-content;
-    gap: 0.5rem;
-  }
-
-  .hero-cover {
-    width: clamp(64px, 5.5vw, 88px);
-    aspect-ratio: 2 / 3;
-    border: 1px solid rgb(156 163 175 / 0.42);
-    object-fit: cover;
-    background: rgb(229 231 235);
-    animation: heroPulse 4.5s ease-in-out infinite;
-    animation-delay: var(--delay);
-    box-shadow: none;
-  }
-
-  .hero-row-forward .hero-track {
-    animation: slideDiagForward 58s linear infinite;
-  }
-
-  .hero-row-reverse .hero-track {
-    animation: slideDiagReverse 58s linear infinite;
-  }
-
-  @keyframes slideDiagForward {
-    from {
-      transform: translate3d(0, 0, 0);
-    }
-
-    to {
-      transform: translate3d(-50%, 0, 0);
-    }
-  }
-
-  @keyframes slideDiagReverse {
-    from {
-      transform: translate3d(-50%, 0, 0);
-    }
-
-    to {
-      transform: translate3d(0, 0, 0);
-    }
-  }
-
-  @keyframes heroPulse {
-    0%,
-    100% {
-      opacity: 0.92;
-    }
-
-    50% {
-      opacity: 1;
-    }
-  }
-
-  .catalog-rail {
-    position: relative;
-    background: #efefef;
-    overflow: hidden;
-  }
-
-  .catalog-rail-text {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    margin: 0;
-    writing-mode: vertical-rl;
-    transform: translate(-50%, -50%) rotate(180deg);
-    text-orientation: mixed;
-    text-align: center;
-    letter-spacing: 0.04em;
-    font-size: clamp(1.4rem, 1.8vw, 2rem);
-    color: rgb(100 116 139);
-    font-weight: 700;
-  }
-
-  .catalog-main {
-    overflow: visible;
-  }
-
-  .catalog-title {
-    margin: 0;
-    font-size: clamp(2.2rem, 6vw, 5.2rem);
-    line-height: 0.92;
-    letter-spacing: -0.03em;
-    font-weight: 900;
-    color: rgb(15 23 42);
-  }
-
-  .catalog-title span {
-    color: rgb(100 116 139);
-  }
-
-  .catalog-lead {
-    margin-top: 1.6rem;
-    max-width: 48rem;
-    color: rgb(99 109 119);
-    font-size: clamp(1rem, 1.5vw, 1.7rem);
-    line-height: 1.5;
-  }
-
-  .catalog-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1.25rem;
-  }
-
-  .catalog-card {
-    position: relative;
-    border: 1px solid rgb(209 213 219);
-    background: rgb(17 24 39);
-    min-height: 260px;
-    outline: none;
-    overflow: hidden;
-  }
-
-  .catalog-cover {
-    width: 100%;
-    height: 100%;
-    min-height: 260px;
-    object-fit: cover;
-    filter: grayscale(20%) contrast(102%);
-    transition:
-      filter 220ms ease,
-      transform 220ms ease;
-  }
-
-  .catalog-card:hover .catalog-cover,
-  .catalog-card:focus-within .catalog-cover,
-  .catalog-card:focus .catalog-cover {
-    filter: grayscale(0%) contrast(110%);
-    transform: scale(1.02);
-  }
-
-  .catalog-flyout {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    border: 1px solid rgb(31 41 55 / 0.5);
-    background: rgb(0 0 0 / 0.75);
-    color: rgb(248 250 252);
-    padding: 1.1rem 1rem 1rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 220ms ease;
-    z-index: 2;
-  }
-
-  .catalog-card:hover .catalog-flyout,
-  .catalog-card:focus-within .catalog-flyout,
-  .catalog-card:focus .catalog-flyout {
-    opacity: 1;
-  }
-
-  .catalog-flyout-index {
-    margin: 0;
-    font-size: 2.05rem;
-    line-height: 1;
-    font-weight: 800;
-    color: rgb(225 29 72);
-  }
-
-  .catalog-flyout-name {
-    margin: 0.6rem 0 0;
-    font-size: 1.28rem;
-    line-height: 1.1;
-    text-transform: uppercase;
-    font-weight: 800;
-  }
-
-  .catalog-flyout-genre {
-    margin: 0.58rem 0 0;
-    font-size: 0.95rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgb(186 203 221);
-  }
-
-  @media (max-width: 1024px) {
-    .hero-grid,
-    .catalog-section-grid {
-      grid-template-columns: 88px minmax(0, 1fr);
-    }
-
-    .catalog-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 768px) {
-    .theme-toggle {
-      right: 0.5rem;
-      top: 0.5rem;
-      padding: 0.36rem 0.5rem;
-      font-size: 0.58rem;
-      letter-spacing: 0.04em;
-    }
-
-    .theme-icon {
-      width: 0.74rem;
-      height: 0.74rem;
-    }
-
-    .hero-grid {
-      min-height: auto;
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .catalog-section-grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .hero-left-rail-mobile-hidden,
-    .catalog-rail {
-      display: none !important;
-    }
-
-    .hero-copy-col {
-      border-right: none;
-    }
-
-    .hero-copy-motion {
-      inset: -1.4rem -1rem;
-      gap: 0.45rem;
-      transform: rotate(-7deg) scale(1.08);
-    }
-
-    .hero-row-forward .hero-track,
-    .hero-row-reverse .hero-track {
-      animation-duration: 44s;
-    }
-
-    .hero-copy-col {
-      padding: 1.8rem 1.1rem 2rem 1.25rem;
-    }
-
-    .hero-kicker {
-      font-size: 0.72rem;
-      letter-spacing: 0.2em;
-    }
-
-    .hero-title {
-      font-size: clamp(2.15rem, 12vw, 3.9rem);
-      line-height: 0.98;
-    }
-
-    .hero-lead {
-      font-size: 1.1rem;
-      max-width: 30ch;
-    }
-
-    .hero-rail-text {
-      font-size: 1.55rem;
-    }
-
-    .catalog-main {
-      padding: 1.8rem 1rem 2.2rem;
-    }
-
-    .catalog-rail-text {
-      font-size: 1.55rem;
-    }
-
-    .catalog-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.8rem;
-    }
-
-    .catalog-card,
-    .catalog-cover {
-      min-height: 200px;
-    }
-
-    .catalog-flyout {
-      padding: 0.85rem 0.75rem 0.8rem;
-    }
-  }
-
-  /* ── GLOBAL TYPOGRAPHY ─────────────────────────── */
-  :root {
-    --font-body: 'Inter', system-ui, sans-serif;
-    --font-display: 'Bebas Neue', 'Impact', sans-serif;
-    --red-600: #dc2626;
-    --red-700: #b91c1c;
-    --red-500: #ef4444;
-  }
-
-  body {
-    font-family: var(--font-body);
-  }
-
-  /* ── HERO BADGE ─────────────────────────────────── */
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgb(220 38 38 / 0.1);
-    border: 1px solid rgb(220 38 38 / 0.25);
-    color: var(--red-600);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 0.35rem 0.75rem;
-    border-radius: 2px;
-    margin-bottom: 1.2rem;
-  }
-
-  .hero-badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--red-500);
-    animation: badgePulse 1.8s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-
-  @keyframes badgePulse {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.55;
-      transform: scale(0.8);
-    }
-  }
-
-  /* ── HERO DISCOUNT HIGHLIGHT ────────────────────── */
-  .hero-discount {
-    color: var(--red-600);
-    background: rgb(220 38 38 / 0.1);
-    padding: 0.05em 0.3em;
-    border-radius: 2px;
-  }
-
-  /* ── HERO CTA BUTTONS ───────────────────────────── */
-  .hero-cta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.875rem;
-    margin-top: 2.2rem;
-  }
-
-  .hero-btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--red-600);
-    color: #fff;
-    padding: 0.875rem 1.75rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition:
-      background 180ms ease,
-      transform 180ms ease,
-      box-shadow 180ms ease;
-    box-shadow: 0 4px 14px rgb(220 38 38 / 0.35);
-  }
-
-  .hero-btn-primary:hover {
-    background: var(--red-700);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgb(220 38 38 / 0.45);
-  }
-
-  .hero-btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    border: 2px solid currentColor;
-    color: rgb(15 23 42);
-    background: transparent;
-    padding: 0.875rem 1.5rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition:
-      color 180ms ease,
-      border-color 180ms ease,
-      background 180ms ease;
-  }
-
-  .hero-btn-secondary:hover {
-    border-color: var(--red-600);
-    color: var(--red-600);
-  }
-
-  /* ── HERO TRUST BAR ─────────────────────────────── */
-  .hero-trust {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgb(0 0 0 / 0.09);
-  }
-
-  .hero-trust-item {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: rgb(71 85 105);
-    letter-spacing: 0.02em;
-  }
-
-  .hero-trust-icon {
-    font-size: 0.9rem;
-  }
-
-  .hero-trust-sep {
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: rgb(148 163 184);
-  }
-
-  /* ── HERO CONTENT ANIMATION ─────────────────────── */
-  @keyframes heroFadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(18px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .hero-content-animate {
-    animation: heroFadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-delay: 0.1s;
-  }
-
-  /* ── CATALOG SECTION HEADER ─────────────────────── */
-  .catalog-section {
-    background: #f8f8f8;
-  }
-
-  .catalog-section-header {
-    text-align: center;
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .catalog-section-eyebrow {
-    display: inline-block;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--red-600);
-    margin-bottom: 0.75rem;
-    padding: 0.3rem 0.75rem;
-    border: 1px solid rgb(220 38 38 / 0.25);
-    background: rgb(220 38 38 / 0.06);
-    border-radius: 2px;
-  }
-
-  .catalog-section-title {
-    font-family: var(--font-display);
-    font-size: clamp(2.4rem, 7vw, 4.5rem);
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    line-height: 0.95;
-    color: rgb(15 23 42);
-    margin: 0;
-  }
-
-  .catalog-section-title span {
-    color: var(--red-600);
-  }
-
-  .catalog-section-lead {
-    margin-top: 1rem;
-    font-size: 1.05rem;
-    color: rgb(99 115 130);
-    line-height: 1.6;
-  }
-
-  /* ── CATALOG CARDS REDESIGN ─────────────────────── */
-  .catalog-card-img-wrap {
-    position: relative;
-    overflow: hidden;
-    background: rgb(17 24 39);
-    aspect-ratio: 2/3;
-  }
-
-  .catalog-card-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition:
-      transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 380ms ease;
-    filter: brightness(0.97);
-  }
-
-  .group:hover .catalog-card-img {
-    transform: scale(1.05);
-    filter: brightness(0.85);
-  }
-
-  .catalog-card-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgb(0 0 0 / 0.72) 0%, transparent 55%);
-    display: flex;
-    align-items: flex-end;
-    padding: 1.25rem;
-    opacity: 0;
-    transition: opacity 300ms ease;
-  }
-
-  .group:hover .catalog-card-overlay {
-    opacity: 1;
-  }
-
-  @media (hover: none) {
-    .catalog-card-overlay {
-      opacity: 1;
-    }
-  }
-
-  .catalog-card-overlay-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    background: var(--red-600);
-    color: #fff;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.6rem 1rem;
-    text-decoration: none;
-    transition: background 180ms ease;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .catalog-card-overlay-btn:hover {
-    background: var(--red-700);
-  }
-
-  .catalog-card-body {
-    padding: 1rem 0.75rem 0.75rem;
-    background: #fff;
-    border: 1px solid rgb(229 231 235);
-    border-top: none;
-  }
-
-  .catalog-card-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: rgb(15 23 42);
-    margin: 0.4rem 0 0;
-    line-height: 1.3;
-  }
-
-  /* ── COMPACT MANGA PREVIEW ─────────────────────── */
-  .catalog-compact .catalog-section-title {
-    font-size: clamp(1.9rem, 5vw, 3rem);
-  }
-
-  .catalog-compact .catalog-section-lead {
-    margin-top: 0.6rem;
-    font-size: 0.95rem;
-  }
-
-  .catalog-compact .catalog-section-lead strong {
-    color: var(--red-600);
-  }
-
-  .catalog-compact .catalog-card-overlay {
-    padding: 0.5rem;
-  }
-
-  .catalog-compact .catalog-card-overlay-btn {
-    gap: 0.3rem;
-    padding: 0.45rem 0.4rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.04em;
-  }
-
-  .catalog-compact .catalog-card-body {
-    padding: 0.5rem 0.5rem 0.55rem;
-  }
-
-  .catalog-compact .catalog-genre-badge {
-    font-size: 0.55rem;
-    padding: 0.15rem 0.4rem;
-    letter-spacing: 0.05em;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .catalog-compact .catalog-card-title {
-    font-size: 0.8rem;
-    margin-top: 0.3rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .catalog-compact .catalog-section-footer {
-    margin-top: 1.25rem;
-  }
-
-  @media (max-width: 640px) {
-    .catalog-compact .catalog-card-overlay,
-    .catalog-compact .catalog-genre-badge {
-      display: none;
-    }
-
-    .catalog-compact .catalog-card-title {
-      margin-top: 0;
-    }
-  }
-
-  /* ── GENRE BADGES ───────────────────────────────── */
-  .catalog-genre-badge {
-    display: inline-block;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 0.22rem 0.6rem;
-    border-radius: 2px;
-  }
-
-  .genre-accion {
-    background: rgb(239 68 68 / 0.12);
-    color: rgb(185 28 28);
-    border: 1px solid rgb(239 68 68 / 0.3);
-  }
-  .genre-drama {
-    background: rgb(99 102 241 / 0.12);
-    color: rgb(67 56 202);
-    border: 1px solid rgb(99 102 241 / 0.3);
-  }
-  .genre-romance {
-    background: rgb(236 72 153 / 0.12);
-    color: rgb(190 24 93);
-    border: 1px solid rgb(236 72 153 / 0.3);
-  }
-  .genre-comedia {
-    background: rgb(234 179 8 / 0.12);
-    color: rgb(161 98 7);
-    border: 1px solid rgb(234 179 8 / 0.3);
-  }
-  .genre-fantasia {
-    background: rgb(139 92 246 / 0.12);
-    color: rgb(109 40 217);
-    border: 1px solid rgb(139 92 246 / 0.3);
-  }
-  .genre-aventura {
-    background: rgb(34 197 94 / 0.12);
-    color: rgb(21 128 61);
-    border: 1px solid rgb(34 197 94 / 0.3);
-  }
-  .genre-seinen {
-    background: rgb(15 23 42 / 0.1);
-    color: rgb(15 23 42);
-    border: 1px solid rgb(15 23 42 / 0.2);
-  }
-  .genre-shonen {
-    background: rgb(59 130 246 / 0.1);
-    color: rgb(29 78 216);
-    border: 1px solid rgb(59 130 246 / 0.25);
-  }
-
-  /* ── CATALOG FOOTER ─────────────────────────────── */
-  .catalog-section-footer {
-    margin-top: 3rem;
-    text-align: center;
-  }
-
-  .catalog-more-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: rgb(100 116 139);
-    letter-spacing: 0.05em;
-    padding: 0.6rem 1.25rem;
-    border: 1px dashed rgb(148 163 184);
-    background: rgb(248 250 252);
-    border-radius: 2px;
-  }
-
-  /* ── CONTACT SECTION ────────────────────────────── */
-  .contact-section {
-    background: rgb(15 23 42);
-    padding: 5rem 1.5rem;
-  }
-
-  .contact-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 4rem;
-    align-items: start;
-  }
-
-  .contact-eyebrow {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--red-500);
-    margin-bottom: 1rem;
-  }
-
-  .contact-title {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 400;
-    letter-spacing: 0.03em;
-    color: #fff;
-    line-height: 1.05;
-    margin: 0 0 1.25rem;
-  }
-
-  .contact-lead {
-    color: rgb(148 163 184);
-    font-size: 1rem;
-    line-height: 1.65;
-    margin: 0;
-  }
-
-  .contact-perks {
-    margin-top: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .contact-perk {
-    display: flex;
-    align-items: flex-start;
     gap: 1rem;
+    padding: 0.4rem 1rem 1.2rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .contact-perk-icon {
-    font-size: 1.4rem;
-    line-height: 1;
-    flex-shrink: 0;
-    margin-top: 0.1rem;
+  .manga-rail::-webkit-scrollbar {
+    display: none;
   }
 
-  .contact-perk strong {
+  .manga-card {
+    flex: none;
+    flex-direction: column;
+    width: 40vw;
+    max-width: 13rem;
+    scroll-snap-align: start;
+  }
+
+  .manga-cover {
+    position: relative;
     display: block;
-    color: #fff;
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin-bottom: 0.15rem;
-  }
-
-  .contact-perk p {
-    color: rgb(148 163 184);
-    font-size: 0.83rem;
-    margin: 0;
-    line-height: 1.4;
-  }
-
-  /* ── CONTACT FORM ───────────────────────────────── */
-  .contact-right {
-    background: rgb(255 255 255 / 0.04);
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: 4px;
-    padding: 2.25rem;
-    backdrop-filter: blur(10px);
-  }
-
-  .contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .form-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgb(148 163 184);
-  }
-
-  .form-optional {
-    font-weight: 500;
-    text-transform: none;
-    letter-spacing: 0;
-    color: rgb(100 116 139);
-  }
-
-  .form-input {
-    width: 100%;
-    background: rgb(255 255 255 / 0.06);
-    border: 1px solid rgb(255 255 255 / 0.14);
-    color: #fff;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-    font-family: var(--font-body);
-    outline: none;
-    transition:
-      border-color 200ms ease,
-      background 200ms ease;
-    border-radius: 2px;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-
-  .form-input::placeholder {
-    color: rgb(100 116 139);
-  }
-
-  .form-input:focus {
-    border-color: var(--red-500);
-    background: rgb(255 255 255 / 0.09);
-    box-shadow: 0 0 0 3px rgb(239 68 68 / 0.15);
-  }
-
-  .form-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 1.1rem;
-    padding-right: 2.5rem;
-    cursor: pointer;
-  }
-
-  .form-select option {
-    background: rgb(15 23 42);
-    color: #fff;
-  }
-
-  .form-submit-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    width: 100%;
-    background: var(--red-600);
-    color: #fff;
-    padding: 1rem 1.75rem;
-    font-size: 0.82rem;
-    font-weight: 700;
-    font-family: var(--font-body);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: none;
-    cursor: pointer;
-    transition:
-      background 180ms ease,
-      transform 180ms ease,
-      box-shadow 180ms ease;
-    box-shadow: 0 4px 18px rgb(220 38 38 / 0.4);
-    border-radius: 2px;
-    margin-top: 0.25rem;
-  }
-
-  .form-submit-btn:hover {
-    background: var(--red-700);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgb(220 38 38 / 0.5);
-  }
-
-  .form-disclaimer {
-    font-size: 0.76rem;
-    color: rgb(100 116 139);
-    text-align: center;
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  /* ── FOOTER ─────────────────────────────────────── */
-  .site-footer {
-    background: rgb(5 11 20);
-    border-top: 1px solid rgb(255 255 255 / 0.06);
-  }
-
-  .footer-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .footer-brand {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-  }
-
-  .footer-logo {
-    font-size: 1.8rem;
-    line-height: 1;
-    margin: 0 0 0.2rem;
-    opacity: 0.7;
-  }
-
-  .footer-name {
-    font-family: var(--font-display);
-    font-size: 1.4rem;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    color: #fff;
-    margin: 0;
-  }
-
-  .footer-tagline {
-    font-size: 0.72rem;
-    color: rgb(100 116 139);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin: 0;
-  }
-
-  .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem 1.5rem;
-  }
-
-  .footer-link {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: rgb(148 163 184);
-    text-decoration: none;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    transition: color 180ms ease;
-  }
-
-  .footer-link:hover {
-    color: #fff;
-  }
-
-  .footer-catalog-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    background: var(--red-600);
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition: background 180ms ease;
-  }
-
-  .footer-catalog-btn:hover {
-    background: var(--red-700);
-  }
-
-  .footer-copy {
-    font-size: 0.76rem;
-    color: rgb(71 85 105);
-  }
-
-  .footer-copy p {
-    margin: 0;
-  }
-
-  /* ── DARK MODE: NEW ELEMENTS ────────────────────── */
-  html[data-theme='dark'] .hero-badge {
-    background: rgb(239 68 68 / 0.12);
-    border-color: rgb(239 68 68 / 0.3);
-  }
-
-  html[data-theme='dark'] .hero-discount {
-    background: rgb(239 68 68 / 0.15);
-  }
-
-  html[data-theme='dark'] .hero-btn-secondary {
-    color: rgb(226 232 240);
-    border-color: rgb(71 85 105);
-  }
-
-  html[data-theme='dark'] .hero-btn-secondary:hover {
-    border-color: var(--red-500);
-    color: var(--red-500);
-  }
-
-  html[data-theme='dark'] .hero-trust {
-    border-top-color: rgb(255 255 255 / 0.08);
-  }
-
-  html[data-theme='dark'] .hero-trust-item {
-    color: rgb(148 163 184);
-  }
-
-  html[data-theme='dark'] .hero-trust-sep {
-    background: rgb(71 85 105);
-  }
-
-  html[data-theme='dark'] .catalog-section {
-    background: #0d1520;
-  }
-
-  html[data-theme='dark'] .catalog-section-title {
-    color: rgb(248 250 252);
-  }
-
-  html[data-theme='dark'] .catalog-section-lead {
-    color: rgb(148 163 184);
-  }
-
-  html[data-theme='dark'] .catalog-section-lead strong {
-    color: rgb(226 232 240);
-  }
-
-  html[data-theme='dark'] .catalog-card-body {
-    background: rgb(15 23 42);
-    border-color: rgb(51 65 85);
-  }
-
-  html[data-theme='dark'] .catalog-card-title {
-    color: rgb(226 232 240);
-  }
-
-  html[data-theme='dark'] .catalog-more-badge {
-    background: rgb(15 23 42);
-    border-color: rgb(51 65 85);
-    color: rgb(100 116 139);
-  }
-
-  html[data-theme='dark'] .genre-accion {
-    background: rgb(239 68 68 / 0.18);
-    color: rgb(252 165 165);
-    border-color: rgb(239 68 68 / 0.35);
-  }
-  html[data-theme='dark'] .genre-drama {
-    background: rgb(99 102 241 / 0.18);
-    color: rgb(165 180 252);
-    border-color: rgb(99 102 241 / 0.35);
-  }
-  html[data-theme='dark'] .genre-romance {
-    background: rgb(236 72 153 / 0.18);
-    color: rgb(249 168 212);
-    border-color: rgb(236 72 153 / 0.35);
-  }
-  html[data-theme='dark'] .genre-comedia {
-    background: rgb(234 179 8 / 0.18);
-    color: rgb(253 224 71);
-    border-color: rgb(234 179 8 / 0.35);
-  }
-  html[data-theme='dark'] .genre-fantasia {
-    background: rgb(139 92 246 / 0.18);
-    color: rgb(196 181 253);
-    border-color: rgb(139 92 246 / 0.35);
-  }
-  html[data-theme='dark'] .genre-aventura {
-    background: rgb(34 197 94 / 0.18);
-    color: rgb(134 239 172);
-    border-color: rgb(34 197 94 / 0.35);
-  }
-  html[data-theme='dark'] .genre-seinen {
-    background: rgb(255 255 255 / 0.06);
-    color: rgb(203 213 225);
-    border-color: rgb(255 255 255 / 0.12);
-  }
-  html[data-theme='dark'] .genre-shonen {
-    background: rgb(59 130 246 / 0.14);
-    color: rgb(147 197 253);
-    border-color: rgb(59 130 246 / 0.3);
-  }
-
-  /* ── MERCH SECTION ───────────────────────────────── */
-  .merch-section {
-    background: #fff;
-    padding: 5rem 1.5rem 5.5rem;
-    border-bottom: 1px solid rgb(229 231 235);
-  }
-
-  .merch-section-header {
-    text-align: center;
-    max-width: 640px;
-    margin: 0 auto 3.5rem;
-  }
-
-  .merch-section-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #16a34a;
-    margin-bottom: 0.75rem;
-    padding: 0.35rem 0.85rem;
-    border: 1px solid rgb(22 163 74 / 0.3);
-    background: rgb(22 163 74 / 0.07);
-    border-radius: 2px;
-  }
-
-  .merch-eyebrow-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #22c55e;
-    animation: badgePulse 1.8s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-
-  .merch-section-title {
-    font-family: var(--font-display);
-    font-size: clamp(2.4rem, 7vw, 4.5rem);
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    line-height: 0.95;
-    color: rgb(15 23 42);
-    margin: 0;
-  }
-
-  .merch-section-title span {
-    color: #16a34a;
-  }
-
-  .merch-section-lead {
-    margin-top: 1rem;
-    font-size: 1.05rem;
-    color: rgb(99 115 130);
-    line-height: 1.6;
-  }
-
-  .merch-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1.5rem;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .merch-card {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgb(229 231 235);
-    background: #fff;
-    border-radius: 4px;
+    aspect-ratio: 2 / 3;
     overflow: hidden;
+    border: 2px solid var(--stroke);
+    background: var(--surface);
+    box-shadow: 4px 4px 0 var(--shadow);
     transition:
-      border-color 220ms ease,
-      box-shadow 220ms ease,
-      transform 220ms ease;
+      transform 200ms ease,
+      box-shadow 200ms ease;
   }
 
-  .merch-card:hover {
-    border-color: #16a34a;
-    box-shadow: 0 8px 32px rgb(22 163 74 / 0.12);
-    transform: translateY(-3px);
-  }
-
-  .merch-card-icon-wrap {
-    background: rgb(22 163 74 / 0.08);
-    padding: 2rem;
-    aspect-ratio: 16 / 9;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #16a34a;
-    border-bottom: 1px solid rgb(22 163 74 / 0.12);
-  }
-
-  .merch-card-icon-wrap img {
-    position: absolute;
-    inset: 0;
+  .manga-cover img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 400ms ease;
   }
 
-  .merch-icon-purple {
-    background: rgb(139 92 246 / 0.08);
-    color: #7c3aed;
-    border-bottom-color: rgb(139 92 246 / 0.12);
+  .manga-card:nth-child(odd) .manga-cover {
+    transform: rotate(-1.2deg);
   }
 
-  .merch-icon-yellow {
-    background: rgb(234 179 8 / 0.08);
-    color: #b45309;
-    border-bottom-color: rgb(234 179 8 / 0.12);
+  .manga-card:nth-child(even) .manga-cover {
+    transform: rotate(1.2deg);
   }
 
-  .merch-icon-red {
-    background: rgb(220 38 38 / 0.08);
-    color: var(--red-600);
-    border-bottom-color: rgb(220 38 38 / 0.12);
+  .manga-card .manga-cover:hover {
+    transform: rotate(0) translate(-3px, -3px);
+    box-shadow: 8px 8px 0 var(--shadow);
   }
 
-  .merch-card-body {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 0.75rem;
+  .manga-cover:hover img {
+    transform: scale(1.05);
   }
 
-  .merch-card-tags {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
+  .manga-bell {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.55rem;
+    background: var(--yellow);
+    color: var(--ink);
+    border-top: 2px solid var(--ink);
+    border-right: 2px solid var(--ink);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
-  .merch-tag {
+  .manga-meta {
+    padding-top: 0.85rem;
+  }
+
+  .manga-genre {
+    font-family: var(--font-label);
+    font-weight: 800;
     font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    padding: 0.18rem 0.55rem;
-    border-radius: 2px;
-    border: 1px solid transparent;
+    color: var(--red);
   }
 
-  .merch-tag-green {
-    background: rgb(22 163 74 / 0.1);
-    color: #15803d;
-    border-color: rgb(22 163 74 / 0.25);
-  }
-
-  .merch-tag-gray {
-    background: rgb(100 116 139 / 0.1);
-    color: rgb(71 85 105);
-    border-color: rgb(100 116 139 / 0.2);
-  }
-
-  .merch-tag-red {
-    background: rgb(220 38 38 / 0.1);
-    color: var(--red-600);
-    border-color: rgb(220 38 38 / 0.25);
-  }
-
-  .merch-card-title {
-    font-size: 1.15rem;
+  .manga-title {
+    display: -webkit-box;
+    margin: 0.2rem 0 0;
+    overflow: hidden;
+    font-size: 0.92rem;
     font-weight: 800;
-    color: rgb(15 23 42);
-    margin: 0;
-    line-height: 1.2;
+    line-height: 1.25;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
-  .merch-card-desc {
-    font-size: 0.88rem;
-    color: rgb(71 85 105);
-    margin: 0;
-    line-height: 1.55;
-    flex: 1;
-  }
-
-  .merch-card-price-row {
+  .manga-note {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
-  }
-
-  .merch-price {
-    font-size: 1.1rem;
+    gap: 0.6rem;
+    margin: 0.8rem 0 0;
+    font-family: var(--font-label);
     font-weight: 800;
-    color: #15803d;
-    letter-spacing: -0.01em;
-  }
-
-  .merch-price-coming {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: rgb(100 116 139);
-    font-style: italic;
-  }
-
-  .merch-catalog-link-row {
-    display: flex;
-    justify-content: center;
-    margin-top: 1.75rem;
-  }
-
-  .merch-catalog-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.85rem 1.4rem;
-    border: 2px solid var(--red-600);
-    color: var(--red-600);
-    font-weight: 800;
-    font-size: 0.9rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition:
-      background-color 160ms ease,
-      color 160ms ease;
-  }
-
-  .merch-catalog-link:hover {
-    background: var(--red-600);
-    color: #fff;
-  }
-
-  .merch-whatsapp-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    background: #16a34a;
-    color: #fff;
-    padding: 0.75rem 1rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 2px;
-    transition:
-      background 180ms ease,
-      transform 180ms ease;
-    margin-top: auto;
-  }
-
-  .merch-whatsapp-btn:hover {
-    background: #15803d;
-    transform: translateY(-1px);
-  }
-
-  .merch-whatsapp-btn-outline {
-    background: transparent;
-    color: #16a34a;
-    border: 2px solid #16a34a;
-  }
-
-  .merch-whatsapp-btn-outline:hover {
-    background: #16a34a;
-    color: #fff;
-  }
-
-  /* ── ABOUT SECTION ───────────────────────────────── */
-  .about-section {
-    background: rgb(15 23 42);
-    padding: 5rem 1.5rem;
-    border-top: 1px solid rgb(255 255 255 / 0.06);
-  }
-
-  .about-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 0.7fr;
-    gap: 4rem;
-    align-items: center;
-  }
-
-  .about-eyebrow {
     font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgb(34 197 94);
-    margin-bottom: 1rem;
+    color: var(--muted);
   }
 
-  .about-title {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 400;
-    letter-spacing: 0.03em;
-    color: #fff;
-    line-height: 1.05;
-    margin: 0 0 1.25rem;
+  .manga-note-swipe {
+    padding: 0.2rem 0.5rem;
+    background: var(--text);
+    color: var(--bg);
   }
 
-  .about-lead {
-    color: rgb(148 163 184);
-    font-size: 1rem;
-    line-height: 1.7;
+  /* ── Nosotros ───────────────────────────────────────────────── */
+  .about-inner {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .bubble {
+    position: relative;
+    margin-top: 1.6rem;
+    padding: 1.15rem 1.2rem;
+    border: 2px solid var(--stroke);
+    background: var(--surface);
+    box-shadow: 5px 5px 0 var(--shadow);
+  }
+
+  .bubble::before,
+  .bubble::after {
+    content: '';
+    position: absolute;
+    left: 2rem;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+
+  .bubble::before {
+    top: -1rem;
+    border-width: 0 0.7rem 1rem 0.7rem;
+    border-color: transparent transparent var(--stroke) transparent;
+  }
+
+  .bubble::after {
+    top: calc(-1rem + 3.5px);
+    border-width: 0 0.7rem 1rem 0.7rem;
+    border-color: transparent transparent var(--surface) transparent;
+  }
+
+  .bubble p {
     margin: 0;
+    font-size: 1rem;
   }
 
-  .about-lead strong {
-    color: rgb(226 232 240);
+  .bubble p + p {
+    margin-top: 0.9rem;
+    color: var(--muted);
   }
 
   .about-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 2rem;
+    gap: 0.55rem;
+    margin: 1.7rem 0 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .about-badge {
+  .about-badges li {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: rgb(148 163 184);
-    padding: 0.45rem 0.9rem;
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: 2px;
-    background: rgb(255 255 255 / 0.04);
-  }
-
-  .about-cta-col {
-    display: flex;
-    justify-content: center;
-  }
-
-  .about-cta-card {
-    background: rgb(255 255 255 / 0.05);
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: 4px;
-    padding: 2.25rem;
-    text-align: center;
-    max-width: 320px;
-    width: 100%;
-  }
-
-  .about-cta-icon {
-    width: 64px;
-    height: 64px;
-    background: #25d366;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.25rem;
-    color: #fff;
-  }
-
-  .about-cta-title {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    letter-spacing: 0.04em;
-    color: #fff;
-    margin: 0 0 0.75rem;
-  }
-
-  .about-cta-desc {
-    color: rgb(148 163 184);
-    font-size: 0.88rem;
-    line-height: 1.6;
-    margin: 0 0 1.5rem;
-  }
-
-  .about-whatsapp-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    background: #25d366;
-    color: #fff;
-    padding: 0.875rem 1.5rem;
-    font-size: 0.8rem;
+    gap: 0.45rem;
+    padding: 0.42rem 0.7rem;
+    border: 2px solid var(--stroke);
+    font-size: 0.74rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 2px;
-    width: 100%;
-    transition:
-      background 180ms ease,
-      transform 180ms ease;
   }
 
-  .about-whatsapp-btn:hover {
-    background: #128c7e;
-    transform: translateY(-1px);
+  .about-badges .ico {
+    color: var(--red-text);
   }
 
-  /* ── DARK MODE: MERCH + ABOUT ───────────────────── */
-  html[data-theme='dark'] .merch-section {
-    background: #0d1520;
-    border-color: rgb(51 65 85);
-  }
-
-  html[data-theme='dark'] .merch-section-title {
-    color: rgb(248 250 252);
-  }
-
-  html[data-theme='dark'] .merch-section-lead {
-    color: rgb(148 163 184);
-  }
-
-  html[data-theme='dark'] .merch-card {
-    background: rgb(15 23 42);
-    border-color: rgb(51 65 85);
-  }
-
-  html[data-theme='dark'] .merch-card:hover {
-    border-color: #16a34a;
-  }
-
-  html[data-theme='dark'] .merch-card-title {
-    color: rgb(226 232 240);
-  }
-
-  html[data-theme='dark'] .merch-card-desc {
-    color: rgb(148 163 184);
-  }
-
-  html[data-theme='dark'] .merch-tag-gray {
-    background: rgb(255 255 255 / 0.06);
-    color: rgb(148 163 184);
-    border-color: rgb(255 255 255 / 0.1);
-  }
-
-  /* ── RESPONSIVE: CONTACT ────────────────────────── */
-  @media (max-width: 1100px) {
-    .merch-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 900px) {
-    .contact-inner {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-    }
-
-    .form-row {
-      grid-template-columns: 1fr;
-    }
-
-    .about-inner {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-    }
-
-    .about-cta-card {
-      max-width: 100%;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .merch-section {
-      padding: 3.5rem 1rem 4rem;
-    }
-
-    .merch-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .about-section {
-      padding: 3.5rem 1rem;
-    }
-
-    .contact-section {
-      padding: 3.5rem 1rem;
-    }
-
-    .contact-right {
-      padding: 1.5rem;
-    }
-
-    .footer-inner {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1.5rem;
-      padding: 2rem 1.25rem;
-    }
-
-    .catalog-section-header {
-      text-align: left;
-    }
-
-    .hero-trust {
-      gap: 0.5rem 0.75rem;
-    }
-
-    .hero-btn-primary,
-    .hero-btn-secondary {
-      padding: 0.75rem 1.25rem;
-      font-size: 0.75rem;
-    }
-  }
-
-  /* ── CÓMO COMPRAR ───────────────────────────────── */
-  .how-to-buy {
-    max-width: 1100px;
-    margin: 3.5rem auto 0;
-    padding: 2.25rem 2rem;
-    border: 1px solid rgb(229 231 235);
-    background: rgb(249 250 251);
-    border-radius: 4px;
-    text-align: center;
-  }
-
-  .how-to-buy-title {
-    font-family: var(--font-display);
-    font-size: clamp(1.6rem, 4vw, 2.2rem);
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    color: rgb(15 23 42);
-    margin: 0 0 2rem;
-  }
-
-  .how-to-buy-title span {
-    color: #16a34a;
-  }
-
-  .how-to-buy-steps {
+  .about-card {
+    position: relative;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2rem;
-    text-align: left;
+    gap: 0.9rem;
+    align-content: start;
+    overflow: hidden;
+    padding: 1.5rem 1.25rem 1.6rem;
+    border: 2px solid var(--ink);
+    background: var(--red);
+    color: #fff;
+    box-shadow: 6px 6px 0 var(--stroke);
   }
 
-  .how-step-num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 50%;
-    background: rgb(22 163 74 / 0.1);
-    border: 1px solid rgb(22 163 74 / 0.3);
-    color: #15803d;
-    font-size: 0.9rem;
-    font-weight: 800;
-    margin-bottom: 0.75rem;
+  .about-card-kana {
+    position: absolute;
+    right: -0.1em;
+    top: -0.12em;
+    font-family: var(--font-fun);
+    font-size: 4.2rem;
+    line-height: 1;
+    white-space: nowrap;
+    color: rgb(0 0 0 / 0.14);
+    pointer-events: none;
   }
 
-  .how-step-heading {
-    font-size: 0.98rem;
-    font-weight: 800;
-    color: rgb(15 23 42);
-    margin: 0 0 0.4rem;
-  }
-
-  .how-step-desc {
-    font-size: 0.86rem;
-    color: rgb(71 85 105);
-    line-height: 1.6;
+  .about-card-title {
+    position: relative;
     margin: 0;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    font-weight: 400;
+    font-size: 2.04rem;
+    line-height: 1.1;
+    text-transform: uppercase;
   }
 
-  .how-to-buy-note {
-    margin: 2rem 0 0;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    color: #15803d;
+  .about-card-desc {
+    position: relative;
+    margin: 0 0 0.4rem;
+    font-weight: 500;
   }
 
-  html[data-theme='dark'] .how-to-buy {
-    background: rgb(15 23 42);
-    border-color: rgb(51 65 85);
+  .about-card .btn {
+    box-shadow: 4px 4px 0 var(--ink);
+    border-color: var(--ink);
   }
 
-  html[data-theme='dark'] .how-to-buy-title {
-    color: rgb(248 250 252);
+  .about-card .btn:hover {
+    box-shadow: 6px 6px 0 var(--ink);
   }
 
-  html[data-theme='dark'] .how-step-heading {
-    color: rgb(226 232 240);
+  .about-card .btn-ghost {
+    --btn-bg: var(--paper);
+    --btn-fg: var(--ink);
   }
 
-  html[data-theme='dark'] .how-step-desc {
-    color: rgb(148 163 184);
-  }
-
-  html[data-theme='dark'] .how-to-buy-note {
-    color: rgb(74 222 128);
-  }
-
-  /* ── FAQ SECTION ────────────────────────────────── */
+  /* ── FAQ ────────────────────────────────────────────────────── */
   .faq-section {
-    background: #fff;
-    padding: 5rem 1.5rem;
+    background: var(--bg-alt);
+    border-block: 2px solid var(--stroke);
   }
 
   .faq-inner {
-    max-width: 760px;
-    margin: 0 auto;
-  }
-
-  .faq-header {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
-
-  .faq-eyebrow {
-    display: inline-block;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--red-600);
-    margin-bottom: 0.75rem;
-    padding: 0.35rem 0.85rem;
-    border: 1px solid rgb(220 38 38 / 0.3);
-    background: rgb(220 38 38 / 0.07);
-    border-radius: 2px;
-  }
-
-  .faq-title {
-    font-family: var(--font-display);
-    font-size: clamp(2.4rem, 7vw, 4rem);
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    line-height: 0.95;
-    color: rgb(15 23 42);
-    margin: 0;
-  }
-
-  .faq-title span {
-    color: var(--red-600);
-  }
-
-  .faq-lead {
-    margin-top: 1rem;
-    font-size: 1rem;
-    color: rgb(99 115 130);
-    line-height: 1.6;
+    display: grid;
+    gap: 0.5rem;
   }
 
   .faq-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 0.75rem;
+    counter-reset: faq;
   }
 
   .faq-item {
-    border: 1px solid rgb(229 231 235);
-    background: rgb(249 250 251);
-    border-radius: 4px;
-    transition: border-color 180ms ease;
+    counter-increment: faq;
+    border: 2px solid var(--stroke);
+    background: var(--surface);
+    transition: box-shadow 160ms ease;
   }
 
   .faq-item[open] {
-    border-color: rgb(220 38 38 / 0.4);
+    box-shadow: 5px 5px 0 var(--shadow);
   }
 
   .faq-question {
-    cursor: pointer;
-    list-style: none;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: rgb(15 23 42);
+    gap: 0.8rem;
+    padding: 1rem;
+    font-weight: 800;
+    font-size: 0.98rem;
+    line-height: 1.3;
+    cursor: pointer;
+    list-style: none;
   }
 
   .faq-question::-webkit-details-marker {
     display: none;
   }
 
-  .faq-question::after {
-    content: '+';
-    flex-shrink: 0;
-    font-size: 1.3rem;
-    font-weight: 400;
-    line-height: 1;
-    color: var(--red-600);
+  .faq-question::before {
+    content: 'Q' counter(faq);
+    flex: none;
+    font-family: var(--font-fun);
+    font-size: 0.9rem;
+    color: var(--red-text);
+  }
+
+  .faq-question > span {
+    flex: 1;
+  }
+
+  .faq-plus {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0.25rem;
+    background: var(--yellow);
+    color: var(--ink);
+    border: 2px solid var(--ink);
     transition: transform 200ms ease;
   }
 
-  .faq-item[open] .faq-question::after {
+  .faq-item[open] .faq-plus {
     transform: rotate(45deg);
   }
 
   .faq-answer {
-    padding: 0 1.25rem 1.15rem;
     margin: 0;
-    font-size: 0.9rem;
-    color: rgb(71 85 105);
-    line-height: 1.65;
+    padding: 0 1rem 1.1rem 1rem;
+    color: var(--muted);
+    font-size: 0.95rem;
   }
 
   .faq-link {
-    color: var(--red-600);
+    color: var(--text);
     font-weight: 700;
     text-decoration: underline;
-    text-underline-offset: 2px;
+    text-decoration-color: var(--red-text);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
   }
 
-  html[data-theme='dark'] .faq-section {
-    background: #0d1520;
+  /* ── Contacto ───────────────────────────────────────────────── */
+  .contact-section {
+    overflow: hidden;
+    isolation: isolate;
   }
 
-  html[data-theme='dark'] .faq-title {
-    color: rgb(248 250 252);
+  .contact-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(var(--red) 1.6px, transparent 2px);
+    background-size: 11px 11px;
+    -webkit-mask-image: linear-gradient(20deg, #000, transparent 30%);
+    mask-image: linear-gradient(20deg, #000, transparent 30%);
+    opacity: 0.5;
   }
 
-  html[data-theme='dark'] .faq-lead {
-    color: rgb(148 163 184);
+  .contact-inner {
+    display: grid;
+    gap: 2.5rem;
   }
 
-  html[data-theme='dark'] .faq-item {
-    background: rgb(15 23 42);
-    border-color: rgb(51 65 85);
+  .contact-title {
+    font-size: clamp(1.7rem, 7.2vw, 3rem);
   }
 
-  html[data-theme='dark'] .faq-item[open] {
-    border-color: rgb(220 38 38 / 0.5);
+  .perks {
+    display: grid;
+    gap: 0.9rem;
+    margin: 1.8rem 0 0;
+    padding: 0;
+    list-style: none;
   }
 
-  html[data-theme='dark'] .faq-question {
-    color: rgb(226 232 240);
-  }
-
-  html[data-theme='dark'] .faq-answer {
-    color: rgb(148 163 184);
-  }
-
-  /* ── INSTAGRAM + WHATSAPP FAB ───────────────────── */
-  .about-instagram-btn {
-    display: inline-flex;
+  .perk {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 0.6rem;
-    width: 100%;
-    padding: 0.8rem 1.5rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    gap: 0.9rem;
+  }
+
+  .perk-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border: 2px solid var(--ink);
+    background: var(--yellow);
+    color: var(--ink);
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+
+  .perk-icon .ico {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .perk strong {
+    display: block;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .perk p {
+    margin: 0.1rem 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  .ballot {
+    border: 2px solid var(--stroke);
+    background: var(--surface);
+    box-shadow: 6px 6px 0 var(--shadow);
+  }
+
+  .ballot-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem 0.7rem;
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: rgb(226 232 240);
-    border: 1px solid rgb(255 255 255 / 0.25);
-    border-radius: 2px;
-    text-decoration: none;
+  }
+
+  .ballot-head-jp {
+    color: var(--red-text);
+  }
+
+  .ballot-body {
+    display: grid;
+    gap: 1rem;
+    padding: 1.2rem 1rem 1.3rem;
+  }
+
+  .form-row {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .form-field {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .form-label {
+    font-family: var(--font-label);
+    font-weight: 800;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .form-optional {
+    color: var(--muted);
+  }
+
+  .form-input {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0.85rem;
+    border: 2px solid var(--stroke);
+    border-radius: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
     transition:
-      border-color 180ms ease,
-      background 180ms ease;
+      box-shadow 140ms ease,
+      border-color 140ms ease;
   }
 
-  .about-instagram-btn:hover {
-    border-color: #fff;
-    background: rgb(255 255 255 / 0.06);
+  .form-input::placeholder {
+    color: var(--muted);
+    opacity: 0.75;
   }
 
-  .whatsapp-fab {
-    position: fixed;
-    right: 1.1rem;
-    bottom: calc(1.1rem + env(safe-area-inset-bottom));
-    z-index: 40;
-    width: 3.4rem;
-    height: 3.4rem;
-    border-radius: 50%;
-    background: #25d366;
-    color: #fff;
+  .form-input:focus {
+    outline: none;
+    border-color: var(--yellow);
+    box-shadow: 4px 4px 0 var(--yellow);
+  }
+
+  html[data-theme='light'] .form-input:focus {
+    border-color: var(--ink);
+    box-shadow: 4px 4px 0 var(--red);
+  }
+
+  .form-select {
+    padding-right: 2.6rem;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--text) 50%),
+      linear-gradient(135deg, var(--text) 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.25rem) 50%,
+      calc(100% - 0.85rem) 50%;
+    background-size:
+      0.4rem 0.4rem,
+      0.4rem 0.4rem;
+    background-repeat: no-repeat;
+  }
+
+  .form-disclaimer {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+    gap: 0.45rem;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  /* ── Footer ─────────────────────────────────────────────────── */
+  .site-footer {
+    position: relative;
+    overflow: hidden;
+    border-top: 2px solid var(--stroke);
+    background: var(--bg-alt);
+    padding-block: 3rem 6.5rem;
+  }
+
+  .footer-kanji {
+    position: absolute;
+    right: -0.05em;
+    bottom: -0.28em;
+    font-family: var(--font-jp);
+    font-size: clamp(9rem, 38vw, 22rem);
+    line-height: 1;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--hair);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .footer-inner {
+    position: relative;
+    display: grid;
+    gap: 1.6rem;
+    justify-items: start;
+  }
+
+  .footer-name {
+    margin: 0;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    font-size: 2.4rem;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .footer-tagline {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-label);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.4rem;
+  }
+
+  .footer-links a {
+    color: var(--text);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding-block: 0.3rem;
+  }
+
+  .footer-links a:hover {
+    color: var(--red-text);
+  }
+
+  .footer-copy {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  /* ── WhatsApp FAB ───────────────────────────────────────────── */
+  .whatsapp-fab {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--wa);
+    color: var(--ink);
+    box-shadow: 4px 4px 0 var(--shadow);
     transition:
-      transform 180ms ease,
-      background 180ms ease;
+      transform 140ms ease,
+      box-shadow 140ms ease;
+  }
+
+  .whatsapp-fab svg {
+    width: 1.7rem;
+    height: 1.7rem;
   }
 
   .whatsapp-fab:hover {
-    transform: scale(1.06);
-    background: #128c7e;
+    transform: translate(-2px, -2px) rotate(-6deg);
+    box-shadow: 6px 6px 0 var(--shadow);
   }
 
-  /* ── RESPONSIVE: NUEVAS SECCIONES ───────────────── */
-  @media (max-width: 768px) {
-    .how-to-buy {
-      padding: 1.75rem 1.25rem;
-      margin-top: 2.5rem;
+  /* ── Reveal on scroll (only when JS is on) ──────────────────── */
+  html.js .reveal {
+    opacity: 0;
+    translate: 0 1.4rem;
+    transition:
+      opacity 520ms ease,
+      translate 520ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  html.js .reveal.is-in {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  /* ── ≥ 480px ────────────────────────────────────────────────── */
+  @media (min-width: 480px) {
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
     }
 
-    .how-to-buy-steps {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
+    .hero-cta-row .btn {
+      padding-inline: 1.3rem;
     }
 
-    .faq-section {
-      padding: 3.5rem 1rem;
+    .merch-body {
+      padding: 1rem;
+    }
+
+    .tag-plain {
+      display: inline-block;
+    }
+
+    .merch-visual {
+      height: 8rem;
+    }
+
+    .merch-kana {
+      font-size: 3.4rem;
+    }
+  }
+
+  /* ── ≥ 640px ────────────────────────────────────────────────── */
+  @media (min-width: 640px) {
+    .manga-card {
+      width: 11.5rem;
+    }
+    .manga-rail {
+      padding-inline: 1.5rem;
+      scroll-padding-inline: 1.5rem;
+    }
+
+    .wrap {
+      padding-inline: 1.5rem;
+    }
+
+    .section {
+      padding-block: 5.5rem;
+    }
+
+    .merch-grid {
+      gap: 1.25rem;
+    }
+
+    .btn-extra {
+      display: inline;
+    }
+
+    .merch-title {
+      font-size: 1.44rem;
+    }
+
+    .merch-desc {
+      font-size: 0.9rem;
+    }
+
+    .merch-price-value {
+      font-size: 1.35rem;
+    }
+
+    .how-steps {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .how-step {
+      padding: 4.4rem 1.2rem 1.5rem;
+    }
+
+    .how-num {
+      left: 1.1rem;
+      top: 1rem;
+      font-size: 3rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .ballot-body {
+      padding: 1.6rem 1.5rem 1.7rem;
+    }
+
+    .ballot-head {
+      padding-inline: 1.5rem;
+    }
+
+  }
+
+  /* ── ≥ 900px (desktop) ──────────────────────────────────────── */
+  @media (min-width: 900px) {
+    .manga-note {
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .manga-note-swipe {
+      display: none;
+    }
+
+    .manga-card {
+      width: auto;
+      max-width: none;
+    }
+
+    .manga-rail {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 1.4rem;
+      overflow: visible;
+    }
+
+    .sticker-kana {
+      font-size: 1rem;
+    }
+
+    .sticker-stamp {
+      font-size: 1rem;
+    }
+
+    .sticker-burst {
+      font-size: 0.95rem;
+    }
+
+    .fan-card {
+      box-shadow: 8px 8px 0 var(--shadow);
+    }
+
+    .fan {
+      width: min(100%, 30rem);
+    }
+
+    .nav-links {
+      display: flex;
+    }
+
+    .nav-inner {
+      min-height: 4.25rem;
+    }
+
+    .brand-logo {
+      height: 34px;
+    }
+
+    .hero-inner {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      grid-template-areas: 'copy art';
+      align-items: center;
+      gap: 3rem 2rem;
+      padding-block: 4.5rem 4rem;
+    }
+
+    .hero-copy {
+      grid-area: copy;
+    }
+
+    .hero-art {
+      grid-area: art;
+    }
+
+    .hero-title {
+      font-size: clamp(4.4rem, 8vw, 7.6rem);
+    }
+
+    .hero-title-line {
+      white-space: nowrap;
+    }
+
+    .hero-title-place {
+      font-size: clamp(1.05rem, 1.7vw, 1.45rem);
+    }
+
+    .hero-lead {
+      font-size: 1.12rem;
+    }
+
+    .hero-kanji {
+      right: 0.02em;
+      bottom: auto;
+      top: 50%;
+      translate: 0 -50%;
+      font-size: clamp(16rem, 27vw, 26rem);
+    }
+
+    .hero-dots {
+      -webkit-mask-image: linear-gradient(215deg, #000 0%, transparent 30%);
+      mask-image: linear-gradient(215deg, #000 0%, transparent 30%);
+    }
+
+    .ticker-item {
+      font-size: 1.38rem;
+      padding-block: 0.75rem 0.85rem;
+    }
+
+    .section {
+      padding-block: 7rem;
+    }
+
+    .sec-head {
+      margin-bottom: 3rem;
+    }
+
+    .merch-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: 52rem;
+      margin-inline: auto;
+    }
+
+    .merch-card {
+      box-shadow: 6px 6px 0 var(--shadow);
+    }
+
+    .merch-visual {
+      height: 10rem;
+    }
+
+    .merch-icon {
+      width: 4.4rem;
+      height: 4.4rem;
+    }
+
+    .merch-icon svg {
+      width: 2.2rem;
+      height: 2.2rem;
+    }
+
+    .merch-body {
+      padding: 1.2rem;
+    }
+
+    .btn-extra {
+      display: none;
+    }
+
+    .how {
+      margin-top: 6rem;
+    }
+
+    .how-steps {
+      gap: 1.25rem;
+    }
+
+    .how-step:nth-child(2) {
+      translate: 0 1.2rem;
+    }
+
+    .how-note {
+      margin-top: 2.8rem;
+      text-align: center;
+    }
+
+    .about-inner {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+      align-items: center;
+      gap: 4rem;
+    }
+
+    .about-card {
+      padding: 2.2rem 1.8rem 2.3rem;
+      transform: rotate(1.5deg);
+    }
+
+    .faq-inner {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      align-items: start;
+      gap: 4rem;
+    }
+
+    .faq-inner .sec-head {
+      position: sticky;
+      top: 6.5rem;
+      margin-bottom: 0;
+    }
+
+    .faq-question {
+      padding: 1.15rem 1.25rem;
+      font-size: 1.05rem;
+    }
+
+    .faq-answer {
+      padding: 0 1.25rem 1.25rem;
+    }
+
+    .contact-inner {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 4rem;
+    }
+
+    .footer-inner {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+
+    .footer-catalog-btn {
+      justify-self: end;
+    }
+
+    .footer-copy {
+      justify-self: end;
+    }
+
+    .site-footer {
+      padding-block: 4rem 5rem;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .btn-extra {
+      display: inline;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    html.js .reveal {
+      opacity: 1;
+      translate: 0 0;
     }
   }
 </style>
