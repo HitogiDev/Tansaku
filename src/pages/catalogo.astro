@@ -3,9 +3,29 @@ import '../styles/global.css';
 import { WHATSAPP_NUMBER } from '../lib/shop';
 
 const currentYear = new Date().getFullYear();
+const INSTAGRAM_URL = 'https://www.instagram.com/tansakustore';
 const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
   'Hola Tansaku! ¿Qué tienen disponible?',
 )}`;
+
+const WA_ICON =
+  'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z';
+
+const icons = {
+  search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  sliders:
+    '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+  close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  left: '<path d="m15 18-6-6 6-6"/>',
+  right: '<path d="m9 18 6-6-6-6"/>',
+  truck:
+    '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 9.38a1 1 0 0 0-.78-.38H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+  check:
+    '<path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
+  arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+};
 ---
 
 <!doctype html>
@@ -35,7 +55,7 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Dela+Gothic+One&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Dela+Gothic+One&display=swap"
       rel="stylesheet"
     />
     <script is:inline>
@@ -47,67 +67,119 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
     </script>
   </head>
   <body>
-    <header class="cat-topbar">
-      <div class="cat-wrap cat-topbar-inner">
-        <a href="/" class="cat-brand" aria-label="Tansaku — inicio">
-          <span class="cat-brand-kanji">探索</span>
-          <span class="cat-brand-name">Tansaku</span>
+    <template id="tpl-wa"
+      ><svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+        ><path d={WA_ICON} /></svg
+      ></template
+    >
+
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <a href="/" class="brand" aria-label="Tansaku — inicio">
+          <span class="brand-kanji" aria-hidden="true">探索</span>
+          <span class="brand-name">Tansaku</span>
         </a>
-        <nav class="cat-topnav">
+        <nav class="nav-links" aria-label="Secciones">
           <a href="/">Inicio</a>
+          <a href="/#merch">Merch</a>
+          <a href="/#catalogo">Manga</a>
           <a href="/#faq">FAQ</a>
+        </nav>
+        <div class="nav-actions">
           <button
             type="button"
             id="theme-toggle"
-            class="cat-theme-btn"
-            aria-label="Cambiar tema">☾</button
+            class="theme-toggle"
+            aria-label="Cambiar tema"
           >
-        </nav>
+            <span id="theme-icon-sun" class="theme-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.sun} />
+            </span>
+            <span id="theme-icon-moon" class="theme-icon" aria-hidden="true" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.moon} />
+            </span>
+          </button>
+          <a
+            href={whatsappGeneral}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-wa btn-sm"
+          >
+            <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_ICON} /></svg>
+            <span class="nav-wa-label">Escríbenos</span>
+          </a>
+        </div>
       </div>
     </header>
 
-    <main class="cat-wrap">
-      <section class="cat-hero">
-        <p class="cat-eyebrow"><span class="cat-dot"></span> Disponible ya</p>
-        <h1 class="cat-title">CATÁLOGO <span>TANSAKU</span></h1>
-        <p class="cat-lead">
-          Todo lo que tenemos ahora mismo. Filtra, elige y pide por WhatsApp —
-          entrega gratis en San Pedro y La Romana, pagas al recibir.
-        </p>
+    <main>
+      <section class="hero">
+        <div class="hero-bg" aria-hidden="true">
+          <div class="hero-dots"></div>
+          <span class="hero-kana">カタログ</span>
+        </div>
+        <div class="wrap hero-inner">
+          <p class="eyebrow">
+            <span class="chip-dot"></span> Disponible ya
+            <span class="eyebrow-jp">在庫あり</span>
+          </p>
+          <h1 class="hero-title">Catálogo <span class="hl">Tansaku</span></h1>
+          <p class="hero-lead">
+            Todo lo que tenemos ahora mismo. Filtra, elige y pide por WhatsApp —
+            entrega gratis en San Pedro y La Romana, <strong>pagas al recibir</strong>.
+          </p>
+        </div>
       </section>
 
-      <div class="cat-layout">
-        <aside id="filters-panel" class="cat-filters" aria-label="Filtros">
-          <button
-            type="button"
-            id="filters-toggle"
-            class="cat-filters-toggle"
-            aria-expanded="false"
-            aria-controls="filters">Filtros y orden <span aria-hidden="true">▾</span></button
-          >
-          <form id="filters" class="cat-filters-form" autocomplete="off">
-            <div class="cat-field">
-              <label for="f-q">Buscar</label>
-              <input
-                id="f-q"
-                name="q"
-                type="search"
-                placeholder="Ej. Chainsaw Man, poster…"
-              />
+      <div class="wrap layout">
+        <form id="filters" class="filters" autocomplete="off" role="search">
+          <div class="toolbar">
+            <div class="search-row">
+              <label class="search">
+                <span class="sr-only">Buscar</span>
+                <svg class="ico search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.search} />
+                <input
+                  id="f-q"
+                  name="q"
+                  type="search"
+                  placeholder="Busca: Chainsaw Man, poster…"
+                />
+              </label>
+              <button
+                type="button"
+                id="filters-toggle"
+                class="filters-toggle"
+                aria-expanded="false"
+                aria-controls="filters-panel"
+              >
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.sliders} />
+                <span class="sr-only">Filtros y orden</span>
+                <span id="filters-badge" class="filters-badge" hidden></span>
+              </button>
             </div>
 
-            <fieldset class="cat-field">
-              <legend>Categoría</legend>
-              <div id="f-categories" class="cat-chips">
-                <button type="button" class="cat-chip is-active" data-category=""
+            <fieldset class="field cats-field">
+              <legend class="field-label cats-legend">Categoría</legend>
+              <div id="f-categories" class="chips cats">
+                <button type="button" class="chip is-active" data-category=""
                   >Todas</button
                 >
               </div>
             </fieldset>
+          </div>
 
-            <fieldset class="cat-field">
-              <legend>Precio (RD$)</legend>
-              <div class="cat-price-row">
+          <div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
+          <div id="filters-panel" class="sheet" aria-label="Filtros">
+            <div class="sheet-head">
+              <span class="sheet-title">Filtros <span class="eyebrow-jp">フィルター</span></span>
+              <button type="button" id="sheet-close" class="icon-btn" aria-label="Cerrar filtros">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true" set:html={icons.close} />
+              </button>
+            </div>
+
+            <fieldset class="field">
+              <legend class="field-label">Precio (RD$)</legend>
+              <div class="price-row">
                 <input
                   id="f-min"
                   name="min"
@@ -116,6 +188,7 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
                   min="0"
                   placeholder="Mín"
                   aria-label="Precio mínimo"
+                  class="input"
                 />
                 <span aria-hidden="true">—</span>
                 <input
@@ -126,27 +199,25 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
                   min="0"
                   placeholder="Máx"
                   aria-label="Precio máximo"
+                  class="input"
                 />
               </div>
-              <div id="f-price-presets" class="cat-chips cat-chips-sm">
-                <button type="button" class="cat-chip" data-min="" data-max="200"
+              <div id="f-price-presets" class="chips chips-sm">
+                <button type="button" class="chip" data-min="" data-max="200"
                   >Hasta 200</button
                 >
-                <button
-                  type="button"
-                  class="cat-chip"
-                  data-min="200"
-                  data-max="500">200 – 500</button
+                <button type="button" class="chip" data-min="200" data-max="500"
+                  >200 – 500</button
                 >
-                <button type="button" class="cat-chip" data-min="500" data-max=""
+                <button type="button" class="chip" data-min="500" data-max=""
                   >500+</button
                 >
               </div>
             </fieldset>
 
-            <div class="cat-field">
-              <label for="f-sort">Ordenar por</label>
-              <select id="f-sort" name="sort">
+            <div class="field">
+              <label for="f-sort" class="field-label">Ordenar por</label>
+              <select id="f-sort" name="sort" class="input select">
                 <option value="recent">Más recientes</option>
                 <option value="price-asc">Precio: menor a mayor</option>
                 <option value="price-desc">Precio: mayor a menor</option>
@@ -154,88 +225,137 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
               </select>
             </div>
 
-            <label class="cat-check">
+            <label class="switch">
               <input id="f-stock" name="stock" type="checkbox" />
+              <span class="switch-track" aria-hidden="true"></span>
               Solo disponibles
             </label>
 
-            <button type="button" id="f-reset" class="cat-reset"
-              >Limpiar filtros</button
-            >
-          </form>
-        </aside>
+            <div class="sheet-actions">
+              <button type="button" id="f-reset" class="btn btn-ghost">
+                Limpiar
+              </button>
+              <button type="button" id="f-apply" class="btn btn-primary sheet-apply">
+                Ver productos
+              </button>
+            </div>
+          </div>
+        </form>
 
-        <section class="cat-results" aria-live="polite">
-          <p id="results-count" class="cat-count">Cargando…</p>
-          <div id="results-grid" class="cat-grid"></div>
-          <div id="results-empty" class="cat-empty" hidden>
-            <p class="cat-empty-title">No hay nada con esos filtros</p>
+        <section class="results" aria-live="polite">
+          <p id="results-count" class="count">Cargando…</p>
+          <div id="results-grid" class="grid">
+            {
+              Array.from({ length: 6 }, () => (
+                <div class="card card-skeleton" aria-hidden="true">
+                  <div class="card-media" />
+                  <div class="card-body">
+                    <span class="sk-line" />
+                    <span class="sk-line sk-short" />
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+          <div id="results-empty" class="empty" hidden>
+            <span class="empty-kana" aria-hidden="true">なし…</span>
+            <p class="empty-title">No hay nada con esos filtros</p>
             <p>Prueba otra categoría o un rango de precio distinto.</p>
           </div>
-          <div id="results-error" class="cat-empty" hidden>
-            <p class="cat-empty-title">El catálogo se está preparando</p>
+          <div id="results-error" class="empty" hidden>
+            <span class="empty-kana" aria-hidden="true">準備中</span>
+            <p class="empty-title">El catálogo se está preparando</p>
             <p>
               Mientras tanto, escríbenos y te mandamos fotos de todo lo
               disponible.
             </p>
             <a
-              class="cat-wa-btn"
+              class="btn btn-wa"
               href={whatsappGeneral}
               target="_blank"
-              rel="noopener noreferrer">Escribir por WhatsApp</a
+              rel="noopener noreferrer"
             >
+              <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_ICON} /></svg>
+              Escribir por WhatsApp
+            </a>
           </div>
         </section>
       </div>
     </main>
 
-    <dialog id="product-dialog" class="cat-dialog" aria-labelledby="d-title">
-      <div class="cat-dialog-inner">
-        <button
-          type="button"
-          class="cat-dialog-close"
-          id="d-close"
-          aria-label="Cerrar">✕</button
-        >
-        <div class="cat-gallery">
-          <div id="d-track" class="cat-gallery-track" tabindex="0"></div>
-          <button
-            type="button"
-            id="d-prev"
-            class="cat-gallery-nav is-prev"
-            aria-label="Foto anterior">‹</button
-          >
-          <button
-            type="button"
-            id="d-next"
-            class="cat-gallery-nav is-next"
-            aria-label="Foto siguiente">›</button
-          >
-          <div id="d-dots" class="cat-gallery-dots"></div>
+    <dialog id="product-dialog" class="pd" aria-labelledby="d-title">
+      <div class="pd-inner">
+        <button type="button" class="icon-btn pd-close" id="d-close" aria-label="Cerrar">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true" set:html={icons.close} />
+        </button>
+        <div class="pd-gallery">
+          <div id="d-track" class="pd-track" tabindex="0"></div>
+          <button type="button" id="d-prev" class="pd-nav is-prev" aria-label="Foto anterior">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.left} />
+          </button>
+          <button type="button" id="d-next" class="pd-nav is-next" aria-label="Foto siguiente">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.right} />
+          </button>
+          <div id="d-dots" class="pd-dots"></div>
         </div>
-        <div class="cat-dialog-body">
-          <span id="d-cat" class="cat-dialog-cat"></span>
-          <h2 id="d-title" class="cat-dialog-title"></h2>
-          <p id="d-price" class="cat-dialog-price"></p>
-          <p id="d-out" class="cat-dialog-out" hidden>
+        <div class="pd-body">
+          <span id="d-cat" class="tag tag-cat"></span>
+          <h2 id="d-title" class="pd-title"></h2>
+          <p id="d-price" class="pd-price"></p>
+          <p id="d-out" class="pd-out" hidden>
             Agotado por ahora — escríbenos y te avisamos cuando vuelva.
           </p>
-          <p id="d-desc" class="cat-dialog-desc"></p>
+          <p id="d-desc" class="pd-desc"></p>
+          <ul class="pd-perks">
+            <li>
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.truck} />
+              Entrega gratis en San Pedro y La Romana
+            </li>
+            <li>
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.check} />
+              Pagas al recibir, con el producto en la mano
+            </li>
+          </ul>
           <a
             id="d-wa"
-            class="cat-wa-btn"
+            class="btn btn-wa btn-block btn-lg"
             target="_blank"
-            rel="noopener noreferrer">Pedir por WhatsApp</a
+            rel="noopener noreferrer"
           >
+            <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_ICON} /></svg>
+            <span id="d-wa-label">Pedir por WhatsApp</span>
+          </a>
         </div>
       </div>
     </dialog>
 
-    <footer class="cat-footer">
-      <div class="cat-wrap">
-        <p>© {currentYear} Tansaku · Hecho con ❤️ en RD</p>
+    <footer class="site-footer">
+      <div class="footer-kanji" aria-hidden="true">探索</div>
+      <div class="wrap footer-inner">
+        <div>
+          <p class="footer-name">Tansaku</p>
+          <p class="footer-tagline">Manga · Merch Anime · República Dominicana</p>
+        </div>
+        <nav class="footer-links" aria-label="Pie de página">
+          <a href="/">Inicio</a>
+          <a href="/#como-comprar">Cómo comprar</a>
+          <a href="/#faq">FAQ</a>
+          <a href="/#contacto">Vota tu manga</a>
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Instagram</a>
+        </nav>
+        <p class="footer-copy">© {currentYear} Tansaku · Hecho con ❤️ en RD</p>
       </div>
     </footer>
+
+    <a
+      href={whatsappGeneral}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="whatsapp-fab"
+      aria-label="Escríbenos por WhatsApp"
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_ICON} /></svg>
+    </a>
 
     <script>
       import {
@@ -250,15 +370,30 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
       const $ = <T extends HTMLElement>(id: string) =>
         document.getElementById(id) as T;
 
-      // Theme toggle (same key as the home page).
-      $('theme-toggle').addEventListener('click', () => {
-        const root = document.documentElement;
-        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-        root.dataset.theme = next;
+      const waIcon = () =>
+        ($<HTMLTemplateElement>('tpl-wa').content.firstElementChild as Element).cloneNode(
+          true,
+        );
+
+      // ── Theme toggle (same key as the home page) ──
+      const root = document.documentElement;
+      function applyTheme(theme: 'dark' | 'light', persist: boolean) {
+        root.dataset.theme = theme;
+        $('theme-toggle').setAttribute('aria-pressed', String(theme === 'dark'));
+        $('theme-icon-sun').hidden = theme !== 'dark';
+        $('theme-icon-moon').hidden = theme === 'dark';
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute('content', theme === 'dark' ? '#0b0a0d' : '#f6f0e3');
+        if (!persist) return;
         try {
-          localStorage.setItem('tansaku-theme', next);
+          localStorage.setItem('tansaku-theme', theme);
         } catch {}
-      });
+      }
+      applyTheme(root.dataset.theme === 'light' ? 'light' : 'dark', false);
+      $('theme-toggle').addEventListener('click', () =>
+        applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true),
+      );
 
       const form = $<HTMLFormElement>('filters');
       const qInput = $<HTMLInputElement>('f-q');
@@ -272,6 +407,8 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
       const count = $('results-count');
       const empty = $('results-empty');
       const errorBox = $('results-error');
+      const badge = $('filters-badge');
+      const applyBtn = $<HTMLButtonElement>('f-apply');
 
       let products: Product[] = [];
       let category = '';
@@ -314,11 +451,13 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
           ...['', ...names].map((name) => {
             const b = document.createElement('button');
             b.type = 'button';
-            b.className = 'cat-chip';
+            b.className = 'chip';
             b.dataset.category = name;
-            b.textContent = name
-              ? `${name} (${counts.get(name)})`
-              : `Todas (${products.length})`;
+            b.append(name || 'Todas');
+            const n = document.createElement('span');
+            n.className = 'chip-count';
+            n.textContent = String(name ? counts.get(name) : products.length);
+            b.append(n);
             return b;
           }),
         );
@@ -326,27 +465,39 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
       }
 
       function syncChips() {
-        categoriesBox.querySelectorAll<HTMLButtonElement>('.cat-chip').forEach((b) =>
-          b.classList.toggle('is-active', b.dataset.category === category),
-        );
-        presetsBox.querySelectorAll<HTMLButtonElement>('.cat-chip').forEach((b) =>
-          b.classList.toggle(
-            'is-active',
+        categoriesBox.querySelectorAll<HTMLButtonElement>('.chip').forEach((b) => {
+          const on = b.dataset.category === category;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', String(on));
+        });
+        presetsBox.querySelectorAll<HTMLButtonElement>('.chip').forEach((b) => {
+          const on =
             (b.dataset.min ?? '') === minInput.value &&
-              (b.dataset.max ?? '') === maxInput.value,
-          ),
-        );
+            (b.dataset.max ?? '') === maxInput.value;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', String(on));
+        });
       }
 
-      function card(p: Product) {
-        const article = document.createElement('article');
-        article.className = 'cat-card';
+      function el<K extends keyof HTMLElementTagNameMap>(
+        tag: K,
+        className: string,
+        text?: string,
+      ) {
+        const node = document.createElement(tag);
+        node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      function card(p: Product, index: number) {
+        const article = el('article', 'card');
+        article.style.setProperty('--i', String(Math.min(index, 12)));
         if (!p.in_stock) article.classList.add('is-out');
 
         const images = productImages(p);
-        const media = document.createElement('button');
+        const media = el('button', 'card-media');
         media.type = 'button';
-        media.className = 'cat-card-media';
         media.setAttribute('aria-label', `Ver fotos y detalles de ${p.title}`);
         media.addEventListener('click', () => openProduct(p));
         const src = imageUrl(images[0] ?? null);
@@ -359,52 +510,33 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
           media.append(img);
         } else {
           media.classList.add('is-empty');
-          media.textContent = '探索';
+          media.append(el('span', 'card-empty-kanji', '探索'));
         }
-        const badge = document.createElement('span');
-        badge.className = 'cat-card-cat';
-        badge.textContent = p.category;
-        media.append(badge);
-        if (!p.in_stock) {
-          const out = document.createElement('span');
-          out.className = 'cat-card-out';
-          out.textContent = 'Agotado';
-          media.append(out);
-        }
-        if (images.length > 1) {
-          const n = document.createElement('span');
-          n.className = 'cat-card-photos';
-          n.textContent = `${images.length} fotos`;
-          media.append(n);
-        }
+        media.append(el('span', 'tag tag-cat card-cat', p.category));
+        if (!p.in_stock) media.append(el('span', 'card-out', 'Agotado'));
+        if (images.length > 1)
+          media.append(el('span', 'card-photos', `${images.length} fotos`));
 
-        const body = document.createElement('div');
-        body.className = 'cat-card-body';
-        const h = document.createElement('h2');
-        h.className = 'cat-card-title';
-        const hb = document.createElement('button');
+        const body = el('div', 'card-body');
+        const h = el('h2', 'card-title');
+        const hb = el('button', '', p.title);
         hb.type = 'button';
-        hb.textContent = p.title;
         hb.addEventListener('click', () => openProduct(p));
         h.append(hb);
         body.append(h);
-        if (p.description) {
-          const d = document.createElement('p');
-          d.className = 'cat-card-desc';
-          d.textContent = p.description;
-          body.append(d);
-        }
-        const row = document.createElement('div');
-        row.className = 'cat-card-row';
-        const price = document.createElement('span');
-        price.className = 'cat-card-price';
-        price.textContent = formatPrice(Number(p.price));
-        const a = document.createElement('a');
-        a.className = 'cat-wa-btn cat-wa-btn-sm';
+        if (p.description) body.append(el('p', 'card-desc', p.description));
+
+        const row = el('div', 'card-row');
+        const price = el('span', 'card-price', formatPrice(Number(p.price)));
+        const a = el('a', `btn btn-sm ${p.in_stock ? 'btn-wa' : 'btn-ghost'}`);
         a.href = whatsappLink({ title: p.title, price: Number(p.price) });
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
-        a.textContent = p.in_stock ? 'Pedir' : 'Avísame';
+        a.setAttribute(
+          'aria-label',
+          `${p.in_stock ? 'Pedir' : 'Avísame de'} ${p.title} por WhatsApp`,
+        );
+        a.append(waIcon(), el('span', '', p.in_stock ? 'Pedir' : 'Avísame'));
         row.append(price, a);
         body.append(row);
 
@@ -447,10 +579,7 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
               img.decoding = 'async';
               return img;
             })
-          : [Object.assign(document.createElement('div'), {
-              className: 'cat-gallery-empty',
-              textContent: '探索',
-            })];
+          : [el('div', 'pd-empty', '探索')];
         track.replaceChildren(...slides);
         dots.replaceChildren(
           ...(images.length > 1
@@ -473,7 +602,11 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
         $('d-out').hidden = p.in_stock;
         const wa = $<HTMLAnchorElement>('d-wa');
         wa.href = whatsappLink({ title: p.title, price: Number(p.price) });
-        wa.textContent = p.in_stock ? 'Pedir por WhatsApp' : 'Avísame por WhatsApp';
+        wa.classList.toggle('btn-wa', p.in_stock);
+        wa.classList.toggle('btn-ghost', !p.in_stock);
+        $('d-wa-label').textContent = p.in_stock
+          ? 'Pedir por WhatsApp'
+          : 'Avísame por WhatsApp';
 
         dialog.showModal();
         track.scrollLeft = 0;
@@ -492,6 +625,31 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
       $('d-close').addEventListener('click', () => dialog.close());
       dialog.addEventListener('click', (e) => {
         if (e.target === dialog) dialog.close();
+      });
+
+      // ── Filters bottom sheet (mobile) ──
+      const panel = $('filters-panel');
+      const backdrop = $('sheet-backdrop');
+      const toggle = $('filters-toggle');
+      function setSheet(open: boolean) {
+        panel.classList.toggle('is-open', open);
+        backdrop.hidden = !open;
+        root.classList.toggle('sheet-open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        if (open) sortSelect.focus({ preventScroll: true });
+      }
+      toggle.addEventListener('click', () =>
+        setSheet(!panel.classList.contains('is-open')),
+      );
+      backdrop.addEventListener('click', () => setSheet(false));
+      $('sheet-close').addEventListener('click', () => setSheet(false));
+      applyBtn.addEventListener('click', () => {
+        setSheet(false);
+        $('results-count').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && panel.classList.contains('is-open'))
+          setSheet(false);
       });
 
       function apply() {
@@ -527,32 +685,36 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
         }
 
         grid.replaceChildren(...list.map(card));
-        count.textContent =
-          list.length === 1 ? '1 producto' : `${list.length} productos`;
+        const label = list.length === 1 ? '1 producto' : `${list.length} productos`;
+        count.textContent = label;
+        applyBtn.textContent = list.length ? `Ver ${label}` : 'Sin resultados';
         empty.hidden = list.length > 0;
+
+        const active =
+          Number(minInput.value !== '' || maxInput.value !== '') +
+          Number(sortSelect.value !== 'recent') +
+          Number(stockInput.checked);
+        badge.hidden = active === 0;
+        badge.textContent = String(active);
+
         syncChips();
         writeUrl();
       }
 
       categoriesBox.addEventListener('click', (e) => {
-        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.cat-chip');
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.chip');
         if (!b) return;
         category = b.dataset.category ?? '';
         apply();
       });
 
       presetsBox.addEventListener('click', (e) => {
-        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.cat-chip');
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.chip');
         if (!b) return;
         const already = b.classList.contains('is-active');
         minInput.value = already ? '' : (b.dataset.min ?? '');
         maxInput.value = already ? '' : (b.dataset.max ?? '');
         apply();
-      });
-
-      $('filters-toggle').addEventListener('click', () => {
-        const open = $('filters-panel').classList.toggle('is-open');
-        $('filters-toggle').setAttribute('aria-expanded', String(open));
       });
 
       form.addEventListener('input', apply);
@@ -563,14 +725,16 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
         apply();
       });
 
+      function showError() {
+        count.textContent = '';
+        grid.replaceChildren();
+        errorBox.hidden = false;
+      }
+
       async function load() {
         readUrl();
         const supabase = getClient();
-        if (!supabase) {
-          count.textContent = '';
-          errorBox.hidden = false;
-          return;
-        }
+        if (!supabase) return showError();
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -579,16 +743,10 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
 
         if (error) {
           console.error(error);
-          count.textContent = '';
-          errorBox.hidden = false;
-          return;
+          return showError();
         }
         products = (data ?? []) as Product[];
-        if (products.length === 0) {
-          count.textContent = '';
-          errorBox.hidden = false;
-          return;
-        }
+        if (products.length === 0) return showError();
         renderCategories();
         apply();
       }
@@ -599,730 +757,1608 @@ const whatsappGeneral = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICompon
 </html>
 
 <style is:global>
+  /* ── Tokens (keep in sync with src/pages/index.astro) ─────── */
   :root,
-  html[data-theme='light'] {
-    --bg: #f6f0e3;
-    --surface: #fffaf0;
-    --surface-2: #ece3cf;
-    --text: #0b0a0d;
-    --muted: #5e5864;
-    --border: #0b0a0d;
-    --accent: #e0162b;
-    --accent-strong: #b80f20;
-    --accent-soft: rgb(224 22 43 / 0.1);
-    --wa: #16a34a;
-  }
-
   html[data-theme='dark'] {
+    --ink: #0b0a0d;
+    --paper: #f6f0e3;
     --bg: #0b0a0d;
+    --bg-alt: #121016;
     --surface: #18151d;
-    --surface-2: #231f2a;
     --text: #f6f0e3;
     --muted: #aaa4b0;
-    --border: #4a4452;
-    --accent: #ff3344;
-    --accent-strong: #e0162b;
-    --accent-soft: rgb(255 51 68 / 0.14);
+    --stroke: #f6f0e3;
+    --hair: rgb(246 240 227 / 0.14);
+    --dot: rgb(246 240 227 / 0.13);
+    --red: #ff3344;
+    --yellow: #ffd60a;
+    --cyan: #3ce0d2;
     --wa: #25d366;
+    --shadow: #ff3344;
+    --font-display: 'Dela Gothic One', 'Arial Black', Impact, sans-serif;
+    --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    --nav-h: 3.75rem;
+    color-scheme: dark;
   }
 
+  html[data-theme='light'] {
+    --bg: #f6f0e3;
+    --bg-alt: #ece3cf;
+    --surface: #fffaf0;
+    --text: #0b0a0d;
+    --muted: #5e5864;
+    --stroke: #0b0a0d;
+    --hair: rgb(11 10 13 / 0.16);
+    --dot: rgb(11 10 13 / 0.13);
+    --red: #e0162b;
+    --cyan: #13b8aa;
+    --shadow: #0b0a0d;
+    color-scheme: light;
+  }
+
+  /* ── Base ───────────────────────────────────────────────────── */
   body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
   }
 
-  .cat-wrap {
+  html.sheet-open body {
+    overflow: hidden;
+  }
+
+  main {
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--yellow);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 3px;
+  }
+
+  .wrap {
     width: 100%;
     max-width: 80rem;
-    margin: 0 auto;
-    padding: 0 1rem;
-    box-sizing: border-box;
+    margin-inline: auto;
+    padding-inline: 1rem;
   }
 
-  .cat-topbar {
+  .ico {
+    width: 1.05em;
+    height: 1.05em;
+    flex: none;
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────── */
+  .btn {
+    --btn-bg: transparent;
+    --btn-fg: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.7rem 1.15rem;
+    border: 2px solid var(--stroke);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-family: var(--font-body);
+    font-size: 0.86rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition:
+      transform 140ms ease,
+      box-shadow 140ms ease;
+  }
+
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--shadow);
+  }
+
+  .btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--shadow);
+  }
+
+  .btn-primary {
+    --btn-bg: var(--yellow);
+    --btn-fg: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .btn-wa {
+    --btn-bg: var(--wa);
+    --btn-fg: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .btn-ghost {
+    --btn-bg: var(--bg);
+  }
+
+  .btn-sm {
+    min-height: 2.5rem;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.72rem;
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+
+  .btn-lg {
+    min-height: 3.5rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-block {
+    width: 100%;
+  }
+
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 2px solid var(--stroke);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .icon-btn .ico {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  /* ── Nav ────────────────────────────────────────────────────── */
+  .nav {
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: 50;
     background: color-mix(in srgb, var(--bg) 88%, transparent);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 2px solid var(--stroke);
   }
 
-  .cat-topbar-inner {
+  .nav-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 3.5rem;
+    gap: 1rem;
+    min-height: var(--nav-h);
   }
 
-  .cat-brand {
+  .brand {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.6rem;
     color: var(--text);
     text-decoration: none;
   }
 
-  .cat-brand-kanji {
-    color: var(--accent);
-    font-weight: 900;
-    font-size: 1.1rem;
+  .brand-kanji {
+    padding: 0.2rem 0.4rem 0.3rem;
+    border: 2px solid var(--ink);
+    background: var(--red);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    line-height: 1;
+    transform: rotate(-4deg);
   }
 
-  .cat-brand-name {
-    font-family: 'Dela Gothic One', 'Arial Black', Impact, sans-serif;
-    font-size: 1.1rem;
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
     letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
   }
 
-  .cat-topnav {
+  .nav-links {
+    display: none;
+    gap: 1.6rem;
+  }
+
+  .nav-links a {
+    position: relative;
+    padding-block: 0.4rem;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--red);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 180ms ease;
+  }
+
+  .nav-links a:hover::after {
+    transform: scaleX(1);
+  }
+
+  .nav-actions {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    font-size: 0.85rem;
-    font-weight: 600;
+    gap: 0.7rem;
   }
 
-  .cat-topnav a {
-    color: var(--muted);
-    text-decoration: none;
-  }
-
-  .cat-topnav a:hover {
-    color: var(--text);
-  }
-
-  .cat-theme-btn {
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  .cat-hero {
-    padding: 2.5rem 0 1.5rem;
-  }
-
-  .cat-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin: 0 0 0.5rem;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-
-  .cat-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 999px;
-    background: var(--accent);
-  }
-
-  .cat-title {
-    margin: 0;
-    font-family: 'Dela Gothic One', 'Arial Black', Impact, sans-serif;
-    font-weight: 400;
-    font-size: clamp(1.7rem, 6vw, 3rem);
-    line-height: 0.95;
-    letter-spacing: 0.01em;
-  }
-
-  .cat-title span {
-    color: var(--accent);
-  }
-
-  .cat-lead {
-    max-width: 40rem;
-    margin: 0.75rem 0 0;
-    color: var(--muted);
-    line-height: 1.55;
-  }
-
-  .cat-layout {
-    display: grid;
-    gap: 1.5rem;
-    padding-bottom: 4rem;
-  }
-
-  @media (min-width: 900px) {
-    .cat-layout {
-      grid-template-columns: 16rem 1fr;
-      align-items: start;
-    }
-
-    .cat-filters {
-      position: sticky;
-      top: 4.5rem;
-    }
-  }
-
-  .cat-filters {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 1rem;
-  }
-
-  .cat-filters-form {
-    display: grid;
-    gap: 1.1rem;
-  }
-
-  .cat-filters-toggle {
+  .nav-wa-label {
     display: none;
   }
 
-  @media (max-width: 899px) {
-    .cat-filters {
-      padding: 0;
-    }
+  .theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 2px solid var(--stroke);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
 
-    .cat-filters-toggle {
-      display: flex;
-      width: 100%;
-      justify-content: space-between;
-      padding: 0.85rem 1rem;
-      border: 0;
-      background: none;
-      color: var(--text);
-      font: inherit;
-      font-size: 0.8rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
+  .theme-toggle:hover {
+    background: var(--text);
+    color: var(--bg);
+  }
 
-    .cat-filters-form {
-      display: none;
-      padding: 0 1rem 1rem;
-    }
+  .theme-icon {
+    display: grid;
+    width: 1.15rem;
+    height: 1.15rem;
+  }
 
-    .cat-filters.is-open .cat-filters-form {
-      display: grid;
+  .theme-icon[hidden] {
+    display: none;
+  }
+
+  /* ── Hero ───────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-bottom: 2px solid var(--stroke);
+    background: var(--bg-alt);
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .hero-dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--red) 1.6px, transparent 2px);
+    background-size: 11px 11px;
+    -webkit-mask-image: linear-gradient(240deg, #000 0%, transparent 45%);
+    mask-image: linear-gradient(240deg, #000 0%, transparent 45%);
+    opacity: 0.55;
+  }
+
+  .hero-kana {
+    position: absolute;
+    right: -0.06em;
+    bottom: -0.22em;
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 24vw, 13rem);
+    line-height: 1;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--hair);
+    user-select: none;
+  }
+
+  .hero-inner {
+    padding-block: 2rem 2.2rem;
+  }
+
+  .eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 0.9rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow-jp {
+    color: var(--red);
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+  }
+
+  .chip-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--wa);
+    animation: pulse 1.8s ease-out infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgb(37 211 102 / 0.7);
+    }
+    100% {
+      box-shadow: 0 0 0 0.6rem rgb(37 211 102 / 0);
     }
   }
 
-  .cat-field {
-    display: grid;
-    gap: 0.45rem;
+  .hero-title {
     margin: 0;
-    padding: 0;
-    border: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2rem, 9.5vw, 4.4rem);
+    line-height: 1.12;
+    text-transform: uppercase;
+  }
+
+  .hl {
+    display: inline-block;
+    padding: 0 0.22em 0.06em;
+    background: var(--yellow);
+    color: var(--ink);
+    transform: rotate(-1.5deg);
+  }
+
+  .hero-lead {
+    max-width: 36rem;
+    margin: 1rem 0 0;
+    color: var(--muted);
+  }
+
+  .hero-lead strong {
+    color: var(--text);
+  }
+
+  /* ── Layout / filters ───────────────────────────────────────── */
+  .layout {
+    display: grid;
+    gap: 0;
+    padding-bottom: 4rem;
+  }
+
+  .filters {
+    display: contents;
+  }
+
+  .toolbar {
+    position: sticky;
+    top: calc(var(--nav-h) + 2px);
+    z-index: 30;
+    margin-inline: -1rem;
+    padding: 0.85rem 1rem 0.7rem;
+    background: var(--bg);
+    border-bottom: 2px solid var(--stroke);
+  }
+
+  .search-row {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .search {
+    position: relative;
+    flex: 1;
     min-width: 0;
   }
 
-  .cat-field > label,
-  .cat-field > legend {
-    padding: 0;
-    margin-bottom: 0.45rem;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+  .search-ico {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    translate: 0 -50%;
+    width: 1.1rem;
+    height: 1.1rem;
     color: var(--muted);
+    pointer-events: none;
   }
 
-  .cat-field > label {
-    margin-bottom: 0;
-  }
-
-  .cat-filters input[type='search'],
-  .cat-filters input[type='number'],
-  .cat-filters select {
+  .search input,
+  .input {
     width: 100%;
+    min-height: 3rem;
     box-sizing: border-box;
-    padding: 0.55rem 0.65rem;
-    background: var(--bg);
+    padding: 0.65rem 0.85rem;
+    border: 2px solid var(--stroke);
+    border-radius: 0;
+    background: var(--surface);
     color: var(--text);
-    border: 1px solid var(--border);
-    font: inherit;
-    font-size: 0.9rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: box-shadow 140ms ease;
   }
 
-  .cat-filters input:focus-visible,
-  .cat-filters select:focus-visible,
-  .cat-chip:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
+  .search input {
+    padding-left: 2.6rem;
   }
 
-  .cat-price-row {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 0.4rem;
+  .search input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+
+  .search input::placeholder,
+  .input::placeholder {
     color: var(--muted);
+    opacity: 0.8;
   }
 
-  .cat-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
+  .search input:focus,
+  .input:focus {
+    outline: none;
+    box-shadow: 4px 4px 0 var(--yellow);
   }
 
-  .cat-chip {
-    padding: 0.38rem 0.65rem;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    font: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
+  html[data-theme='light'] .search input:focus,
+  html[data-theme='light'] .input:focus {
+    box-shadow: 4px 4px 0 var(--red);
+  }
+
+  .select {
+    padding-right: 2.6rem;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--text) 50%),
+      linear-gradient(135deg, var(--text) 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.25rem) 50%,
+      calc(100% - 0.85rem) 50%;
+    background-size:
+      0.4rem 0.4rem,
+      0.4rem 0.4rem;
+    background-repeat: no-repeat;
     cursor: pointer;
   }
 
-  .cat-chips-sm .cat-chip {
-    font-size: 0.72rem;
+  .filters-toggle {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 2px solid var(--ink);
+    background: var(--yellow);
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--shadow);
   }
 
-  .cat-chip:hover {
-    border-color: var(--accent);
+  .filters-toggle .ico {
+    width: 1.3rem;
+    height: 1.3rem;
   }
 
-  .cat-chip.is-active {
-    background: var(--accent);
-    border-color: var(--accent);
+  .filters-badge {
+    position: absolute;
+    top: -0.55rem;
+    right: -0.55rem;
+    display: grid;
+    place-items: center;
+    min-width: 1.3rem;
+    height: 1.3rem;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--red);
     color: #fff;
+    font-size: 0.68rem;
+    font-weight: 800;
   }
 
-  .cat-check {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
+  .filters-badge[hidden] {
+    display: none;
   }
 
-  .cat-check input {
-    accent-color: var(--accent);
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .cat-reset {
-    justify-self: start;
+  .field {
+    display: grid;
+    gap: 0.55rem;
+    min-width: 0;
+    margin: 0;
     padding: 0;
     border: 0;
-    background: none;
-    color: var(--muted);
-    font: inherit;
-    font-size: 0.8rem;
-    text-decoration: underline;
-    cursor: pointer;
   }
 
-  .cat-count {
-    margin: 0 0 0.9rem;
+  .field-label {
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .cats-field {
+    margin-top: 0.7rem;
+  }
+
+  .cats-legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .cats {
+    flex-wrap: nowrap;
+    margin-inline: -1rem;
+    padding: 0.1rem 1rem 0.35rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .cats::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.35rem;
+    padding: 0.35rem 0.75rem;
+    border: 2px solid var(--stroke);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
     font-size: 0.8rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.03em;
     text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .cat-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.85rem;
-  }
-
-  @media (min-width: 640px) {
-    .cat-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 1200px) {
-    .cat-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-
-  .cat-card {
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
     transition:
-      border-color 160ms ease,
-      transform 160ms ease;
+      background-color 120ms ease,
+      transform 120ms ease;
   }
 
-  .cat-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
+  .chip:hover {
+    transform: translateY(-1px);
   }
 
-  .cat-card.is-out img {
-    filter: grayscale(0.85);
+  .chip.is-active {
+    border-color: var(--ink);
+    background: var(--red);
+    color: #fff;
+    box-shadow: 3px 3px 0 var(--stroke);
+  }
+
+  .chip-count {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
     opacity: 0.7;
   }
 
-  .cat-card-media {
+  .chips-sm .chip {
+    min-height: 2.1rem;
+    font-size: 0.74rem;
+  }
+
+  .price-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+  }
+
+  .switch {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .switch-track {
+    position: relative;
+    flex: none;
+    width: 3rem;
+    height: 1.6rem;
+    border: 2px solid var(--stroke);
+    background: var(--bg);
+    transition: background-color 160ms ease;
+  }
+
+  .switch-track::after {
+    content: '';
+    position: absolute;
+    top: 0.15rem;
+    left: 0.15rem;
+    width: 1rem;
+    height: 1rem;
+    background: var(--text);
+    transition:
+      transform 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .switch input:checked + .switch-track {
+    background: var(--wa);
+    border-color: var(--ink);
+  }
+
+  .switch input:checked + .switch-track::after {
+    transform: translateX(1.4rem);
+    background: var(--ink);
+  }
+
+  .switch input:focus-visible + .switch-track {
+    outline: 3px solid var(--yellow);
+    outline-offset: 3px;
+  }
+
+  /* Bottom sheet (mobile) */
+  .sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgb(11 10 13 / 0.6);
+    backdrop-filter: blur(2px);
+  }
+
+  .sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 80;
+    display: grid;
+    gap: 1.3rem;
+    max-height: 86vh;
+    overflow-y: auto;
+    padding: 1.1rem 1rem calc(1.2rem + env(safe-area-inset-bottom));
+    border-top: 2px solid var(--stroke);
+    background: var(--surface);
+    box-shadow: 0 -6px 0 var(--shadow);
+    transform: translateY(105%);
+    visibility: hidden;
+    transition:
+      transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      visibility 0s linear 280ms;
+  }
+
+  .sheet.is-open {
+    transform: none;
+    visibility: visible;
+    transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sheet-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    text-transform: uppercase;
+  }
+
+  .sheet-title .eyebrow-jp {
+    font-size: 0.75rem;
+  }
+
+  .sheet-actions {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    padding-top: 0.3rem;
+  }
+
+  /* ── Results ────────────────────────────────────────────────── */
+  .results {
+    min-width: 0;
+    padding-top: 1.1rem;
+  }
+
+  .count {
+    margin: 0 0 1rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem 0.85rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 2px solid var(--stroke);
+    background: var(--surface);
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+    animation: card-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+
+  .card:not(.card-skeleton):hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 var(--shadow);
+  }
+
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      translate: 0 0.8rem;
+    }
+  }
+
+  .card-media {
     position: relative;
     display: block;
     width: 100%;
+    aspect-ratio: 4 / 5;
     padding: 0;
-    border: 0;
-    aspect-ratio: 1;
-    background: var(--surface-2);
     overflow: hidden;
-    cursor: zoom-in;
-    font: inherit;
+    border: 0;
+    border-bottom: 2px solid var(--stroke);
+    background: var(--bg-alt);
+    cursor: pointer;
   }
 
-  .cat-card-media:focus-visible,
-  .cat-card-title button:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
-  }
-
-  .cat-card-photos {
-    position: absolute;
-    right: 0.5rem;
-    bottom: 0.5rem;
-    padding: 0.2rem 0.45rem;
-    background: rgb(0 0 0 / 0.72);
-    color: #fff;
-    font-size: 0.65rem;
-    font-weight: 700;
-  }
-
-  .cat-card-media img {
+  .card-media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
+    transition: transform 400ms ease;
   }
 
-  .cat-card-media.is-empty {
+  .card:hover .card-media img {
+    transform: scale(1.05);
+  }
+
+  .card-media.is-empty {
     display: grid;
     place-items: center;
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--border);
+    background-image: radial-gradient(var(--dot) 1.4px, transparent 1.8px);
+    background-size: 10px 10px;
   }
 
-  .cat-card-cat {
-    position: absolute;
-    left: 0.5rem;
-    top: 0.5rem;
+  .card-empty-kanji {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    color: var(--hair);
+    -webkit-text-stroke: 2px var(--muted);
+    opacity: 0.5;
+  }
+
+  .tag {
+    display: inline-block;
     padding: 0.2rem 0.45rem;
-    background: rgb(0 0 0 / 0.72);
-    color: #fff;
-    font-size: 0.65rem;
-    font-weight: 800;
+    border: 2px solid var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+
+  .tag-cat {
+    background: var(--yellow);
+    color: var(--ink);
+  }
+
+  .card-cat {
+    position: absolute;
+    left: 0.45rem;
+    top: 0.45rem;
+    transform: rotate(-3deg);
+  }
+
+  .card-photos {
+    position: absolute;
+    right: 0.45rem;
+    bottom: 0.45rem;
+    padding: 0.15rem 0.4rem;
+    background: rgb(11 10 13 / 0.78);
+    color: #f6f0e3;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
-  .cat-card-out {
+  .card-out {
     position: absolute;
-    right: 0.5rem;
-    top: 0.5rem;
-    padding: 0.2rem 0.45rem;
-    background: var(--accent);
+    left: 50%;
+    top: 50%;
+    padding: 0.35em 0.8em 0.45em;
+    border: 3px solid #fff;
+    background: var(--red);
     color: #fff;
-    font-size: 0.65rem;
-    font-weight: 800;
+    font-family: var(--font-display);
+    font-size: clamp(0.85rem, 4vw, 1.15rem);
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    white-space: nowrap;
+    translate: -50% -50%;
+    rotate: -12deg;
+    box-shadow: 3px 3px 0 var(--ink);
   }
 
-  .cat-card-body {
+  .card.is-out .card-media img {
+    filter: grayscale(1) contrast(0.9);
+    opacity: 0.7;
+  }
+
+  .card-body {
     display: flex;
     flex: 1;
     flex-direction: column;
     gap: 0.35rem;
-    padding: 0.75rem;
+    padding: 0.7rem 0.7rem 0.8rem;
   }
 
-  .cat-card-title {
+  .card-title {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 800;
     line-height: 1.25;
   }
 
-  .cat-card-title button {
+  .card-title button {
+    display: -webkit-box;
     padding: 0;
+    overflow: hidden;
     border: 0;
     background: none;
     color: inherit;
     font: inherit;
     text-align: left;
     cursor: pointer;
-  }
-
-  .cat-card-title button:hover {
-    color: var(--accent);
-  }
-
-  .cat-card-desc {
-    margin: 0;
-    font-size: 0.8rem;
-    line-height: 1.45;
-    color: var(--muted);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .card-title button:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--red);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  .card-desc {
+    display: none;
+    margin: 0;
     overflow: hidden;
-  }
-
-  .cat-card-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-top: auto;
-    padding-top: 0.5rem;
-  }
-
-  .cat-card-price {
-    font-family: 'Dela Gothic One', 'Arial Black', Impact, sans-serif;
-    font-size: 1.05rem;
-    letter-spacing: 0.02em;
-    color: var(--accent);
-  }
-
-  .cat-wa-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.7rem 1.1rem;
-    background: var(--wa);
-    color: #fff;
-    font-weight: 800;
-    font-size: 0.85rem;
-    text-decoration: none;
-  }
-
-  .cat-wa-btn:hover {
-    filter: brightness(1.08);
-  }
-
-  .cat-wa-btn-sm {
-    padding: 0.45rem 0.7rem;
-    font-size: 0.75rem;
-  }
-
-  .cat-empty {
-    padding: 3rem 1rem;
-    border: 1px dashed var(--border);
-    text-align: center;
     color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
-  .cat-empty-title {
-    margin: 0 0 0.35rem;
-    color: var(--text);
-    font-weight: 800;
-    font-size: 1.05rem;
-  }
-
-  .cat-empty .cat-wa-btn {
-    margin-top: 1rem;
-  }
-
-  /* ── Product dialog ── */
-  .cat-dialog {
-    margin: auto;
-    width: min(56rem, calc(100% - 2rem));
-    max-height: calc(100dvh - 2rem);
-    padding: 0;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    overflow: auto;
-  }
-
-  .cat-dialog::backdrop {
-    background: rgb(2 6 23 / 0.75);
-    backdrop-filter: blur(3px);
-  }
-
-  .cat-dialog-inner {
-    position: relative;
+  .card-row {
     display: grid;
+    gap: 0.55rem;
+    margin-top: auto;
+    padding-top: 0.45rem;
   }
 
-  @media (min-width: 760px) {
-    .cat-dialog-inner {
-      grid-template-columns: 1.2fr 1fr;
+  .card-price {
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    line-height: 1.2;
+    color: var(--yellow);
+  }
+
+  html[data-theme='light'] .card-price {
+    color: var(--red);
+  }
+
+  .card-row .btn {
+    min-height: 2.35rem;
+    padding-inline: 0.6rem;
+  }
+
+  /* Skeleton */
+  .card-skeleton .card-media,
+  .sk-line {
+    background: linear-gradient(
+      100deg,
+      var(--bg-alt) 30%,
+      color-mix(in srgb, var(--bg-alt) 60%, var(--text)) 50%,
+      var(--bg-alt) 70%
+    );
+    background-size: 300% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+
+  .card-skeleton {
+    box-shadow: 4px 4px 0 var(--hair);
+    border-color: var(--hair);
+  }
+
+  .card-skeleton .card-media {
+    border-bottom-color: var(--hair);
+    cursor: default;
+  }
+
+  .sk-line {
+    display: block;
+    height: 0.8rem;
+  }
+
+  .sk-short {
+    width: 55%;
+    height: 1.1rem;
+    margin-top: 0.6rem;
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: -50% 0;
     }
   }
 
-  .cat-dialog-close {
-    position: absolute;
-    right: 0.5rem;
-    top: 0.5rem;
-    z-index: 3;
-    width: 2.25rem;
-    height: 2.25rem;
-    border: 0;
-    background: rgb(0 0 0 / 0.6);
-    color: #fff;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-
-  .cat-gallery {
+  /* Empty / error */
+  .empty {
     position: relative;
-    background: var(--surface-2);
+    display: grid;
+    justify-items: center;
+    gap: 0.4rem;
+    overflow: hidden;
+    padding: 2.6rem 1.2rem;
+    border: 2px dashed var(--stroke);
+    color: var(--muted);
+    text-align: center;
   }
 
-  .cat-gallery-track {
+  .empty[hidden] {
+    display: none;
+  }
+
+  .empty p {
+    margin: 0;
+    max-width: 26rem;
+  }
+
+  .empty-kana {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    line-height: 1.1;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--red);
+  }
+
+  .empty-title {
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    text-transform: uppercase;
+  }
+
+  .empty .btn {
+    margin-top: 1rem;
+  }
+
+  /* ── Product dialog ─────────────────────────────────────────── */
+  .pd {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    margin: auto 0 0;
+    padding: 0;
+    border: 0;
+    border-top: 2px solid var(--stroke);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 -6px 0 var(--shadow);
+  }
+
+  .pd[open] {
+    animation: pd-up 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @keyframes pd-up {
+    from {
+      transform: translateY(40%);
+      opacity: 0;
+    }
+  }
+
+  .pd::backdrop {
+    background: rgb(11 10 13 / 0.65);
+    backdrop-filter: blur(3px);
+  }
+
+  .pd-inner {
+    position: relative;
+  }
+
+  .pd-close {
+    position: absolute;
+    right: 0.75rem;
+    top: 0.75rem;
+    z-index: 3;
+    border-color: var(--ink);
+    background: var(--yellow);
+    color: var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .pd-gallery {
+    position: relative;
+    border-bottom: 2px solid var(--stroke);
+    background: var(--bg-alt);
+  }
+
+  .pd-track {
     display: flex;
     aspect-ratio: 1;
+    max-height: 56vh;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
   }
 
-  .cat-gallery-track::-webkit-scrollbar {
+  .pd-track::-webkit-scrollbar {
     display: none;
   }
 
-  .cat-gallery-track > * {
+  .pd-track > * {
     flex: 0 0 100%;
     width: 100%;
     height: 100%;
-    scroll-snap-align: start;
     object-fit: contain;
+    scroll-snap-align: start;
   }
 
-  .cat-gallery-empty {
+  .pd-empty {
     display: grid;
     place-items: center;
-    font-size: 3rem;
-    font-weight: 900;
-    color: var(--border);
+    font-family: var(--font-display);
+    font-size: 4rem;
+    color: var(--hair);
   }
 
-  .cat-gallery-nav {
+  .pd-nav {
     position: absolute;
     top: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-top: -1.25rem;
-    border: 0;
-    background: rgb(0 0 0 / 0.55);
-    color: #fff;
-    font-size: 1.6rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .cat-gallery-nav:disabled {
-    opacity: 0.25;
-    cursor: default;
-  }
-
-  .cat-gallery-nav.is-prev {
-    left: 0.5rem;
-  }
-
-  .cat-gallery-nav.is-next {
-    right: 0.5rem;
-  }
-
-  .cat-gallery-dots {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0.6rem;
-    display: flex;
-    justify-content: center;
-    gap: 0.35rem;
-  }
-
-  .cat-gallery-dots button {
-    width: 0.55rem;
-    height: 0.55rem;
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
     padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: rgb(255 255 255 / 0.45);
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
     cursor: pointer;
+    translate: 0 -50%;
+    box-shadow: 3px 3px 0 var(--ink);
   }
 
-  .cat-gallery-dots button.is-active {
-    background: #fff;
-  }
-
-  .cat-dialog-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    padding: 1.25rem;
-  }
-
-  .cat-dialog-cat {
-    align-self: flex-start;
-    padding: 0.2rem 0.45rem;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-size: 0.68rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .cat-dialog-title {
-    margin: 0;
-    padding-right: 2rem;
-    font-size: 1.35rem;
-    font-weight: 900;
-    line-height: 1.2;
-  }
-
-  .cat-dialog-price {
-    margin: 0;
-    font-family: 'Dela Gothic One', 'Arial Black', Impact, sans-serif;
-    font-size: 1.5rem;
-    color: var(--accent);
-  }
-
-  .cat-dialog-out {
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--accent);
-  }
-
-  .cat-dialog-desc {
-    margin: 0;
-    color: var(--muted);
-    line-height: 1.55;
-    white-space: pre-line;
-  }
-
-  .cat-dialog-desc:empty {
+  .pd-nav[hidden] {
     display: none;
   }
 
-  .cat-dialog-body .cat-wa-btn {
-    margin-top: auto;
+  .pd-nav:disabled {
+    opacity: 0.35;
+    cursor: default;
   }
 
-  .cat-footer {
-    border-top: 1px solid var(--border);
-    padding: 1.5rem 0;
-    font-size: 0.8rem;
-    color: var(--muted);
+  .pd-nav .ico {
+    width: 1.2rem;
+    height: 1.2rem;
   }
 
-  .cat-footer p {
+  .pd-nav.is-prev {
+    left: 0.6rem;
+  }
+
+  .pd-nav.is-next {
+    right: 0.6rem;
+  }
+
+  .pd-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 0.7rem;
+    display: flex;
+    gap: 0.35rem;
+    translate: -50% 0;
+  }
+
+  .pd-dots[hidden] {
+    display: none;
+  }
+
+  .pd-dots button {
+    width: 0.7rem;
+    height: 0.7rem;
+    padding: 0;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    cursor: pointer;
+    transition: width 160ms ease;
+  }
+
+  .pd-dots button.is-active {
+    width: 1.6rem;
+    background: var(--red);
+  }
+
+  .pd-body {
+    display: grid;
+    justify-items: start;
+    gap: 0.6rem;
+    padding: 1.2rem 1rem calc(1.4rem + env(safe-area-inset-bottom));
+  }
+
+  .pd-title {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.35rem, 6vw, 1.9rem);
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
+
+  .pd-price {
     margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    line-height: 1.1;
+    color: var(--yellow);
+  }
+
+  html[data-theme='light'] .pd-price {
+    color: var(--red);
+  }
+
+  .pd-out {
+    margin: 0;
+    padding: 0.5rem 0.7rem;
+    border: 2px solid var(--red);
+    color: var(--red);
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+
+  .pd-out[hidden] {
+    display: none;
+  }
+
+  .pd-desc {
+    margin: 0;
+    color: var(--muted);
+    white-space: pre-line;
+  }
+
+  .pd-desc:empty {
+    display: none;
+  }
+
+  .pd-perks {
+    display: grid;
+    gap: 0.45rem;
+    width: 100%;
+    margin: 0.4rem 0 0.6rem;
+    padding: 0.8rem 0 0;
+    border-top: 2px dashed var(--hair);
+    list-style: none;
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+
+  .pd-perks li {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .pd-perks .ico {
+    width: 1.15rem;
+    height: 1.15rem;
+    color: var(--red);
+  }
+
+  /* ── Footer ─────────────────────────────────────────────────── */
+  .site-footer {
+    position: relative;
+    overflow: hidden;
+    padding-block: 2.6rem 6.5rem;
+    border-top: 2px solid var(--stroke);
+    background: var(--bg-alt);
+  }
+
+  .footer-kanji {
+    position: absolute;
+    right: -0.05em;
+    bottom: -0.28em;
+    font-family: var(--font-display);
+    font-size: clamp(8rem, 34vw, 18rem);
+    line-height: 1;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--hair);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .footer-inner {
+    position: relative;
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .footer-name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .footer-tagline {
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.3rem;
+  }
+
+  .footer-links a {
+    padding-block: 0.3rem;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .footer-links a:hover {
+    color: var(--red);
+  }
+
+  .footer-copy {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  /* ── WhatsApp FAB ───────────────────────────────────────────── */
+  .whatsapp-fab {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--wa);
+    color: var(--ink);
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition:
+      transform 140ms ease,
+      box-shadow 140ms ease;
+  }
+
+  .whatsapp-fab svg {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .whatsapp-fab:hover {
+    transform: translate(-2px, -2px) rotate(-6deg);
+    box-shadow: 6px 6px 0 var(--shadow);
+  }
+
+  /* ── ≥ 480px ────────────────────────────────────────────────── */
+  @media (min-width: 480px) {
+    .card-body {
+      padding: 0.85rem 0.85rem 0.95rem;
+    }
+
+    .card-desc {
+      display: -webkit-box;
+    }
+
+    .card-title {
+      font-size: 1rem;
+    }
+
+    .card-price {
+      font-size: 1.15rem;
+    }
+  }
+
+  /* ── ≥ 640px ────────────────────────────────────────────────── */
+  @media (min-width: 640px) {
+    .wrap {
+      padding-inline: 1.5rem;
+    }
+
+    .toolbar {
+      margin-inline: -1.5rem;
+      padding-inline: 1.5rem;
+    }
+
+    .cats {
+      margin-inline: -1.5rem;
+      padding-inline: 1.5rem;
+    }
+
+    .nav-wa-label {
+      display: inline;
+    }
+
+    .hero-inner {
+      padding-block: 3rem 3.2rem;
+    }
+
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.5rem 1.25rem;
+    }
+
+    /* Dialog becomes a centered panel */
+    .pd {
+      width: min(100% - 3rem, 58rem);
+      max-height: min(90vh, 44rem);
+      margin: auto;
+      border: 2px solid var(--stroke);
+      box-shadow: 8px 8px 0 var(--shadow);
+    }
+
+    .pd[open] {
+      animation-name: pd-pop;
+    }
+
+    @keyframes pd-pop {
+      from {
+        transform: scale(0.94) rotate(-1deg);
+        opacity: 0;
+      }
+    }
+
+    .pd-body {
+      padding: 1.6rem 1.5rem 1.8rem;
+    }
+  }
+
+  /* ── ≥ 900px (desktop) ──────────────────────────────────────── */
+  @media (min-width: 900px) {
+    :root {
+      --nav-h: 4.25rem;
+    }
+
+    .nav-links {
+      display: flex;
+    }
+
+    .hero-inner {
+      padding-block: 4rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2.8rem, 4.6vw, 4rem);
+    }
+
+    .hero-kana {
+      bottom: auto;
+      top: 50%;
+      translate: 0 -50%;
+    }
+
+    .layout {
+      grid-template-columns: 17rem minmax(0, 1fr);
+      align-items: start;
+      gap: 2.5rem;
+      padding-top: 2.5rem;
+      padding-bottom: 6rem;
+    }
+
+    .filters {
+      position: sticky;
+      top: calc(var(--nav-h) + 1.5rem);
+      display: grid;
+      gap: 1.5rem;
+      max-height: calc(100vh - var(--nav-h) - 3rem);
+      overflow-y: auto;
+      padding: 1.25rem;
+      border: 2px solid var(--stroke);
+      background: var(--surface);
+      box-shadow: 6px 6px 0 var(--shadow);
+      scrollbar-width: thin;
+    }
+
+    .toolbar {
+      position: static;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+
+    .filters-toggle {
+      display: none;
+    }
+
+    .cats-field {
+      margin-top: 1.5rem;
+    }
+
+    .cats-legend {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+      margin-bottom: 0.55rem;
+    }
+
+    .cats {
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+    }
+
+    .cats .chip.is-active {
+      box-shadow: 3px 3px 0 var(--stroke);
+    }
+
+    .sheet {
+      position: static;
+      gap: 1.5rem;
+      max-height: none;
+      overflow: visible;
+      padding: 0;
+      border: 0;
+      background: none;
+      box-shadow: none;
+      transform: none;
+      visibility: visible;
+      transition: none;
+    }
+
+    .sheet-backdrop,
+    .sheet-head,
+    .sheet-apply {
+      display: none !important;
+    }
+
+    .sheet-actions {
+      grid-template-columns: 1fr;
+      padding-top: 0;
+    }
+
+    .results {
+      padding-top: 0;
+    }
+
+    .count {
+      margin-bottom: 1.25rem;
+    }
+
+    .pd-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    }
+
+    .pd-gallery {
+      border-bottom: 0;
+      border-right: 2px solid var(--stroke);
+    }
+
+    .pd-track {
+      height: 100%;
+      max-height: min(90vh, 44rem);
+    }
+
+    .pd-body {
+      align-content: start;
+      overflow-y: auto;
+      max-height: min(90vh - 4px, 44rem);
+      padding: 2rem 1.75rem;
+    }
+
+    .footer-inner {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+
+    .footer-copy {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 </style>
