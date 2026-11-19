@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-/* Renderiza sakamoto-s2.html a slide-01.png … slide-05.png (1080x1350, PNG sin pérdida).
+/* Renderiza sakamoto-s2.html a slide-01.png … slide-06.png (1080x1350, PNG sin pérdida).
 
    node render.cjs
 
-   Fuentes: el HTML pide Bebas Neue, Inter y Noto Sans JP a Google Fonts. Para que el
+   Fuentes: el HTML pide Bebas Neue, Dela Gothic One, Inter y Noto Sans JP a Google Fonts. Para que el
    render no dependa de internet, este script responde esa petición con los archivos de
    @fontsource instalados en el entorno (no se suben al repo):
-     npm install --no-save @fontsource/bebas-neue @fontsource/inter @fontsource/noto-sans-jp
+     npm install --no-save @fontsource/bebas-neue @fontsource/dela-gothic-one @fontsource/inter @fontsource/noto-sans-jp
    o define FONTSOURCE_DIR=/ruta/a/node_modules/@fontsource. Si no las encuentra, usa
    Google Fonts en línea. */
 const fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
@@ -17,10 +17,10 @@ catch { ({ chromium } = require(path.join(execFileSync('npm', ['root', '-g']).to
 const D = __dirname;
 const candidates = [process.env.FONTSOURCE_DIR, path.join(D, 'node_modules/@fontsource'),
   path.join(process.cwd(), 'node_modules/@fontsource')].filter(Boolean);
-const FS = candidates.find(d => ['bebas-neue', 'inter', 'noto-sans-jp'].every(p => fs.existsSync(path.join(d, p))));
+const FS = candidates.find(d => ['bebas-neue', 'dela-gothic-one', 'inter', 'noto-sans-jp'].every(p => fs.existsSync(path.join(d, p))));
 
 function localCss() {
-  const pick = [['bebas-neue', [400]], ['inter', [400, 500, 600, 700, 800, 900]], ['noto-sans-jp', [500, 700, 900]]];
+  const pick = [['bebas-neue', [400]], ['dela-gothic-one', [400]], ['inter', [400, 500, 600, 700, 800, 900]], ['noto-sans-jp', [500, 700, 900]]];
   let css = '';
   for (const [pkg, weights] of pick)
     for (const w of weights)
@@ -43,7 +43,7 @@ function localCss() {
   // carga explícita de cada fuente con los caracteres que se usan
   const jp = '「交錯する因縁争奪戦、開幕」パパはいまだにJuvenile鈴木祐斗集英社製作委員会©因';
   const ok = await p.evaluate(async jp => {
-    const specs = [['400 100px "Bebas Neue"', 'ABC¡!¿?'], ['700 40px Inter', 'Aá'], ['900 40px "Noto Sans JP"', jp], ['500 40px "Noto Sans JP"', jp]];
+    const specs = [['400 100px "Bebas Neue"', 'ABC¡!¿?'], ['400 40px "Dela Gothic One"', 'ABC18'], ['700 40px Inter', 'Aá'], ['900 40px "Noto Sans JP"', jp], ['500 40px "Noto Sans JP"', jp]];
     for (const [f, t] of specs) await document.fonts.load(f, t);
     await document.fonts.ready;
     return specs.map(([f, t]) => `${f}: ${document.fonts.check(f, t)}`);
@@ -54,7 +54,7 @@ function localCss() {
   // avisos: texto a menos de 60 px del borde
   const warn = await p.evaluate(() => [...document.querySelectorAll('.slide')].flatMap((s, i) => {
     const o = s.getBoundingClientRect(), out = [];
-    s.querySelectorAll('h1,h2,p,.tag,.pill,.credit,.swipe,.day,.mon,.lbl,.panel,.ask').forEach(e => {
+    s.querySelectorAll('h1,h2,p,.tag,.sticker,.frame,.bubble,.foot span,.logo').forEach(e => {
       const r = e.getBoundingClientRect();
       const m = Math.min(r.left - o.left, r.top - o.top, o.right - r.right, o.bottom - r.bottom);
       if (m < 58) out.push(`slide ${i + 1}: "${e.textContent.trim().slice(0, 30)}" a ${Math.round(m)}px del borde`);
