@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Tansaku · Sakamoto Days temporada 2</title>
+<!-- Fuentes de Google. Al renderizar, render.cjs las sirve desde @fontsource local (sin internet). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@500;700;900&display=block">
+<style>
+/* Colores de la marca Tansaku v2 */
+:root {
+  --noche: #0B1118; --tinta: #0D0D0F; --rojo: #DC2626; --rojo-claro: #EF4444;
+  --blanco: #FFFFFF; --humo: #CBD5E1; --amarillo: #FFD23F; --linea: #263042;
+  --m: 60px; /* margen seguro */
+  --f-tit: 'Bebas Neue', sans-serif; --f-txt: 'Inter', sans-serif; --f-jp: 'Noto Sans JP', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #05080c; }
+body { padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 40px; font-family: var(--f-txt); color: var(--blanco); -webkit-font-smoothing: antialiased; }
+body.raw { padding: 0; gap: 0; }
+
+.slide { position: relative; width: 1080px; height: 1350px; overflow: hidden; background: var(--noche); flex: none; }
+.abs { position: absolute; }
+.h { font-family: var(--f-tit); font-weight: 400; text-transform: uppercase; letter-spacing: .05em; line-height: .92; }
+.hi { color: var(--rojo-claro); }
+.jp { font-family: var(--f-jp); }
+
+/* trama de puntos y destellos (kit gráfico de la marca) */
+.tone { position: absolute; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(203,213,225,.16) 1.7px, transparent 2.3px); background-size: 16px 16px; }
+.fade-tr { -webkit-mask-image: radial-gradient(circle at 100% 0, #000, transparent 70%); mask-image: radial-gradient(circle at 100% 0, #000, transparent 70%); }
+.fade-bl { -webkit-mask-image: radial-gradient(circle at 0 100%, #000, transparent 70%); mask-image: radial-gradient(circle at 0 100%, #000, transparent 70%); }
+.fade-br { -webkit-mask-image: radial-gradient(circle at 100% 100%, #000, transparent 70%); mask-image: radial-gradient(circle at 100% 100%, #000, transparent 70%); }
+.spark { position: absolute; width: var(--s, 50px); height: var(--s, 50px); background: var(--c, var(--rojo-claro));
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); }
+
+/* fila superior: sello + línea + etiqueta */
+.top { position: absolute; left: var(--m); right: var(--m); top: var(--m); height: 60px; display: flex; align-items: center; gap: 26px; z-index: 5; }
+.top img { width: 60px; height: 60px; flex: none; }
+.top i { flex: 1; height: 3px; background: var(--rojo); }
+.tag { font: 800 24px/1 var(--f-txt); letter-spacing: .14em; text-transform: uppercase; color: var(--humo); white-space: nowrap; }
+
+/* pie: crédito + deslizar */
+.foot { position: absolute; left: var(--m); right: var(--m); bottom: var(--m); display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; z-index: 5; }
+.credit { font: 600 24px/1.3 var(--f-txt); color: var(--humo); }
+.credit.jp { font-family: var(--f-jp); font-weight: 500; }
+.swipe { flex: none; display: inline-flex; align-items: center; gap: 14px; font: 800 24px/1 var(--f-txt); letter-spacing: .14em; text-transform: uppercase; color: var(--blanco); }
+.swipe b { width: 50px; height: 50px; border-radius: 50%; background: var(--rojo); display: grid; place-items: center; }
+.panel { background: var(--tinta); border: 3px solid var(--linea); }
+.frame { border: 6px solid var(--blanco); box-shadow: 14px 14px 0 var(--rojo); }
+
+/* ---------- 1 · PORTADA ---------- */
+.s1 .art { position: absolute; left: 0; top: -60px; width: 1080px; height: 1350px; display: block; } /* sube 60 px: solo se pierde cielo vacío */
+.s1 .fill { position: absolute; left: 0; right: 0; top: 1290px; bottom: 0; background: #000; }
+.s1 .grad { position: absolute; left: 0; right: 0; top: 1070px; bottom: 0;
+  background: linear-gradient(180deg, rgba(11,17,24,0) 0, rgba(11,17,24,.92) 64px, var(--noche) 100px); }
+.s1 .pill { position: absolute; left: var(--m); top: var(--m); z-index: 5; display: flex; align-items: center; gap: 14px;
+  background: rgba(11,17,24,.88); border-left: 8px solid var(--rojo); padding: 14px 20px 13px 16px;
+  font: 800 26px/1 var(--f-txt); letter-spacing: .16em; color: var(--blanco); }
+.s1 .seal { position: absolute; right: var(--m); top: var(--m); width: 60px; z-index: 5; }
+.s1 .title { position: absolute; left: var(--m); right: var(--m); top: 1106px; font-size: 104px; z-index: 4; }
+.s1 .sub { position: absolute; left: var(--m); top: 1206px; font: 700 36px/1.1 var(--f-txt); color: var(--humo); z-index: 4; }
+.s1 .sub b { color: var(--rojo-claro); font-weight: 800; }
+.s1 .foot { bottom: var(--m); }
+
+/* ---------- 2 · LA FECHA ---------- */
+.bgblur { position: absolute; inset: -60px; background-size: cover; background-position: center; filter: blur(30px) saturate(1.1); opacity: .45; }
+.dim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,17,24,.82), rgba(11,17,24,.9)); }
+.s2 .title { position: absolute; left: var(--m); top: 156px; font-size: 118px; }
+.s2 .poster { position: absolute; left: 70px; top: 404px; height: 790px; width: auto; display: block; transform: rotate(-1.5deg); }
+.s2 .info { position: absolute; left: 676px; right: var(--m); top: 400px; }
+.s2 .day { font: 400 300px/.82 var(--f-tit); color: var(--rojo-claro); letter-spacing: .02em; }
+.s2 .mon { font: 400 92px/.95 var(--f-tit); letter-spacing: .05em; margin-top: 14px; }
+.s2 .rule { width: 90px; height: 6px; background: var(--rojo); margin: 34px 0 30px; }
+.s2 .when { font: 800 36px/1.3 var(--f-txt); }
+.s2 .when span { display: block; font-weight: 600; color: var(--humo); }
+.s2 .tv { margin-top: 30px; font: 600 32px/1.35 var(--f-txt); color: var(--humo); }
+
+/* ---------- 3 · EL LEMA ---------- */
+.s3 .title { position: absolute; left: var(--m); top: 156px; font-size: 128px; }
+.s3 .col { position: absolute; left: var(--m); right: var(--m); top: 420px; bottom: 150px; display: flex; flex-direction: column; justify-content: center; }
+.s3 .motto { position: relative; padding: 60px 50px 56px 70px; margin-right: 14px; box-shadow: 14px 14px 0 var(--rojo); }
+.s3 .motto::before { content: ""; position: absolute; left: -3px; top: -3px; bottom: -3px; width: 14px; background: var(--rojo); }
+.s3 .motto p.jp { font-weight: 900; font-size: 98px; line-height: 1.36; letter-spacing: .02em; white-space: nowrap; }
+.s3 .motto p.jp span { color: var(--rojo-claro); }
+.s3 .tr { margin-top: 64px; font: 700 44px/1.3 var(--f-txt); }
+.s3 .note { margin-top: 26px; font: 600 32px/1 var(--f-txt); color: var(--humo); display: flex; align-items: center; gap: 16px; }
+.s3 .note::before { content: ""; width: 16px; height: 16px; background: var(--rojo); transform: rotate(45deg); }
+.s3 .wmk { position: absolute; right: -120px; top: 120px; font: 900 560px/1 var(--f-jp); color: rgba(255,255,255,.035); }
+
+/* ---------- 4 · EL OPENING ---------- */
+.s4 .title { position: absolute; left: var(--m); top: 156px; font-size: 140px; }
+.s4 .disc { position: absolute; right: -230px; top: 150px; width: 620px; height: 620px; }
+.s4 .col { position: absolute; left: var(--m); right: var(--m); top: 440px; bottom: 150px; display: flex; flex-direction: column; justify-content: center; }
+.s4 .song { position: relative; margin-right: 14px; padding: 54px 56px 52px; box-shadow: 14px 14px 0 var(--rojo); border: 6px solid var(--blanco); }
+.s4 .lbl { font: 800 24px/1 var(--f-txt); letter-spacing: .16em; text-transform: uppercase; color: var(--rojo-claro); margin-bottom: 26px; }
+.s4 .song p.jp { font-weight: 900; font-size: 100px; line-height: 1.22; }
+.s4 .romaji { margin-top: 30px; padding-top: 26px; border-top: 3px solid var(--linea); font: 600 40px/1.25 var(--f-txt); font-style: italic; color: var(--humo); }
+.s4 .by { margin-top: 56px; font: 700 34px/1.2 var(--f-txt); color: var(--humo); }
+.s4 .by b { color: var(--blanco); font-weight: 800; }
+
+/* ---------- 5 · DÓNDE VERLO + CIERRE ---------- */
+.s5 .title { position: absolute; left: var(--m); top: 156px; font-size: 150px; }
+.s5 .where { position: absolute; left: var(--m); right: var(--m); top: 336px; display: flex; gap: 40px; align-items: center; padding: 40px; }
+.s5 .where img { width: 230px; height: auto; flex: none; border: 5px solid var(--blanco); }
+.s5 .where .t { font: 700 38px/1.35 var(--f-txt); }
+.s5 .where .t b { color: var(--rojo-claro); font-weight: 800; }
+.s5 .check { position: absolute; left: var(--m); right: var(--m); top: 742px; display: flex; gap: 18px; align-items: center; font: 600 34px/1.3 var(--f-txt); color: var(--humo); }
+.s5 .ask { position: absolute; left: var(--m); right: 74px; top: 846px; background: var(--rojo); padding: 40px 44px; box-shadow: 14px 14px 0 var(--tinta); border: 6px solid var(--blanco); border-radius: 40px; }
+.s5 .ask::after { content: ""; position: absolute; left: 96px; bottom: -40px; width: 50px; height: 50px; background: var(--rojo);
+  border-right: 6px solid var(--blanco); border-bottom: 6px solid var(--blanco); transform: skewX(28deg) rotate(45deg); border-bottom-right-radius: 8px; }
+.s5 .ask p { font: 800 46px/1.25 var(--f-txt); }
+.s5 .follow { position: absolute; left: var(--m); right: var(--m); top: 1132px; font: 700 34px/1.3 var(--f-txt); }
+.s5 .follow b { color: var(--rojo-claro); }
+</style>
+</head>
+<body>
+
+<!-- ================= 1 · PORTADA ================= -->
+<section class="slide s1">
+  <img class="art" src="assets/netflix-teaser.jpg" alt="Arte de Sakamoto Days para Netflix Japón">
+  <div class="fill"></div>
+  <div class="grad"></div>
+  <div class="pill">NOTICIA · ANIME</div>
+  <img class="seal" src="assets/tansaku-sello.png" alt="Tansaku">
+  <h1 class="h title">Sakamoto Days <span class="hi">vuelve</span></h1>
+  <p class="sub">Temporada 2 · <b>Enero 2027</b></p>
+  <footer class="foot">
+    <span class="credit">Arte: Netflix Japón</span>
+    <span class="swipe">Desliza <b><svg width="22" height="22" viewBox="0 0 20 20"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></b></span>
+  </footer>
+</section>
+
+<!-- ================= 2 · LA FECHA ================= -->
+<section class="slide s2">
+  <div class="bgblur" style="background-image:url(assets/key-visual.jpg)"></div>
+  <div class="dim"></div>
+  <header class="top"><img src="assets/tansaku-sello.png" alt="Tansaku"><i></i><span class="tag">Estreno</span></header>
+  <h2 class="h title">¡Temporada 2<br><span class="hi">confirmada!</span></h2>
+  <img class="poster frame" src="assets/key-visual.jpg" alt="Póster oficial de la temporada 2 de Sakamoto Days">
+  <div class="info">
+    <div class="day">18</div>
+    <div class="mon h">De enero<br><span class="hi">de 2027</span></div>
+    <div class="rule"></div>
+    <p class="when">Todos los lunes<span>24:00</span><span>(hora de Japón)</span></p>
+    <p class="tv">TV Tokyo y canales afiliados</p>
+  </div>
+  <footer class="foot">
+    <span class="credit jp">© 鈴木祐斗/集英社・SAKAMOTO DAYS製作委員会</span>
+    <span class="swipe"><b><svg width="22" height="22" viewBox="0 0 20 20"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></b></span>
+  </footer>
+</section>
+
+<!-- ================= 3 · EL LEMA ================= -->
+<section class="slide s3">
+  <div class="tone fade-tr" style="right:0;top:0;width:640px;height:640px"></div>
+  <div class="wmk">因</div>
+  <i class="spark" style="right:90px;top:200px;--s:56px"></i>
+  <header class="top"><img src="assets/tansaku-sello.png" alt="Tansaku"><i></i><span class="tag">Key visual</span></header>
+  <h2 class="h title">El lema de<br><span class="hi">la temporada</span></h2>
+  <div class="col">
+    <div class="motto panel">
+      <p class="jp" lang="ja">「交錯する因縁<br>&#x3000;争奪戦、<span>開幕</span>」</p>
+    </div>
+    <p class="tr">Viejas rencillas que se cruzan.<br>Arranca la batalla.</p>
+    <p class="note">Traducción libre</p>
+  </div>
+  <footer class="foot">
+    <span class="credit">@tansakustore</span>
+    <span class="swipe"><b><svg width="22" height="22" viewBox="0 0 20 20"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></b></span>
+  </footer>
+</section>
+
+<!-- ================= 4 · EL OPENING ================= -->
+<section class="slide s4">
+  <div class="tone fade-bl" style="left:0;bottom:0;width:700px;height:700px"></div>
+  <!-- disco de vinilo decorativo (solo formas) -->
+  <svg class="disc" viewBox="0 0 200 200" aria-hidden="true">
+    <circle cx="100" cy="100" r="98" fill="#0D0D0F" stroke="#263042" stroke-width="2"/>
+    <g fill="none" stroke="#1f2735" stroke-width="1.2">
+      <circle cx="100" cy="100" r="88"/><circle cx="100" cy="100" r="78"/><circle cx="100" cy="100" r="68"/><circle cx="100" cy="100" r="58"/><circle cx="100" cy="100" r="48"/>
+    </g>
+    <circle cx="100" cy="100" r="36" fill="#DC2626"/>
+    <circle cx="100" cy="100" r="5" fill="#0B1118"/>
+    <path d="M38 52a76 76 0 0 1 40-26" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+  <header class="top"><img src="assets/tansaku-sello.png" alt="Tansaku"><i></i><span class="tag">Música</span></header>
+  <h2 class="h title">Opening:<br><span class="hi">Creepy Nuts</span></h2>
+  <div class="col">
+  <div class="song panel">
+    <div class="lbl">Canción del opening</div>
+    <p class="jp" lang="ja">「パパはいまだに<br>Juvenile」</p>
+    <p class="romaji">Papa wa imada ni Juvenile</p>
+  </div>
+  <p class="by">Interpreta: <b>Creepy Nuts</b></p>
+  </div>
+  <footer class="foot">
+    <span class="credit">@tansakustore</span>
+    <span class="swipe"><b><svg width="22" height="22" viewBox="0 0 20 20"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></b></span>
+  </footer>
+</section>
+
+<!-- ================= 5 · DÓNDE VERLO + CIERRE ================= -->
+<section class="slide s5">
+  <div class="tone fade-br" style="right:0;bottom:0;width:760px;height:760px"></div>
+  <i class="spark" style="right:96px;top:196px;--s:58px"></i>
+  <header class="top"><img src="assets/tansaku-sello.png" alt="Tansaku"><i></i><span class="tag">Streaming</span></header>
+  <h2 class="h title">¿Dónde <span class="hi">lo veo?</span></h2>
+  <div class="where panel">
+    <img src="assets/netflix-teaser.jpg" alt="">
+    <p class="t"><b>Netflix</b>, con estreno mundial simultáneo con Japón (según el anuncio oficial)</p>
+  </div>
+  <p class="check"><svg width="40" height="40" viewBox="0 0 24 24" style="flex:none"><circle cx="12" cy="12" r="11" fill="none" stroke="#EF4444" stroke-width="2"/><path d="M12 10.5v6" stroke="#EF4444" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="7.2" r="1.5" fill="#EF4444"/></svg>Confirma la disponibilidad en tu región</p>
+  <div class="ask"><p>¿Lo vas a ver?<br>Cuéntanos en los comentarios</p></div>
+  <p class="follow">Síguenos para más noticias de anime · <b>@tansakustore</b></p>
+  <footer class="foot">
+    <span class="credit">Fuentes: Oricon News, Netflix Japón y cuentas oficiales del anime</span>
+  </footer>
+</section>
+
+<script>if (/[?&]raw\b/.test(location.search)) document.body.classList.add('raw');</script>
+</body>
+</html>
