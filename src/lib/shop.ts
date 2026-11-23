@@ -6,7 +6,7 @@ export const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
 export const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 export const IMAGES_BUCKET = 'product-images';
-export const WHATSAPP_NUMBER = '8098795559';
+export const WHATSAPP_NUMBER = '18498594649';
 
 /** Suggested categories. The admin can also type a new one. */
 export const DEFAULT_CATEGORIES = [
